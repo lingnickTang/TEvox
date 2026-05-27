@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Chat</title>
+    <style>
+        body {
+            padding: 10px;
+            font-family: var(--vscode-font-family);
+        }
+        .header-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        #chatContainer {
+            margin-top: 40px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .user {
+            background-color: var(--vscode-editor-background);
+        }
+        .assistant {
+            background-color: var(--vscode-editor-selectionBackground);
+        }
+        .button {
+            padding: 4px 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <button id="newTaskButton" class="button">新建任务</button>
+        <button id="selectTaskButton" class="button">选择任务</button>
+    </div>
+    <div id="chatContainer">
+        <div id="messages"></div>
+        <div id="inputContainer" style="position: absolute; bottom: 0; width: 90%; display: flex;">
+            <textarea id="userInput" rows="3" style="width: 90%;"></textarea>
+            <button id="sendButton" style="width: auto;">发送</button>
+        </div>
+    </div>
+    <script src="${scriptUri}"></script>
+</body>
+</html>

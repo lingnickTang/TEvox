@@ -1,0 +1,245 @@
+/* src/App.css */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--vscode-editor-foreground);
+  
+  /* 新背景色方案 - 基于当前主题的微调 */
+  background-color: color-mix(
+    in srgb,
+    var(--vscode-editor-background),
+    var(--vscode-sideBar-background) 90%
+  );
+  /* background-color: #000000; 纯黑 */
+  
+  /* 更明显的边界 */
+  border: 1px solid var(--vscode-widget-border);
+  /* border: 1px solid #000000; */
+  border-radius: 4px;
+  
+  padding: 16px;
+  gap: 16px;
+  
+  /* 可选：添加轻微阴影增强层次 */
+  box-shadow: 0 1px 2px var(--vscode-widget-shadow);
+  /* box-shadow: 0 1px 2px #000000; */
+}
+
+.header-container {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  width: 100%; /* 确保宽度100% */
+}
+
+.header-container button {
+  padding: 8px 16px;
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+}
+
+.header-container button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  background-color: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.message {
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  max-width: 80%;
+}
+
+.message.user {
+  background-color: var(--vscode-textBlockQuote-background);
+  border: 1px solid var(--vscode-input-border);
+  margin-left: auto;
+}
+
+.message.assistant {
+  background-color: var(--vscode-editor-inactiveSelectionBackground);
+  border: 1px solid var(--vscode-input-border);
+  margin-right: auto;
+}
+
+.input-container {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  width: 100%; /* 确保宽度100% */
+  background-color: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.input-container textarea {
+  flex: 1;
+  min-height: 60px;
+  padding: 8px;
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  resize: vertical;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+}
+
+.input-container textarea:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  border-color: var(--vscode-focusBorder);
+}
+
+.input-container button {
+  padding: 8px 16px;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.input-container button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+
+button {
+  padding: 4px 8px;
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.message.assistant {
+  background-color: var(--vscode-editor-selectionBackground);
+  line-height: 1.6;
+}
+
+.message.assistant p {
+  margin: 0.5em 0;
+}
+
+.message.assistant h1,
+.message.assistant h2,
+.message.assistant h3,
+.message.assistant h4,
+.message.assistant h5,
+.message.assistant h6 {
+  margin: 1em 0 0.5em;
+  font-weight: 600;
+}
+
+.message.assistant code {
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 85%;
+}
+
+.message.assistant pre {
+  background-color: #f6f8fa;
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.message.assistant pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.message.assistant blockquote {
+  border-left: 4px solid #dfe2e5;
+  color: #6a737d;
+  margin: 0.5em 0;
+  padding: 0 1em;
+}
+
+.message.assistant ul,
+.message.assistant ol {
+  padding-left: 2em;
+  margin: 0.5em 0;
+}
+
+.message.assistant table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  width: 100%;
+}
+
+.message.assistant table th,
+.message.assistant table td {
+  border: 1px solid #dfe2e5;
+  padding: 6px 13px;
+}
+
+.message.assistant table th {
+  background-color: #f6f8fa;
+}
+
+.message.assistant img {
+  max-width: 100%;
+  height: auto;
+}
+
+.message.assistant a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.message.assistant a:hover {
+  text-decoration: underline;
+}
+
+/* 添加滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vscode-scrollbarSlider-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-hoverBackground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-activeBackground);
+}
