@@ -1,0 +1,110 @@
+{
+  "cost_statistics": [
+    {
+      "file_name": "tools-long_results_01_27_04_40.json",
+      "file_path": "evox-server\\.rag\\benchmark\\tools-long_results_01_27_04_40.json",
+      "test_type": "tools-long",
+      "date": "01_27_04_40",
+      "model_name": "qwen3-coder-480b-a35b-instruct",
+      "test_case_count": 168,
+      "tokens": {
+        "total_tokens": 10175943,
+        "total_prompt_tokens": 9633682,
+        "total_completion_tokens": 542261,
+        "total_cost": 0.0,
+        "avg_tokens_per_case": 60571.08928571428,
+        "avg_cost_per_case": 0.0,
+        "by_agent": {
+          "KnowledgeExtractor": {
+            "total_tokens": 9182702,
+            "prompt_tokens": 8802030,
+            "completion_tokens": 380672,
+            "total_cost": 0.0
+          },
+          "CodeCompleter": {
+            "total_tokens": 730568,
+            "prompt_tokens": 639140,
+            "completion_tokens": 91428,
+            "total_cost": 0.0
+          },
+          "DebuggerAgent": {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_cost": 0.0
+          },
+          "EvaluatorAgent": {
+            "total_tokens": 262673,
+            "prompt_tokens": 192512,
+            "completion_tokens": 70161,
+            "total_cost": 0.0
+          }
+        }
+      },
+      "timing": {
+        "total_time": 22605.85616159439,
+        "avg_time": 134.55866762853805,
+        "avg_time_per_case": 134.55866762853805,
+        "breakdown": {
+          "knowledge_extraction": 20439.42625594139,
+          "code_generation": 1245.5497941970825,
+          "debugging": 0.0,
+          "evaluation": 920.8801114559174
+        }
+      }
+    },
+    {
+      "file_name": "workflow+sd+mi+rf_results_01_24_17_11.json",
+      "file_path": "evox-server\\.rag\\benchmark\\workflow+sd+mi+rf_results_01_24_17_11.json",
+      "test_type": "workflow+sd+mi+rf",
+      "date": "01_24_17_11",
+      "model_name": "unknown",
+      "test_case_count": 168,
+      "tokens": {
+        "total_tokens": 10076752,
+        "total_prompt_tokens": 9451400,
+        "total_completion_tokens": 625352,
+        "total_cost": 0.0,
+        "avg_tokens_per_case": 59980.666666666664,
+        "avg_cost_per_case": 0.0,
+        "by_agent": {
+          "KnowledgeExtractor": {
+            "total_tokens": 5615909,
+            "prompt_tokens": 5336458,
+            "completion_tokens": 279451,
+            "total_cost": 0.0
+          },
+          "CodeCompleter": {
+            "total_tokens": 4167994,
+            "prompt_tokens": 3893150,
+            "completion_tokens": 274844,
+            "total_cost": 0.0
+          },
+          "DebuggerAgent": {
+            "total_tokens": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_cost": 0.0
+          },
+          "EvaluatorAgent": {
+            "total_tokens": 292849,
+            "prompt_tokens": 221792,
+            "completion_tokens": 71057,
+            "total_cost": 0.0
+          }
+        }
+      },
+      "timing": {
+        "total_time": 16119.517185688019,
+        "avg_time": 95.94950705766678,
+        "avg_time_per_case": 95.94950705766678,
+        "breakdown": {
+          "knowledge_extraction": 6647.6501631736755,
+          "code_generation": 8600.02845954895,
+          "debugging": 0.0,
+          "evaluation": 871.8385629653931
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+========================================================================================================================
+Token Cost and Time Cost Statistics
+========================================================================================================================
+
+========================================================================================================================
+Token Cost Statistics
+========================================================================================================================
+Test Type                 Model                          Test Cases   Total Tokens    Prompt Tokens   Completion Tokens  Total Cost   Avg Tokens/Case    Avg Cost/Case  
+------------------------------------------------------------------------------------------------------------------------
+tools-long                qwen3-coder-480b-a35b-instruc  168          10,175,943      9,633,682       542,261            N/A          60,571             N/A            
+workflow+sd+mi+rf         unknown                        168          10,076,752      9,451,400       625,352            N/A          59,981             N/A            
+
+========================================================================================================================
+Time Cost Statistics
+========================================================================================================================
+Test Type                 Model                          Test Cases   Total Time (s)  Avg Time (s)    Avg Time/Case (s)  Knowledge Ext (s)  Code Gen (s)    Debugging (s)   Evaluation (s) 
+------------------------------------------------------------------------------------------------------------------------
+tools-long                qwen3-coder-480b-a35b-instruc  168          22605.86        134.56          134.56             20439.43           1245.55         N/A             920.88         
+workflow+sd+mi+rf         unknown                        168          16119.52        95.95           95.95              6647.65            8600.03         N/A             871.84         
+
+========================================================================================================================
+Detailed Information
+========================================================================================================================
+
+File: tools-long_results_01_27_04_40.json
+  Test Type: tools-long
+  Model: qwen3-coder-480b-a35b-instruct
+  Date: 01_27_04_40
+  Test Cases: 168
+
+  Token Statistics by Agent:
+    KnowledgeExtractor:
+      Total Tokens: 9,182,702
+      Prompt Tokens: 8,802,030
+      Completion Tokens: 380,672
+      Cost: $0.0000
+    CodeCompleter:
+      Total Tokens: 730,568
+      Prompt Tokens: 639,140
+      Completion Tokens: 91,428
+      Cost: $0.0000
+    DebuggerAgent:
+      Total Tokens: 0
+      Prompt Tokens: 0
+      Completion Tokens: 0
+      Cost: $0.0000
+    EvaluatorAgent:
+      Total Tokens: 262,673
+      Prompt Tokens: 192,512
+      Completion Tokens: 70,161
+      Cost: $0.0000
+
+  Time Breakdown:
+    knowledge_extraction: 20439.43 seconds
+    code_generation: 1245.55 seconds
+    debugging: 0.00 seconds
+    evaluation: 920.88 seconds
+
+------------------------------------------------------------------------------------------------------------------------
+
+File: workflow+sd+mi+rf_results_01_24_17_11.json
+  Test Type: workflow+sd+mi+rf
+  Model: unknown
+  Date: 01_24_17_11
+  Test Cases: 168
+
+  Token Statistics by Agent:
+    KnowledgeExtractor:
+      Total Tokens: 5,615,909
+      Prompt Tokens: 5,336,458
+      Completion Tokens: 279,451
+      Cost: $0.0000
+    CodeCompleter:
+      Total Tokens: 4,167,994
+      Prompt Tokens: 3,893,150
+      Completion Tokens: 274,844
+      Cost: $0.0000
+    DebuggerAgent:
+      Total Tokens: 0
+      Prompt Tokens: 0
+      Completion Tokens: 0
+      Cost: $0.0000
+    EvaluatorAgent:
+      Total Tokens: 292,849
+      Prompt Tokens: 221,792
+      Completion Tokens: 71,057
+      Cost: $0.0000
+
+  Time Breakdown:
+    knowledge_extraction: 6647.65 seconds
+    code_generation: 8600.03 seconds
+    debugging: 0.00 seconds
+    evaluation: 871.84 seconds
+
+------------------------------------------------------------------------------------------------------------------------
+
+Total test results: 2

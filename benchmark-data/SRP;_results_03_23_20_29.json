@@ -1,0 +1,518 @@
+{
+  "metadata": {
+    "test_type": "SRP;",
+    "date": "03_23_20_29",
+    "model_name": "qwen3-coder-480b-a35b-instruct"
+  },
+  "statistics": {
+    "timing": {
+      "total": {
+        "knowledge_extraction": 6.337480306625366,
+        "code_generation": 0.6752438545227051,
+        "debugging": 0.0,
+        "evaluation": 1.9634640216827393
+      },
+      "average": {
+        "knowledge_extraction": 6.337480306625366,
+        "code_generation": 0.6752438545227051,
+        "debugging": 0.0,
+        "evaluation": 1.9634640216827393
+      }
+    },
+    "tokens": {
+      "KnowledgeExtractor": {
+        "total_tokens": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_cost": 0.0
+      },
+      "CodeCompleter": {
+        "total_tokens": 19974,
+        "prompt_tokens": 19841,
+        "completion_tokens": 133,
+        "total_cost": 0.0
+      },
+      "DebuggerAgent": {
+        "total_tokens": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_cost": 0.0
+      },
+      "EvaluatorAgent": {
+        "total_tokens": 704,
+        "prompt_tokens": 482,
+        "completion_tokens": 222,
+        "total_cost": 0.0
+      },
+      "GraphExtractor": {
+        "total_tokens": 38261,
+        "prompt_tokens": 35864,
+        "completion_tokens": 2397,
+        "total_cost": 0.0
+      }
+    },
+    "total_test_cases": 1
+  },
+  "results": [
+    {
+      "query": "complete the function Assets()()",
+      "description": "The Assets class initializes the partition during construction. It sets up the necessary storage partition for managing assets like audio files, images, or other resources used by the application. This ensures that all required assets are properly loaded and accessible when needed.",
+      "file_path": "main/assets.cc",
+      "knowledge_extraction": {
+        "target_file": "main/assets.cc",
+        "requirement": "complete the function Assets()()",
+        "description": "The Assets class initializes the partition during construction. It sets up the necessary storage partition for managing assets like audio files, images, or other resources used by the application. This ensures that all required assets are properly loaded and accessible when needed.",
+        "current_node_id": "assets.h:Assets()",
+        "hypothetical_code": {
+          "nodes": [
+            {
+              "id": "assets.h:InitializePartition()",
+              "label": "InitializePartition()",
+              "type": "function",
+              "body": "bool Assets::InitializePartition() {\r\n    partition_valid_ = false;\r\n    checksum_valid_ = false;\r\n    assets_.clear();\r\n\r\n    partition_ = esp_partition_find_first(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, \"assets\");\r\n    if (partition_ == nullptr) {\r\n        ESP_LOGI(TAG, \"No assets partition found\");\r\n        return false;\r\n    }\r\n\r\n    int free_pages = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);\r\n    uint32_t storage_size = free_pages * 64 * 1024;\r\n    ESP_LOGI(TAG, \"The storage free size is %ld KB\", storage_size / 1024);\r\n    ESP_LOGI(TAG, \"The partition size is %ld KB\", partition_->size / 1024);\r\n    if (storage_size < partition_->size) {\r\n        ESP_LOGE(TAG, \"The free size %ld KB is less than assets partition required %ld KB\", storage_size / 1024, partition_->size / 1024);\r\n        return false;\r\n    }\r\n\r\n    esp_err_t err = esp_partition_mmap(partition_, 0, partition_->size, ESP_PARTITION_MMAP_DATA, (const void**)&mmap_root_, &mmap_handle_);\r\n    if (err != ESP_OK) {\r\n        ESP_LOGE(TAG, \"Failed to mmap assets partition: %s\", esp_err_to_name(err));\r\n        return false;\r\n    }\r\n\r\n    partition_valid_ = true;\r\n\r\n    uint32_t stored_files = *(uint32_t*)(mmap_root_ + 0);\r\n    uint32_t stored_chksum = *(uint32_t*)(mmap_root_ + 4);\r\n    uint32_t stored_len = *(uint32_t*)(mmap_root_ + 8);\r\n\r\n    if (stored_len > partition_->size - 12) {\r\n        ESP_LOGD(TAG, \"The stored_len (0x%lx) is greater than the partition size (0x%lx) - 12\", stored_len, partition_->size);\r\n        return false;\r\n    }\r\n\r\n    auto start_time = esp_timer_get_time();\r\n    uint32_t calculated_checksum = CalculateChecksum(mmap_root_ + 12, stored_len);\r\n    auto end_time = esp_timer_get_time();\r\n    ESP_LOGI(TAG, \"The checksum calculation time is %d ms\", int((end_time - start_time) / 1000));\r\n\r\n    if (calculated_checksum != stored_chksum) {\r\n        ESP_LOGE(TAG, \"The calculated checksum (0x%lx) does not match the stored checksum (0x%lx)\", calculated_checksum, stored_chksum);\r\n        return false;\r\n    }\r\n\r\n    checksum_valid_ = true;\r\n\r\n    for (uint32_t i = 0; i < stored_files; i++) {\r\n        auto item = (const mmap_assets_table*)(mmap_root_ + 12 + i * sizeof(mmap_assets_table));\r\n        auto asset = Asset{\r\n            .size = static_cast<size_t>(item->asset_size),\r\n            .offset = static_cast<size_t>(12 + sizeof(mmap_assets_table) * stored_files + item->asset_offset)\r\n        };\r\n        assets_[item->asset_name] = asset;\r\n    }\r\n    return checksum_valid_;\r\n}"
+            },
+            {
+              "id": "assets.h:~Assets()",
+              "label": "~Assets()",
+              "type": "function",
+              "body": "Assets::~Assets() {\r\n    if (mmap_handle_ != 0) {\r\n        esp_partition_munmap(mmap_handle_);\r\n    }\r\n}"
+            },
+            {
+              "id": "assets.h:GetAssetData(const std::string &, void *&, size_t &)",
+              "label": "GetAssetData(const std::string &, void *&, size_t &)",
+              "type": "function",
+              "body": "bool Assets::GetAssetData(const std::string& name, void*& ptr, size_t& size) {\r\n    auto asset = assets_.find(name);\r\n    if (asset == assets_.end()) {\r\n        return false;\r\n    }\r\n    auto data = (const char*)(mmap_root_ + asset->second.offset);\r\n    if (data[0] != 'Z' || data[1] != 'Z') {\r\n        ESP_LOGE(TAG, \"The asset %s is not valid with magic %02x%02x\", name.c_str(), data[0], data[1]);\r\n        return false;\r\n    }\r\n\r\n    ptr = static_cast<void*>(const_cast<char*>(data + 2));\r\n    size = asset->second.size;\r\n    return true;\r\n}"
+            },
+            {
+              "id": "assets.h:Download(std::string, std::function<void(int progress,size_t speed)>)",
+              "label": "Download(std::string, std::function<void(int progress,size_t speed)>)",
+              "type": "function",
+              "body": "bool Assets::Download(std::string url, std::function<void(int progress, size_t speed)> progress_callback) {\r\n    ESP_LOGI(TAG, \"Downloading new version of assets from %s\", url.c_str());\r\n    \r\n    // 取消当前资源分区的内存映射\r\n    if (mmap_handle_ != 0) {\r\n        esp_partition_munmap(mmap_handle_);\r\n        mmap_handle_ = 0;\r\n        mmap_root_ = nullptr;\r\n    }\r\n    checksum_valid_ = false;\r\n    assets_.clear();\r\n\r\n    // 下载新的资源文件\r\n    auto network = Board::GetInstance().GetNetwork();\r\n    auto http = network->CreateHttp(0);\r\n    \r\n    if (!http->Open(\"GET\", url)) {\r\n        ESP_LOGE(TAG, \"Failed to open HTTP connection\");\r\n        return false;\r\n    }\r\n\r\n    if (http->GetStatusCode() != 200) {\r\n        ESP_LOGE(TAG, \"Failed to get assets, status code: %d\", http->GetStatusCode());\r\n        return false;\r\n    }\r\n\r\n    size_t content_length = http->GetBodyLength();\r\n    if (content_length == 0) {\r\n        ESP_LOGE(TAG, \"Failed to get content length\");\r\n        return false;\r\n    }\r\n\r\n    if (content_length > partition_->size) {\r\n        ESP_LOGE(TAG, \"Assets file size (%u) is larger than partition size (%lu)\", content_length, partition_->size);\r\n        return false;\r\n    }\r\n\r\n    // 定义扇区大小为4KB（ESP32的标准扇区大小）\r\n    const size_t SECTOR_SIZE = esp_partition_get_main_flash_sector_size();\r\n    \r\n    // 计算需要擦除的扇区数量\r\n    size_t sectors_to_erase = (content_length + SECTOR_SIZE - 1) / SECTOR_SIZE; // 向上取整\r\n    size_t total_erase_size = sectors_to_erase * SECTOR_SIZE;\r\n    \r\n    ESP_LOGI(TAG, \"Sector size: %u, content length: %u, sectors to erase: %u, total erase size: %u\", \r\n             SECTOR_SIZE, content_length, sectors_to_erase, total_erase_size);\r\n    \r\n    // 写入新的资源文件到分区，一边erase一边写入\r\n    char buffer[512];\r\n    size_t total_written = 0;\r\n    size_t recent_written = 0;\r\n    size_t current_sector = 0;\r\n    auto last_calc_time = esp_timer_get_time();\r\n    \r\n    while (true) {\r\n        int ret = http->Read(buffer, sizeof(buffer));\r\n        if (ret < 0) {\r\n            ESP_LOGE(TAG, \"Failed to read HTTP data: %s\", esp_err_to_name(ret));\r\n            return false;\r\n        }\r\n\r\n        if (ret == 0) {\r\n            break;\r\n        }\r\n\r\n        // 检查是否需要擦除新的扇区\r\n        size_t write_end_offset = total_written + ret;\r\n        size_t needed_sectors = (write_end_offset + SECTOR_SIZE - 1) / SECTOR_SIZE;\r\n        \r\n        // 擦除需要的新扇区\r\n        while (current_sector < needed_sectors) {\r\n            size_t sector_start = current_sector * SECTOR_SIZE;\r\n            size_t sector_end = (current_sector + 1) * SECTOR_SIZE;\r\n            \r\n            // 确保擦除范围不超过分区大小\r\n            if (sector_end > partition_->size) {\r\n                ESP_LOGE(TAG, \"Sector end (%u) exceeds partition size (%lu)\", sector_end, partition_->size);\r\n                return false;\r\n            }\r\n            \r\n            ESP_LOGD(TAG, \"Erasing sector %u (offset: %u, size: %u)\", current_sector, sector_start, SECTOR_SIZE);\r\n            esp_err_t err = esp_partition_erase_range(partition_, sector_start, SECTOR_SIZE);\r\n            if (err != ESP_OK) {\r\n                ESP_LOGE(TAG, \"Failed to erase sector %u at offset %u: %s\", current_sector, sector_start, esp_err_to_name(err));\r\n                return false;\r\n            }\r\n            \r\n            current_sector++;\r\n        }\r\n\r\n        // 写入数据到分区\r\n        esp_err_t err = esp_partition_write(partition_, total_written, buffer, ret);\r\n        if (err != ESP_OK) {\r\n            ESP_LOGE(TAG, \"Failed to write to assets partition at offset %u: %s\", total_written, esp_err_to_name(err));\r\n            return false;\r\n        }\r\n\r\n        total_written += ret;\r\n        recent_written += ret;\r\n\r\n        // 计算进度和速度\r\n        if (esp_timer_get_time() - last_calc_time >= 1000000 || total_written == content_length || ret == 0) {\r\n            size_t progress = total_written * 100 / content_length;\r\n            size_t speed = recent_written; // 每秒的字节数\r\n            ESP_LOGI(TAG, \"Progress: %u%% (%u/%u), Speed: %u B/s, Sectors erased: %u\", \r\n                     progress, total_written, content_length, speed, current_sector);\r\n            if (progress_callback) {\r\n                progress_callback(progress, speed);\r\n            }\r\n            last_calc_time = esp_timer_get_time();\r\n            recent_written = 0; // 重置最近写入的字节数\r\n        }\r\n    }\r\n    \r\n    http->Close();\r\n\r\n    if (total_written != content_length) {\r\n        ESP_LOGE(TAG, \"Downloaded size (%u) does not match expected size (%u)\", total_written, content_length);\r\n        return false;\r\n    }\r\n\r\n    ESP_LOGI(TAG, \"Assets download completed, total written: %u bytes, total sectors erased: %u\", \r\n             total_written, current_sector);\r\n\r\n    // 重新初始化资源分区\r\n    if (!InitializePartition()) {\r\n        ESP_LOGE(TAG, \"Failed to re-initialize assets partition\");\r\n        return false;\r\n    }\r\n\r\n    return true;\r\n}"
+            },
+            {
+              "id": "assets.h:Apply()",
+              "label": "Apply()",
+              "type": "function",
+              "body": "bool Assets::Apply() {\r\n    void* ptr = nullptr;\r\n    size_t size = 0;\r\n    if (!GetAssetData(\"index.json\", ptr, size)) {\r\n        ESP_LOGE(TAG, \"The index.json file is not found\");\r\n        return false;\r\n    }\r\n\r\n    cJSON* root = cJSON_ParseWithLength(static_cast<char*>(ptr), size);\r\n    if (root == nullptr) {\r\n        ESP_LOGE(TAG, \"The index.json file is not valid\");\r\n        return false;\r\n    }\r\n\r\n    cJSON* version = cJSON_GetObjectItem(root, \"version\");\r\n    if (cJSON_IsNumber(version)) {\r\n        if (version->valuedouble > 1) {\r\n            ESP_LOGE(TAG, \"The assets version %d is not supported, please upgrade the firmware\", version->valueint);\r\n            return false;\r\n        }\r\n    }\r\n    \r\n    cJSON* srmodels = cJSON_GetObjectItem(root, \"srmodels\");\r\n    if (cJSON_IsString(srmodels)) {\r\n        std::string srmodels_file = srmodels->valuestring;\r\n        if (GetAssetData(srmodels_file, ptr, size)) {\r\n            if (models_list_ != nullptr) {\r\n                esp_srmodel_deinit(models_list_);\r\n                models_list_ = nullptr;\r\n            }\r\n            models_list_ = srmodel_load(static_cast<uint8_t*>(ptr));\r\n            if (models_list_ != nullptr) {\r\n                auto& app = Application::GetInstance();\r\n                app.GetAudioService().SetModelsList(models_list_);\r\n            } else {\r\n                ESP_LOGE(TAG, \"Failed to load srmodels.bin\");\r\n            }\r\n        } else {\r\n            ESP_LOGE(TAG, \"The srmodels file %s is not found\", srmodels_file.c_str());\r\n        }\r\n    }\r\n\r\n#ifdef HAVE_LVGL\r\n    auto& theme_manager = LvglThemeManager::GetInstance();\r\n    auto light_theme = theme_manager.GetTheme(\"light\");\r\n    auto dark_theme = theme_manager.GetTheme(\"dark\");\r\n\r\n    cJSON* font = cJSON_GetObjectItem(root, \"text_font\");\r\n    if (cJSON_IsString(font)) {\r\n        std::string fonts_text_file = font->valuestring;\r\n        if (GetAssetData(fonts_text_file, ptr, size)) {\r\n            auto text_font = std::make_shared<LvglCBinFont>(ptr);\r\n            if (text_font->font() == nullptr) {\r\n                ESP_LOGE(TAG, \"Failed to load fonts.bin\");\r\n                return false;\r\n            }\r\n            if (light_theme != nullptr) {\r\n                light_theme->set_text_font(text_font);\r\n            }\r\n            if (dark_theme != nullptr) {\r\n                dark_theme->set_text_font(text_font);\r\n            }\r\n        } else {\r\n            ESP_LOGE(TAG, \"The font file %s is not found\", fonts_text_file.c_str());\r\n        }\r\n    }\r\n\r\n    cJSON* emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\r\n    if (cJSON_IsArray(emoji_collection)) {\r\n        auto custom_emoji_collection = std::make_shared<EmojiCollection>();\r\n        int emoji_count = cJSON_GetArraySize(emoji_collection);\r\n        for (int i = 0; i < emoji_count; i++) {\r\n            cJSON* emoji = cJSON_GetArrayItem(emoji_collection, i);\r\n            if (cJSON_IsObject(emoji)) {\r\n                cJSON* name = cJSON_GetObjectItem(emoji, \"name\");\r\n                cJSON* file = cJSON_GetObjectItem(emoji, \"file\");\r\n                cJSON* eaf = cJSON_GetObjectItem(emoji, \"eaf\");\r\n                if (cJSON_IsString(name) && cJSON_IsString(file) && (NULL== eaf)) {\r\n                    if (!GetAssetData(file->valuestring, ptr, size)) {\r\n                        ESP_LOGE(TAG, \"Emoji %s image file %s is not found\", name->valuestring, file->valuestring);\r\n                        continue;\r\n                    }\r\n                    custom_emoji_collection->AddEmoji(name->valuestring, new LvglRawImage(ptr, size));\r\n                }\r\n            }\r\n        }\r\n        if (light_theme != nullptr) {\r\n            light_theme->set_emoji_collection(custom_emoji_collection);\r\n        }\r\n        if (dark_theme != nullptr) {\r\n            dark_theme->set_emoji_collection(custom_emoji_collection);\r\n        }\r\n    }\r\n\r\n    cJSON* skin = cJSON_GetObjectItem(root, \"skin\");\r\n    if (cJSON_IsObject(skin)) {\r\n        cJSON* light_skin = cJSON_GetObjectItem(skin, \"light\");\r\n        if (cJSON_IsObject(light_skin) && light_theme != nullptr) {\r\n            cJSON* text_color = cJSON_GetObjectItem(light_skin, \"text_color\");\r\n            cJSON* background_color = cJSON_GetObjectItem(light_skin, \"background_color\");\r\n            cJSON* background_image = cJSON_GetObjectItem(light_skin, \"background_image\");\r\n            if (cJSON_IsString(text_color)) {\r\n                light_theme->set_text_color(LvglTheme::ParseColor(text_color->valuestring));\r\n            }\r\n            if (cJSON_IsString(background_color)) {\r\n                light_theme->set_background_color(LvglTheme::ParseColor(background_color->valuestring));\r\n                light_theme->set_chat_background_color(LvglTheme::ParseColor(background_color->valuestring));\r\n            }\r\n            if (cJSON_IsString(background_image)) {\r\n                if (!GetAssetData(background_image->valuestring, ptr, size)) {\r\n                    ESP_LOGE(TAG, \"The background image file %s is not found\", background_image->valuestring);\r\n                    return false;\r\n                }\r\n                auto background_image = std::make_shared<LvglCBinImage>(ptr);\r\n                light_theme->set_background_image(background_image);\r\n            }\r\n        }\r\n        cJSON* dark_skin = cJSON_GetObjectItem(skin, \"dark\");\r\n        if (cJSON_IsObject(dark_skin) && dark_theme != nullptr) {\r\n            cJSON* text_color = cJSON_GetObjectItem(dark_skin, \"text_color\");\r\n            cJSON* background_color = cJSON_GetObjectItem(dark_skin, \"background_color\");\r\n            cJSON* background_image = cJSON_GetObjectItem(dark_skin, \"background_image\");\r\n            if (cJSON_IsString(text_color)) {\r\n                dark_theme->set_text_color(LvglTheme::ParseColor(text_color->valuestring));\r\n            }\r\n            if (cJSON_IsString(background_color)) {\r\n                dark_theme->set_background_color(LvglTheme::ParseColor(background_color->valuestring));\r\n                dark_theme->set_chat_background_color(LvglTheme::ParseColor(background_color->valuestring));\r\n            }\r\n            if (cJSON_IsString(background_image)) {\r\n                if (!GetAssetData(background_image->valuestring, ptr, size)) {\r\n                    ESP_LOGE(TAG, \"The background image file %s is not found\", background_image->valuestring);\r\n                    return false;\r\n                }\r\n                auto background_image = std::make_shared<LvglCBinImage>(ptr);\r\n                dark_theme->set_background_image(background_image);\r\n            }\r\n        }\r\n    }\r\n\r\n    auto display = Board::GetInstance().GetDisplay();\r\n    ESP_LOGI(TAG, \"Refreshing display theme...\");\r\n\r\n    auto current_theme = display->GetTheme();\r\n    if (current_theme != nullptr) {\r\n        display->SetTheme(current_theme);\r\n    }\r\n\r\n    // Parse hide_subtitle configuration\r\n    cJSON* hide_subtitle = cJSON_GetObjectItem(root, \"hide_subtitle\");\r\n    if (cJSON_IsBool(hide_subtitle)) {\r\n        bool hide = cJSON_IsTrue(hide_subtitle);\r\n        auto lcd_display = dynamic_cast<LcdDisplay*>(display);\r\n        if (lcd_display != nullptr) {\r\n            lcd_display->SetHideSubtitle(hide);\r\n            ESP_LOGI(TAG, \"Set hide_subtitle to %s\", hide ? \"true\" : \"false\");\r\n        }\r\n    }\r\n\r\n#elif defined(CONFIG_USE_EMOTE_MESSAGE_STYLE)\r\n    auto &board = Board::GetInstance();\r\n    auto display = board.GetDisplay();\r\n    auto emote_display = dynamic_cast<emote::EmoteDisplay*>(display);\r\n\r\n    cJSON* font = cJSON_GetObjectItem(root, \"text_font\");\r\n    if (cJSON_IsString(font)) {\r\n        std::string fonts_text_file = font->valuestring;\r\n        if (GetAssetData(fonts_text_file, ptr, size)) {\r\n            auto text_font = std::make_shared<LvglCBinFont>(ptr);\r\n            if (text_font->font() == nullptr) {\r\n                ESP_LOGE(TAG, \"Failed to load fonts.bin\");\r\n                return false;\r\n            }\r\n\r\n            if (emote_display) {\r\n                emote_display->AddTextFont(text_font);\r\n            }\r\n        } else {\r\n            ESP_LOGE(TAG, \"The font file %s is not found\", fonts_text_file.c_str());\r\n        }\r\n    }\r\n\r\n    cJSON* emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\r\n    if (cJSON_IsArray(emoji_collection)) {\r\n        int emoji_count = cJSON_GetArraySize(emoji_collection);\r\n        if (emote_display) {\r\n            for (int i = 0; i < emoji_count; i++) {\r\n                cJSON* icon = cJSON_GetArrayItem(emoji_collection, i);\r\n                if (cJSON_IsObject(icon)) {\r\n                    cJSON* name = cJSON_GetObjectItem(icon, \"name\");\r\n                    cJSON* file = cJSON_GetObjectItem(icon, \"file\");\r\n\r\n                    if (cJSON_IsString(name) && cJSON_IsString(file)) {\r\n                        if (GetAssetData(file->valuestring, ptr, size)) {\r\n                            cJSON* eaf = cJSON_GetObjectItem(icon, \"eaf\");\r\n                            bool lack_value = false;\r\n                            bool loop_value = false;\r\n                            int fps_value = 0;\r\n\r\n                            if (cJSON_IsObject(eaf)) {\r\n                                cJSON* lack = cJSON_GetObjectItem(eaf, \"lack\");\r\n                                cJSON* loop = cJSON_GetObjectItem(eaf, \"loop\");\r\n                                cJSON* fps = cJSON_GetObjectItem(eaf, \"fps\");\r\n\r\n                                lack_value = lack ? cJSON_IsTrue(lack) : false;\r\n                                loop_value = loop ? cJSON_IsTrue(loop) : false;\r\n                                fps_value = fps ? fps->valueint : 0;\r\n\r\n                                emote_display->AddEmojiData(name->valuestring, ptr, size,\r\n                                                          static_cast<uint8_t>(fps_value),\r\n                                                          loop_value, lack_value);\r\n                            }\r\n\r\n                        } else {\r\n                            ESP_LOGE(TAG, \"Emoji \\\"%10s\\\" image file %s is not found\", name->valuestring, file->valuestring);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    cJSON* icon_collection = cJSON_GetObjectItem(root, \"icon_collection\");\r\n    if (cJSON_IsArray(icon_collection)) {\r\n        if (emote_display) {\r\n            int icon_count = cJSON_GetArraySize(icon_collection);\r\n            for (int i = 0; i < icon_count; i++) {\r\n                cJSON* icon = cJSON_GetArrayItem(icon_collection, i);\r\n                if (cJSON_IsObject(icon)) {\r\n                    cJSON* name = cJSON_GetObjectItem(icon, \"name\");\r\n                    cJSON* file = cJSON_GetObjectItem(icon, \"file\");\r\n\r\n                    if (cJSON_IsString(name) && cJSON_IsString(file)) {\r\n                        if (GetAssetData(file->valuestring, ptr, size)) {\r\n                            emote_display->AddIconData(name->valuestring, ptr, size);\r\n                        } else {\r\n                            ESP_LOGE(TAG, \"Icon \\\"%10s\\\" image file %s is not found\", name->valuestring, file->valuestring);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    cJSON* layout_json = cJSON_GetObjectItem(root, \"layout\");\r\n    if (cJSON_IsArray(layout_json)) {\r\n        int layout_count = cJSON_GetArraySize(layout_json);\r\n\r\n        for (int i = 0; i < layout_count; i++) {\r\n            cJSON* layout_item = cJSON_GetArrayItem(layout_json, i);\r\n            if (cJSON_IsObject(layout_item)) {\r\n                cJSON* name = cJSON_GetObjectItem(layout_item, \"name\");\r\n                cJSON* align = cJSON_GetObjectItem(layout_item, \"align\");\r\n                cJSON* x = cJSON_GetObjectItem(layout_item, \"x\");\r\n                cJSON* y = cJSON_GetObjectItem(layout_item, \"y\");\r\n                cJSON* width = cJSON_GetObjectItem(layout_item, \"width\");\r\n                cJSON* height = cJSON_GetObjectItem(layout_item, \"height\");\r\n\r\n                if (cJSON_IsString(name) && cJSON_IsString(align) && cJSON_IsNumber(x) && cJSON_IsNumber(y)) {\r\n                    int width_val = cJSON_IsNumber(width) ? width->valueint : 0;\r\n                    int height_val = cJSON_IsNumber(height) ? height->valueint : 0;\r\n\r\n                    if (emote_display) {\r\n                        emote_display->AddLayoutData(name->valuestring, align->valuestring,\r\n                                                     x->valueint, y->valueint, width_val, height_val);\r\n                    }\r\n                } else {\r\n                    ESP_LOGW(TAG, \"Invalid layout item %d: missing required fields\", i);\r\n                }\r\n            }\r\n        }\r\n    }\r\n#endif\r\n\r\n    cJSON_Delete(root);\r\n    return true;\r\n}"
+            }
+          ]
+        },
+        "query_knowledge_graph_result_0": {
+          "nodes": [
+            {
+              "id": "main\\assets.h:AssetManager",
+              "label": "main\\assets.h:AssetManager",
+              "type": "submodule",
+              "body": "",
+              "involved_functions": [
+                "GetInstance()",
+                "~Assets()",
+                "GetAssetData(const std::string &, void *&, size_t &)",
+                "partition_valid() const",
+                "checksum_valid() const",
+                "Assets()",
+                "InitializePartition()",
+                "CalculateChecksum(const char *, uint32_t)"
+              ]
+            }
+          ]
+        },
+        "query_knowledge_graph_params_0": {
+          "node_id": "assets.h:Assets()",
+          "neighbors_only": true,
+          "include_bodies": false,
+          "use_semantic": false,
+          "node_type": null,
+          "query": ""
+        },
+        "query_knowledge_graph_result_1": {
+          "nodes": [
+            {
+              "id": "main\\assets.h:AssetManager",
+              "label": "main\\assets.h:AssetManager",
+              "type": "submodule",
+              "body": "// Manages the lifecycle and access to assets stored in a partition\nclass AssetManager {\npublic:\n    static AssetManager& GetInstance(); // Singleton access\n    ~AssetManager();\n\n    bool GetAssetData(const std::string& name, void*& ptr, size_t& size); // Retrieve asset data by name\n\n    inline bool partition_valid() const { return partition_valid_; }\n    inline bool checksum_valid() const { return checksum_valid_; }\n\nprivate:\n    AssetManager();\n    AssetManager(const AssetManager&) = delete;\n    AssetManager& operator=(const AssetManager&) = delete;\n\n    bool InitializePartition(); // Initializes the storage partition for assets\n    uint32_t CalculateChecksum(const char* data, uint32_t length); // Calculates checksum of given data\n\n    const esp_partition_t* partition_ = nullptr;\n    esp_partition_mmap_handle_t mmap_handle_ = 0;\n    const char* mmap_root_ = nullptr;\n    bool partition_valid_ = false;\n    bool checksum_valid_ = false;\n    std::map<std::string, Asset> assets_;\n};\n",
+              "involved_functions": [
+                "GetInstance()",
+                "~Assets()",
+                "GetAssetData(const std::string &, void *&, size_t &)",
+                "partition_valid() const",
+                "checksum_valid() const",
+                "Assets()",
+                "InitializePartition()",
+                "CalculateChecksum(const char *, uint32_t)"
+              ]
+            },
+            {
+              "id": "main\\display\\emote_display.h:AssetDataModule",
+              "label": "main\\display\\emote_display.h:AssetDataModule",
+              "type": "submodule",
+              "body": "// Simple data structure for storing asset data without LVGL dependency\nstruct AssetData {\n    const void* data;\n    size_t size;\n    union {\n        uint8_t flags;  // 1 byte for all animation flags\n        struct {\n            uint8_t fps : 6;    // FPS (0-63) - 6 bits\n            uint8_t loop : 1;   // Loop animation - 1 bit\n            uint8_t lack : 1;   // Lack animation - 1 bit\n        };\n    };\n\n    AssetData();\n    AssetData(const void* d, size_t s);\n    AssetData(const void* d, size_t s, uint8_t f, bool l, bool k);\n};\n",
+              "involved_functions": [
+                "AssetData()",
+                "AssetData(const void *, size_t)",
+                "AssetData(const void *, size_t, uint8_t, bool, bool)"
+              ]
+            },
+            {
+              "id": "main\\assets.h:AssetDownloader",
+              "label": "main\\assets.h:AssetDownloader",
+              "type": "submodule",
+              "body": "// Handles downloading assets from a remote URL with progress tracking\nclass AssetDownloader {\npublic:\n    bool Download(std::string url, std::function<void(int progress, size_t speed)> progress_callback);\n    bool Apply(); // Applies downloaded updates\n    inline std::string default_assets_url() const { return default_assets_url_; }\n\nprivate:\n    std::string default_assets_url_;\n    srmodel_list_t* models_list_ = nullptr;\n};\n",
+              "involved_functions": [
+                "Download(std::string, std::function<void(int progress,size_t speed)>)",
+                "Apply()",
+                "default_assets_url() const"
+              ]
+            },
+            {
+              "id": "main\\application.h:SystemController",
+              "label": "main\\application.h:SystemController",
+              "type": "submodule",
+              "body": "// Controls high-level system operations like reboot, activation, and asset checks\nclass SystemController {\npublic:\n  void Reboot();\n  void ActivationTask();\n  void CheckAssetsVersion();\n  void CheckNewVersion();\n  void ShowActivationCode(const std::string& code, const std::string& message);\n\nprivate:\n  bool assets_version_checked_;\n  TaskHandle_t activation_task_handle_;\n};\n",
+              "involved_functions": [
+                "Reboot()",
+                "ActivationTask()",
+                "CheckAssetsVersion()",
+                "CheckNewVersion()",
+                "ShowActivationCode(const std::string &, const std::string &)"
+              ]
+            },
+            {
+              "id": "main\\display\\lvgl_display\\lvgl_image.h:LvglAllocatedImageImpl",
+              "label": "main\\display\\lvgl_display\\lvgl_image.h:LvglAllocatedImageImpl",
+              "type": "submodule",
+              "body": "// Image wrapper with allocation support and custom parameters\nclass LvglAllocatedImage : public LvglImage {\npublic:\n    LvglAllocatedImage(void* data, size_t size);\n    LvglAllocatedImage(void* data, size_t size, int width, int height, int stride, int color_format);\n    virtual ~LvglAllocatedImage();\n    virtual const lv_img_dsc_t* image_dsc() const override { return &image_dsc_; }\n\nprivate:\n    lv_img_dsc_t image_dsc_;\n};\n",
+              "involved_functions": [
+                "LvglAllocatedImage(void *, size_t)",
+                "LvglAllocatedImage(void *, size_t, int, int, int, int)",
+                "~LvglAllocatedImage()",
+                "image_dsc() const"
+              ]
+            }
+          ]
+        },
+        "query_knowledge_graph_params_1": {
+          "query": "// Asset manager responsible for initializing and managing application assets.",
+          "node_type": "submodule",
+          "use_semantic": true
+        },
+        "query_knowledge_graph_result_2": {
+          "nodes": [
+            {
+              "id": "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool",
+              "label": "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool",
+              "type": "flow",
+              "body": "// Registers asset download URL setting tool if partition is valid\nauto& assets = Assets::GetInstance();\nif (assets.partition_valid()) {\n    AddUserOnlyTool(\"self.assets.set_download_url\", \"Set the download url for the assets\",\n        PropertyList({\n            Property(\"url\", kPropertyTypeString)\n        }),\n        [](const PropertyList& properties) -> ReturnValue {\n            auto url = properties[\"url\"].value<std::string>();\n            Settings settings(\"assets\", true);\n            settings.SetString(\"download_url\", url);\n            return true;\n        });\n}\n",
+              "involved_functions": [
+                "AddUserOnlyTool(const std::string & name, const std::string & description, const PropertyList & properties, std::function<ReturnValue(const PropertyList&)> callback)",
+                "GetInstance()",
+                "partition_valid() const",
+                "operator[](const std::string & name) const",
+                "value<T>() const",
+                "Settings(const std::string & ns, bool read_write)",
+                "SetString(const std::string & key, const std::string & value)"
+              ]
+            },
+            {
+              "id": "func:application.cc:CheckAssetsVersion()::ValidateAndPrepareAssetsCheck",
+              "label": "func:application.cc:CheckAssetsVersion()::ValidateAndPrepareAssetsCheck",
+              "type": "flow",
+              "body": "// Validate assets partition and prepare for version check\nif (assets_version_checked_) {\n    return;\n}\nassets_version_checked_ = true;\n\nauto& board = Board::GetInstance();\nauto display = board.GetDisplay();\nauto& assets = Assets::GetInstance();\n\nif (!assets.partition_valid()) {\n    ESP_LOGW(TAG, \"Assets partition is disabled for board %s\", BOARD_NAME);\n    return;\n}\n\nSettings settings(\"assets\", true);\nstd::string download_url = settings.GetString(\"download_url\");\n\nif (!download_url.empty()) {\n    settings.EraseKey(\"download_url\");\n    // Handle upgrade flow\n    HandleAssetUpgrade(board, display, assets, download_url);\n} else {\n    // Apply assets directly\n    assets.Apply();\n    display->SetChatMessage(\"system\", \"\");\n    display->SetEmotion(\"microchip_ai\");\n}\n",
+              "involved_functions": [
+                "GetInstance()",
+                "GetDisplay()",
+                "partition_valid() const",
+                "Settings(const std::string & ns, bool read_write)",
+                "GetString(const std::string & key, const std::string & default_value)",
+                "empty() const",
+                "EraseKey(const std::string & key)",
+                "Apply()",
+                "SetChatMessage(const char * role, const char * content)",
+                "SetEmotion(const char * emotion)"
+              ]
+            },
+            {
+              "id": "func:assets.cc:Apply()::LoadEmojiCollectionLVGL",
+              "label": "func:assets.cc:Apply()::LoadEmojiCollectionLVGL",
+              "type": "flow",
+              "body": "// Loads emoji collection for LVGL themes\ncJSON* emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\nif (cJSON_IsArray(emoji_collection)) {\n    auto custom_emoji_collection = std::make_shared<EmojiCollection>();\n    int emoji_count = cJSON_GetArraySize(emoji_collection);\n    void* ptr = nullptr;\n    size_t size = 0;\n    for (int i = 0; i < emoji_count; i++) {\n        cJSON* emoji = cJSON_GetArrayItem(emoji_collection, i);\n        if (cJSON_IsObject(emoji)) {\n            cJSON* name = cJSON_GetObjectItem(emoji, \"name\");\n            cJSON* file = cJSON_GetObjectItem(emoji, \"file\");\n            cJSON* eaf = cJSON_GetObjectItem(emoji, \"eaf\");\n            if (cJSON_IsString(name) && cJSON_IsString(file) && (NULL== eaf)) {\n                if (!GetAssetData(file->valuestring, ptr, size)) {\n                    ESP_LOGE(TAG, \"Emoji %s image file %s is not found\", name->valuestring, file->valuestring);\n                    continue;\n                }\n                custom_emoji_collection->AddEmoji(name->valuestring, new LvglRawImage(ptr, size));\n            }\n        }\n    }\n    auto& theme_manager = LvglThemeManager::GetInstance();\n    auto light_theme = theme_manager.GetTheme(\"light\");\n    auto dark_theme = theme_manager.GetTheme(\"dark\");\n    if (light_theme != nullptr) {\n        light_theme->set_emoji_collection(custom_emoji_collection);\n    }\n    if (dark_theme != nullptr) {\n        dark_theme->set_emoji_collection(custom_emoji_collection);\n    }\n}\n",
+              "involved_functions": [
+                "GetAssetData(const std::string & name, void *& ptr, size_t & size)",
+                "make_shared<_Tp, ..._Args>(_Args && ...__args)",
+                "AddEmoji(const std::string & name, LvglImage * image)",
+                "LvglRawImage(void * data, size_t size)",
+                "set_emoji_collection(std::shared_ptr<EmojiCollection> emoji_collection)",
+                "GetInstance()",
+                "GetTheme(const std::string & theme_name)",
+                "c_str() const"
+              ]
+            },
+            {
+              "id": "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition",
+              "label": "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition",
+              "type": "flow",
+              "body": "// 取消当前资源分区的内存映射\nif (mmap_handle_ != 0) {\n    esp_partition_munmap(mmap_handle_);\n    mmap_handle_ = 0;\n    mmap_root_ = nullptr;\n}\nchecksum_valid_ = false;\nassets_.clear();\n",
+              "involved_functions": [
+                "clear()"
+              ]
+            },
+            {
+              "id": "func:assets.cc:Apply()::LoadEmojiCollectionEmote",
+              "label": "func:assets.cc:Apply()::LoadEmojiCollectionEmote",
+              "type": "flow",
+              "body": "// Loads emoji collection for Emote display system\ncJSON* emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\nif (cJSON_IsArray(emoji_collection)) {\n    int emoji_count = cJSON_GetArraySize(emoji_collection);\n    auto &board = Board::GetInstance();\n    auto display = board.GetDisplay();\n    auto emote_display = dynamic_cast<emote::EmoteDisplay*>(display);\n    if (emote_display) {\n        void* ptr = nullptr;\n        size_t size = 0;\n        for (int i = 0; i < emoji_count; i++) {\n            cJSON* icon = cJSON_GetArrayItem(emoji_collection, i);\n            if (cJSON_IsObject(icon)) {\n                cJSON* name = cJSON_GetObjectItem(icon, \"name\");\n                cJSON* file = cJSON_GetObjectItem(icon, \"file\");\n\n                if (cJSON_IsString(name) && cJSON_IsString(file)) {\n                    if (GetAssetData(file->valuestring, ptr, size)) {\n                        cJSON* eaf = cJSON_GetObjectItem(icon, \"eaf\");\n                        bool lack_value = false;\n                        bool loop_value = false;\n                        int fps_value = 0;\n\n                        if (cJSON_IsObject(eaf)) {\n                            cJSON* lack = cJSON_GetObjectItem(eaf, \"lack\");\n                            cJSON* loop = cJSON_GetObjectItem(eaf, \"loop\");\n                            cJSON* fps = cJSON_GetObjectItem(eaf, \"fps\");\n\n                            lack_value = lack ? cJSON_IsTrue(lack) : false;\n                            loop_value = loop ? cJSON_IsTrue(loop) : false;\n                            fps_value = fps ? fps->valueint : 0;\n\n                            emote_display->AddEmojiData(name->valuestring, ptr, size,\n                                                      static_cast<uint8_t>(fps_value),\n                                                      loop_value, lack_value);\n                        }\n\n                    } else {\n                        ESP_LOGE(TAG, \"Emoji \\\"%10s\\\" image file %s is not found\", name->valuestring, file->valuestring);\n                    }\n                }\n            }\n        }\n    }\n}\n",
+              "involved_functions": [
+                "GetAssetData(const std::string & name, void *& ptr, size_t & size)",
+                "GetInstance()",
+                "GetDisplay()",
+                "c_str() const"
+              ]
+            }
+          ]
+        },
+        "query_knowledge_graph_params_2": {
+          "query": "// Initializes the assets partition and loads necessary resources such as fonts, emojis, models, and UI themes.",
+          "node_type": "flow",
+          "use_semantic": true
+        },
+        "query_knowledge_graph_result_3": {
+          "nodes": [
+            {
+              "id": "main\\assets.h:AssetManager",
+              "label": "main\\assets.h:AssetManager",
+              "type": "submodule",
+              "body": "// Manages the lifecycle and access to assets stored in a partition\nclass AssetManager {\npublic:\n    static AssetManager& GetInstance(); // Singleton access\n    ~AssetManager();\n\n    bool GetAssetData(const std::string& name, void*& ptr, size_t& size); // Retrieve asset data by name\n\n    inline bool partition_valid() const { return partition_valid_; }\n    inline bool checksum_valid() const { return checksum_valid_; }\n\nprivate:\n    AssetManager();\n    AssetManager(const AssetManager&) = delete;\n    AssetManager& operator=(const AssetManager&) = delete;\n\n    bool InitializePartition(); // Initializes the storage partition for assets\n    uint32_t CalculateChecksum(const char* data, uint32_t length); // Calculates checksum of given data\n\n    const esp_partition_t* partition_ = nullptr;\n    esp_partition_mmap_handle_t mmap_handle_ = 0;\n    const char* mmap_root_ = nullptr;\n    bool partition_valid_ = false;\n    bool checksum_valid_ = false;\n    std::map<std::string, Asset> assets_;\n};\n",
+              "involved_functions": [
+                "GetInstance()",
+                "~Assets()",
+                "GetAssetData(const std::string &, void *&, size_t &)",
+                "partition_valid() const",
+                "checksum_valid() const",
+                "Assets()",
+                "InitializePartition()",
+                "CalculateChecksum(const char *, uint32_t)"
+              ]
+            }
+          ]
+        },
+        "query_knowledge_graph_params_3": {
+          "node_id": "assets.h:Assets()",
+          "neighbors_only": true,
+          "include_bodies": true,
+          "use_semantic": false,
+          "node_type": "function"
+        },
+        "query_knowledge_graph_result_4": {
+          "nodes": [
+            {
+              "id": "func:assets.cc:InitializePartition()::PopulateAssetTable",
+              "label": "func:assets.cc:InitializePartition()::PopulateAssetTable",
+              "type": "flow",
+              "body": "// Populates internal asset table from mapped memory\nassets_.clear();\nuint32_t stored_files = *(uint32_t*)(mmap_root_ + 0);\nfor (uint32_t i = 0; i < stored_files; i++) {\n    auto item = (const mmap_assets_table*)(mmap_root_ + 12 + i * sizeof(mmap_assets_table));\n    auto asset = Asset{\n        .size = static_cast<size_t>(item->asset_size),\n        .offset = static_cast<size_t>(12 + sizeof(mmap_assets_table) * stored_files + item->asset_offset)\n    };\n    assets_[item->asset_name] = asset;\n}\n",
+              "involved_functions": [
+                "clear()",
+                "operator[](key_type && __k)"
+              ]
+            },
+            {
+              "id": "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition",
+              "label": "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition",
+              "type": "flow",
+              "body": "// 取消当前资源分区的内存映射\nif (mmap_handle_ != 0) {\n    esp_partition_munmap(mmap_handle_);\n    mmap_handle_ = 0;\n    mmap_root_ = nullptr;\n}\nchecksum_valid_ = false;\nassets_.clear();\n",
+              "involved_functions": [
+                "clear()"
+              ]
+            },
+            {
+              "id": "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool",
+              "label": "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool",
+              "type": "flow",
+              "body": "// Registers asset download URL setting tool if partition is valid\nauto& assets = Assets::GetInstance();\nif (assets.partition_valid()) {\n    AddUserOnlyTool(\"self.assets.set_download_url\", \"Set the download url for the assets\",\n        PropertyList({\n            Property(\"url\", kPropertyTypeString)\n        }),\n        [](const PropertyList& properties) -> ReturnValue {\n            auto url = properties[\"url\"].value<std::string>();\n            Settings settings(\"assets\", true);\n            settings.SetString(\"download_url\", url);\n            return true;\n        });\n}\n",
+              "involved_functions": [
+                "AddUserOnlyTool(const std::string & name, const std::string & description, const PropertyList & properties, std::function<ReturnValue(const PropertyList&)> callback)",
+                "GetInstance()",
+                "partition_valid() const",
+                "operator[](const std::string & name) const",
+                "value<T>() const",
+                "Settings(const std::string & ns, bool read_write)",
+                "SetString(const std::string & key, const std::string & value)"
+              ]
+            },
+            {
+              "id": "func:assets.cc:InitializePartition()::CheckMemoryAndMapPartition",
+              "label": "func:assets.cc:InitializePartition()::CheckMemoryAndMapPartition",
+              "type": "flow",
+              "body": "// Checks available memory and maps the partition\nint free_pages = spi_flash_mmap_get_free_pages(SPI_PARTITION_MMAP_DATA);\nuint32_t storage_size = free_pages * 64 * 1024;\nESP_LOGI(TAG, \"The storage free size is %ld KB\", storage_size / 1024);\nESP_LOGI(TAG, \"The partition size is %ld KB\", partition_->size / 1024);\nif (storage_size < partition_->size) {\n    ESP_LOGE(TAG, \"The free size %ld KB is less than assets partition required %ld KB\", storage_size / 1024, partition_->size / 1024);\n    return false;\n}\n\nesp_err_t err = esp_partition_mmap(partition_, 0, partition_->size, ESP_PARTITION_MMAP_DATA, (const void**)&mmap_root_, &mmap_handle_);\nif (err != ESP_OK) {\n    ESP_LOGE(TAG, \"Failed to mmap assets partition: %s\", esp_err_to_name(err));\n    return false;\n}\n\npartition_valid_ = true;\n",
+              "involved_functions": []
+            },
+            {
+              "id": "func:assets.cc:InitializePartition()::FindAndValidatePartition",
+              "label": "func:assets.cc:InitializePartition()::FindAndValidatePartition",
+              "type": "flow",
+              "body": "// Finds the assets partition and validates its existence\npartition_ = esp_partition_find_first(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, \"assets\");\nif (partition_ == nullptr) {\n    ESP_LOGI(TAG, \"No assets partition found\");\n    return false;\n}\n",
+              "involved_functions": []
+            }
+          ]
+        },
+        "query_knowledge_graph_params_4": {
+          "query": "// Constructor logic for Assets class including initial setup, memory mapping, and validation.",
+          "node_type": "flow",
+          "use_semantic": true
+        },
+        "reference_api": [
+          "GetInstance()",
+          "~Assets()",
+          "GetAssetData(const std::string &, void *&, size_t &)",
+          "partition_valid() const",
+          "checksum_valid() const",
+          "Assets()",
+          "InitializePartition()",
+          "CalculateChecksum(const char *, uint32_t)",
+          "AssetData()",
+          "AssetData(const void *, size_t)",
+          "AssetData(const void *, size_t, uint8_t, bool, bool)",
+          "Download(std::string, std::function<void(int progress,size_t speed)>)",
+          "Apply()",
+          "default_assets_url() const",
+          "Reboot()",
+          "ActivationTask()",
+          "CheckAssetsVersion()",
+          "CheckNewVersion()",
+          "ShowActivationCode(const std::string &, const std::string &)",
+          "LvglAllocatedImage(void *, size_t)",
+          "LvglAllocatedImage(void *, size_t, int, int, int, int)",
+          "~LvglAllocatedImage()",
+          "image_dsc() const"
+        ],
+        "knowledge_nodes": {
+          "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool": {
+            "id": "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool",
+            "label": "func:mcp_server.cc:AddUserOnlyTools()::RegisterAssetsDownloadUrlTool",
+            "type": "flow",
+            "body": "// Registers asset download URL setting tool if partition is valid\nauto& assets = Assets::GetInstance();\nif (assets.partition_valid()) {\n    AddUserOnlyTool(\"self.assets.set_download_url\", \"Set the download url for the assets\",\n        PropertyList({\n            Property(\"url\", kPropertyTypeString)\n        }),\n        [](const PropertyList& properties) -> ReturnValue {\n            auto url = properties[\"url\"].value<std::string>();\n            Settings settings(\"assets\", true);\n            settings.SetString(\"download_url\", url);\n            return true;\n        });\n}\n",
+            "involved_functions": [
+              "AddUserOnlyTool(const std::string & name, const std::string & description, const PropertyList & properties, std::function<ReturnValue(const PropertyList&)> callback)",
+              "GetInstance()",
+              "partition_valid() const",
+              "operator[](const std::string & name) const",
+              "value<T>() const",
+              "Settings(const std::string & ns, bool read_write)",
+              "SetString(const std::string & key, const std::string & value)"
+            ]
+          },
+          "func:application.cc:CheckAssetsVersion()::ValidateAndPrepareAssetsCheck": {
+            "id": "func:application.cc:CheckAssetsVersion()::ValidateAndPrepareAssetsCheck",
+            "label": "func:application.cc:CheckAssetsVersion()::ValidateAndPrepareAssetsCheck",
+            "type": "flow",
+            "body": "// Validate assets partition and prepare for version check\nif (assets_version_checked_) {\n    return;\n}\nassets_version_checked_ = true;\n\nauto& board = Board::GetInstance();\nauto display = board.GetDisplay();\nauto& assets = Assets::GetInstance();\n\nif (!assets.partition_valid()) {\n    ESP_LOGW(TAG, \"Assets partition is disabled for board %s\", BOARD_NAME);\n    return;\n}\n\nSettings settings(\"assets\", true);\nstd::string download_url = settings.GetString(\"download_url\");\n\nif (!download_url.empty()) {\n    settings.EraseKey(\"download_url\");\n    // Handle upgrade flow\n    HandleAssetUpgrade(board, display, assets, download_url);\n} else {\n    // Apply assets directly\n    assets.Apply();\n    display->SetChatMessage(\"system\", \"\");\n    display->SetEmotion(\"microchip_ai\");\n}\n",
+            "involved_functions": [
+              "GetInstance()",
+              "GetDisplay()",
+              "partition_valid() const",
+              "Settings(const std::string & ns, bool read_write)",
+              "GetString(const std::string & key, const std::string & default_value)",
+              "empty() const",
+              "EraseKey(const std::string & key)",
+              "Apply()",
+              "SetChatMessage(const char * role, const char * content)",
+              "SetEmotion(const char * emotion)"
+            ]
+          },
+          "func:assets.cc:Apply()::LoadEmojiCollectionLVGL": {
+            "id": "func:assets.cc:Apply()::LoadEmojiCollectionLVGL",
+            "label": "func:assets.cc:Apply()::LoadEmojiCollectionLVGL",
+            "type": "flow",
+            "body": "// Loads emoji collection for LVGL themes\ncJSON* emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\nif (cJSON_IsArray(emoji_collection)) {\n    auto custom_emoji_collection = std::make_shared<EmojiCollection>();\n    int emoji_count = cJSON_GetArraySize(emoji_collection);\n    void* ptr = nullptr;\n    size_t size = 0;\n    for (int i = 0; i < emoji_count; i++) {\n        cJSON* emoji = cJSON_GetArrayItem(emoji_collection, i);\n        if (cJSON_IsObject(emoji)) {\n            cJSON* name = cJSON_GetObjectItem(emoji, \"name\");\n            cJSON* file = cJSON_GetObjectItem(emoji, \"file\");\n            cJSON* eaf = cJSON_GetObjectItem(emoji, \"eaf\");\n            if (cJSON_IsString(name) && cJSON_IsString(file) && (NULL== eaf)) {\n                if (!GetAssetData(file->valuestring, ptr, size)) {\n                    ESP_LOGE(TAG, \"Emoji %s image file %s is not found\", name->valuestring, file->valuestring);\n                    continue;\n                }\n                custom_emoji_collection->AddEmoji(name->valuestring, new LvglRawImage(ptr, size));\n            }\n        }\n    }\n    auto& theme_manager = LvglThemeManager::GetInstance();\n    auto light_theme = theme_manager.GetTheme(\"light\");\n    auto dark_theme = theme_manager.GetTheme(\"dark\");\n    if (light_theme != nullptr) {\n        light_theme->set_emoji_collection(custom_emoji_collection);\n    }\n    if (dark_theme != nullptr) {\n        dark_theme->set_emoji_collection(custom_emoji_collection);\n    }\n}\n",
+            "involved_functions": [
+              "GetAssetData(const std::string & name, void *& ptr, size_t & size)",
+              "make_shared<_Tp, ..._Args>(_Args && ...__args)",
+              "AddEmoji(const std::string & name, LvglImage * image)",
+              "LvglRawImage(void * data, size_t size)",
+              "set_emoji_collection(std::shared_ptr<EmojiCollection> emoji_collection)",
+              "GetInstance()",
+              "GetTheme(const std::string & theme_name)",
+              "c_str() const"
+            ]
+          },
+          "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition": {
+            "id": "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition",
+            "label": "func:assets.cc:Download(std::string, std::function<void(int progress,size_t speed)>)::UnmapCurrentPartition",
+            "type": "flow",
+            "body": "// 取消当前资源分区的内存映射\nif (mmap_handle_ != 0) {\n    esp_partition_munmap(mmap_handle_);\n    mmap_handle_ = 0;\n    mmap_root_ = nullptr;\n}\nchecksum_valid_ = false;\nassets_.clear();\n",
+            "involved_functions": [
+              "clear()"
+            ]
+          },
+          "func:assets.cc:Apply()::LoadEmojiCollectionEmote": {
+            "id": "func:assets.cc:Apply()::LoadEmojiCollectionEmote",
+            "label": "func:assets.cc:Apply()::LoadEmojiCollectionEmote",
+            "type": "flow",
+            "body": "// Loads emoji collection for Emote display system\ncJSON* emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\nif (cJSON_IsArray(emoji_collection)) {\n    int emoji_count = cJSON_GetArraySize(emoji_collection);\n    auto &board = Board::GetInstance();\n    auto display = board.GetDisplay();\n    auto emote_display = dynamic_cast<emote::EmoteDisplay*>(display);\n    if (emote_display) {\n        void* ptr = nullptr;\n        size_t size = 0;\n        for (int i = 0; i < emoji_count; i++) {\n            cJSON* icon = cJSON_GetArrayItem(emoji_collection, i);\n            if (cJSON_IsObject(icon)) {\n                cJSON* name = cJSON_GetObjectItem(icon, \"name\");\n                cJSON* file = cJSON_GetObjectItem(icon, \"file\");\n\n                if (cJSON_IsString(name) && cJSON_IsString(file)) {\n                    if (GetAssetData(file->valuestring, ptr, size)) {\n                        cJSON* eaf = cJSON_GetObjectItem(icon, \"eaf\");\n                        bool lack_value = false;\n                        bool loop_value = false;\n                        int fps_value = 0;\n\n                        if (cJSON_IsObject(eaf)) {\n                            cJSON* lack = cJSON_GetObjectItem(eaf, \"lack\");\n                            cJSON* loop = cJSON_GetObjectItem(eaf, \"loop\");\n                            cJSON* fps = cJSON_GetObjectItem(eaf, \"fps\");\n\n                            lack_value = lack ? cJSON_IsTrue(lack) : false;\n                            loop_value = loop ? cJSON_IsTrue(loop) : false;\n                            fps_value = fps ? fps->valueint : 0;\n\n                            emote_display->AddEmojiData(name->valuestring, ptr, size,\n                                                      static_cast<uint8_t>(fps_value),\n                                                      loop_value, lack_value);\n                        }\n\n                    } else {\n                        ESP_LOGE(TAG, \"Emoji \\\"%10s\\\" image file %s is not found\", name->valuestring, file->valuestring);\n                    }\n                }\n            }\n        }\n    }\n}\n",
+            "involved_functions": [
+              "GetAssetData(const std::string & name, void *& ptr, size_t & size)",
+              "GetInstance()",
+              "GetDisplay()",
+              "c_str() const"
+            ]
+          },
+          "func:assets.cc:InitializePartition()::PopulateAssetTable": {
+            "id": "func:assets.cc:InitializePartition()::PopulateAssetTable",
+            "label": "func:assets.cc:InitializePartition()::PopulateAssetTable",
+            "type": "flow",
+            "body": "// Populates internal asset table from mapped memory\nassets_.clear();\nuint32_t stored_files = *(uint32_t*)(mmap_root_ + 0);\nfor (uint32_t i = 0; i < stored_files; i++) {\n    auto item = (const mmap_assets_table*)(mmap_root_ + 12 + i * sizeof(mmap_assets_table));\n    auto asset = Asset{\n        .size = static_cast<size_t>(item->asset_size),\n        .offset = static_cast<size_t>(12 + sizeof(mmap_assets_table) * stored_files + item->asset_offset)\n    };\n    assets_[item->asset_name] = asset;\n}\n",
+            "involved_functions": [
+              "clear()",
+              "operator[](key_type && __k)"
+            ]
+          },
+          "func:assets.cc:InitializePartition()::CheckMemoryAndMapPartition": {
+            "id": "func:assets.cc:InitializePartition()::CheckMemoryAndMapPartition",
+            "label": "func:assets.cc:InitializePartition()::CheckMemoryAndMapPartition",
+            "type": "flow",
+            "body": "// Checks available memory and maps the partition\nint free_pages = spi_flash_mmap_get_free_pages(SPI_PARTITION_MMAP_DATA);\nuint32_t storage_size = free_pages * 64 * 1024;\nESP_LOGI(TAG, \"The storage free size is %ld KB\", storage_size / 1024);\nESP_LOGI(TAG, \"The partition size is %ld KB\", partition_->size / 1024);\nif (storage_size < partition_->size) {\n    ESP_LOGE(TAG, \"The free size %ld KB is less than assets partition required %ld KB\", storage_size / 1024, partition_->size / 1024);\n    return false;\n}\n\nesp_err_t err = esp_partition_mmap(partition_, 0, partition_->size, ESP_PARTITION_MMAP_DATA, (const void**)&mmap_root_, &mmap_handle_);\nif (err != ESP_OK) {\n    ESP_LOGE(TAG, \"Failed to mmap assets partition: %s\", esp_err_to_name(err));\n    return false;\n}\n\npartition_valid_ = true;\n",
+            "involved_functions": []
+          },
+          "func:assets.cc:InitializePartition()::FindAndValidatePartition": {
+            "id": "func:assets.cc:InitializePartition()::FindAndValidatePartition",
+            "label": "func:assets.cc:InitializePartition()::FindAndValidatePartition",
+            "type": "flow",
+            "body": "// Finds the assets partition and validates its existence\npartition_ = esp_partition_find_first(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, \"assets\");\nif (partition_ == nullptr) {\n    ESP_LOGI(TAG, \"No assets partition found\");\n    return false;\n}\n",
+            "involved_functions": []
+          }
+        },
+        "file_content": "#include \"assets.h\"\n#include \"board.h\"\n#include \"display.h\"\n#include \"application.h\"\n#include \"lvgl_theme.h\"\n#include \"emote_display.h\"\n#ifdef HAVE_LVGL\n#include \"display/lcd_display.h\"\n#endif\n\n#include <esp_log.h>\n#include <spi_flash_mmap.h>\n#include <esp_timer.h>\n#include <cbin_font.h>\n\n#define TAG \"Assets\"\n\nstruct mmap_assets_table\n{\n    char asset_name[32];   /*!< Name of the asset */\n    uint32_t asset_size;   /*!< Size of the asset */\n    uint32_t asset_offset; /*!< Offset of the asset */\n    uint16_t asset_width;  /*!< Width of the asset */\n    uint16_t asset_height; /*!< Height of the asset */\n};\n\nAssets::Assets()\n{\n}\n\nAssets::~Assets()\n{\n    if (mmap_handle_ != 0)\n    {\n        esp_partition_munmap(mmap_handle_);\n    }\n}\n\nuint32_t Assets::CalculateChecksum(const char *data, uint32_t length)\n{\n    uint32_t checksum = 0;\n    for (uint32_t i = 0; i < length; i++)\n    {\n        checksum += data[i];\n    }\n    return checksum & 0xFFFF;\n}\n\nbool Assets::InitializePartition()\n{\n    partition_valid_ = false;\n    checksum_valid_ = false;\n    assets_.clear();\n\n    partition_ = esp_partition_find_first(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, \"assets\");\n    if (partition_ == nullptr)\n    {\n        ESP_LOGI(TAG, \"No assets partition found\");\n        return false;\n    }\n\n    int free_pages = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);\n    uint32_t storage_size = free_pages * 64 * 1024;\n    ESP_LOGI(TAG, \"The storage free size is %ld KB\", storage_size / 1024);\n    ESP_LOGI(TAG, \"The partition size is %ld KB\", partition_->size / 1024);\n    if (storage_size < partition_->size)\n    {\n        ESP_LOGE(TAG, \"The free size %ld KB is less than assets partition required %ld KB\", storage_size / 1024, partition_->size / 1024);\n        return false;\n    }\n\n    esp_err_t err = esp_partition_mmap(partition_, 0, partition_->size, ESP_PARTITION_MMAP_DATA, (const void **)&mmap_root_, &mmap_handle_);\n    if (err != ESP_OK)\n    {\n        ESP_LOGE(TAG, \"Failed to mmap assets partition: %s\", esp_err_to_name(err));\n        return false;\n    }\n\n    partition_valid_ = true;\n\n    uint32_t stored_files = *(uint32_t *)(mmap_root_ + 0);\n    uint32_t stored_chksum = *(uint32_t *)(mmap_root_ + 4);\n    uint32_t stored_len = *(uint32_t *)(mmap_root_ + 8);\n\n    if (stored_len > partition_->size - 12)\n    {\n        ESP_LOGD(TAG, \"The stored_len (0x%lx) is greater than the partition size (0x%lx) - 12\", stored_len, partition_->size);\n        return false;\n    }\n\n    auto start_time = esp_timer_get_time();\n    uint32_t calculated_checksum = CalculateChecksum(mmap_root_ + 12, stored_len);\n    auto end_time = esp_timer_get_time();\n    ESP_LOGI(TAG, \"The checksum calculation time is %d ms\", int((end_time - start_time) / 1000));\n\n    if (calculated_checksum != stored_chksum)\n    {\n        ESP_LOGE(TAG, \"The calculated checksum (0x%lx) does not match the stored checksum (0x%lx)\", calculated_checksum, stored_chksum);\n        return false;\n    }\n\n    checksum_valid_ = true;\n\n    for (uint32_t i = 0; i < stored_files; i++)\n    {\n        auto item = (const mmap_assets_table *)(mmap_root_ + 12 + i * sizeof(mmap_assets_table));\n        auto asset = Asset{\n            .size = static_cast<size_t>(item->asset_size),\n            .offset = static_cast<size_t>(12 + sizeof(mmap_assets_table) * stored_files + item->asset_offset)};\n        assets_[item->asset_name] = asset;\n    }\n    return checksum_valid_;\n}\n\nbool Assets::Apply()\n{\n    void *ptr = nullptr;\n    size_t size = 0;\n    if (!GetAssetData(\"index.json\", ptr, size))\n    {\n        ESP_LOGE(TAG, \"The index.json file is not found\");\n        return false;\n    }\n\n    cJSON *root = cJSON_ParseWithLength(static_cast<char *>(ptr), size);\n    if (root == nullptr)\n    {\n        ESP_LOGE(TAG, \"The index.json file is not valid\");\n        return false;\n    }\n\n    cJSON *version = cJSON_GetObjectItem(root, \"version\");\n    if (cJSON_IsNumber(version))\n    {\n        if (version->valuedouble > 1)\n        {\n            ESP_LOGE(TAG, \"The assets version %d is not supported, please upgrade the firmware\", version->valueint);\n            return false;\n        }\n    }\n\n    cJSON *srmodels = cJSON_GetObjectItem(root, \"srmodels\");\n    if (cJSON_IsString(srmodels))\n    {\n        std::string srmodels_file = srmodels->valuestring;\n        if (GetAssetData(srmodels_file, ptr, size))\n        {\n            if (models_list_ != nullptr)\n            {\n                esp_srmodel_deinit(models_list_);\n                models_list_ = nullptr;\n            }\n            models_list_ = srmodel_load(static_cast<uint8_t *>(ptr));\n            if (models_list_ != nullptr)\n            {\n                auto &app = Application::GetInstance();\n                app.GetAudioService().SetModelsList(models_list_);\n            }\n            else\n            {\n                ESP_LOGE(TAG, \"Failed to load srmodels.bin\");\n            }\n        }\n        else\n        {\n            ESP_LOGE(TAG, \"The srmodels file %s is not found\", srmodels_file.c_str());\n        }\n    }\n\n#ifdef HAVE_LVGL\n    auto &theme_manager = LvglThemeManager::GetInstance();\n    auto light_theme = theme_manager.GetTheme(\"light\");\n    auto dark_theme = theme_manager.GetTheme(\"dark\");\n\n    cJSON *font = cJSON_GetObjectItem(root, \"text_font\");\n    if (cJSON_IsString(font))\n    {\n        std::string fonts_text_file = font->valuestring;\n        if (GetAssetData(fonts_text_file, ptr, size))\n        {\n            auto text_font = std::make_shared<LvglCBinFont>(ptr);\n            if (text_font->font() == nullptr)\n            {\n                ESP_LOGE(TAG, \"Failed to load fonts.bin\");\n                return false;\n            }\n            if (light_theme != nullptr)\n            {\n                light_theme->set_text_font(text_font);\n            }\n            if (dark_theme != nullptr)\n            {\n                dark_theme->set_text_font(text_font);\n            }\n        }\n        else\n        {\n            ESP_LOGE(TAG, \"The font file %s is not found\", fonts_text_file.c_str());\n        }\n    }\n\n    cJSON *emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\n    if (cJSON_IsArray(emoji_collection))\n    {\n        auto custom_emoji_collection = std::make_shared<EmojiCollection>();\n        int emoji_count = cJSON_GetArraySize(emoji_collection);\n        for (int i = 0; i < emoji_count; i++)\n        {\n            cJSON *emoji = cJSON_GetArrayItem(emoji_collection, i);\n            if (cJSON_IsObject(emoji))\n            {\n                cJSON *name = cJSON_GetObjectItem(emoji, \"name\");\n                cJSON *file = cJSON_GetObjectItem(emoji, \"file\");\n                cJSON *eaf = cJSON_GetObjectItem(emoji, \"eaf\");\n                if (cJSON_IsString(name) && cJSON_IsString(file) && (NULL == eaf))\n                {\n                    if (!GetAssetData(file->valuestring, ptr, size))\n                    {\n                        ESP_LOGE(TAG, \"Emoji %s image file %s is not found\", name->valuestring, file->valuestring);\n                        continue;\n                    }\n                    custom_emoji_collection->AddEmoji(name->valuestring, new LvglRawImage(ptr, size));\n                }\n            }\n        }\n        if (light_theme != nullptr)\n        {\n            light_theme->set_emoji_collection(custom_emoji_collection);\n        }\n        if (dark_theme != nullptr)\n        {\n            dark_theme->set_emoji_collection(custom_emoji_collection);\n        }\n    }\n\n    cJSON *skin = cJSON_GetObjectItem(root, \"skin\");\n    if (cJSON_IsObject(skin))\n    {\n        cJSON *light_skin = cJSON_GetObjectItem(skin, \"light\");\n        if (cJSON_IsObject(light_skin) && light_theme != nullptr)\n        {\n            cJSON *text_color = cJSON_GetObjectItem(light_skin, \"text_color\");\n            cJSON *background_color = cJSON_GetObjectItem(light_skin, \"background_color\");\n            cJSON *background_image = cJSON_GetObjectItem(light_skin, \"background_image\");\n            if (cJSON_IsString(text_color))\n            {\n                light_theme->set_text_color(LvglTheme::ParseColor(text_color->valuestring));\n            }\n            if (cJSON_IsString(background_color))\n            {\n                light_theme->set_background_color(LvglTheme::ParseColor(background_color->valuestring));\n                light_theme->set_chat_background_color(LvglTheme::ParseColor(background_color->valuestring));\n            }\n            if (cJSON_IsString(background_image))\n            {\n                if (!GetAssetData(background_image->valuestring, ptr, size))\n                {\n                    ESP_LOGE(TAG, \"The background image file %s is not found\", background_image->valuestring);\n                    return false;\n                }\n                auto background_image = std::make_shared<LvglCBinImage>(ptr);\n                light_theme->set_background_image(background_image);\n            }\n        }\n        cJSON *dark_skin = cJSON_GetObjectItem(skin, \"dark\");\n        if (cJSON_IsObject(dark_skin) && dark_theme != nullptr)\n        {\n            cJSON *text_color = cJSON_GetObjectItem(dark_skin, \"text_color\");\n            cJSON *background_color = cJSON_GetObjectItem(dark_skin, \"background_color\");\n            cJSON *background_image = cJSON_GetObjectItem(dark_skin, \"background_image\");\n            if (cJSON_IsString(text_color))\n            {\n                dark_theme->set_text_color(LvglTheme::ParseColor(text_color->valuestring));\n            }\n            if (cJSON_IsString(background_color))\n            {\n                dark_theme->set_background_color(LvglTheme::ParseColor(background_color->valuestring));\n                dark_theme->set_chat_background_color(LvglTheme::ParseColor(background_color->valuestring));\n            }\n            if (cJSON_IsString(background_image))\n            {\n                if (!GetAssetData(background_image->valuestring, ptr, size))\n                {\n                    ESP_LOGE(TAG, \"The background image file %s is not found\", background_image->valuestring);\n                    return false;\n                }\n                auto background_image = std::make_shared<LvglCBinImage>(ptr);\n                dark_theme->set_background_image(background_image);\n            }\n        }\n    }\n\n    auto display = Board::GetInstance().GetDisplay();\n    ESP_LOGI(TAG, \"Refreshing display theme...\");\n\n    auto current_theme = display->GetTheme();\n    if (current_theme != nullptr)\n    {\n        display->SetTheme(current_theme);\n    }\n\n    // Parse hide_subtitle configuration\n    cJSON *hide_subtitle = cJSON_GetObjectItem(root, \"hide_subtitle\");\n    if (cJSON_IsBool(hide_subtitle))\n    {\n        bool hide = cJSON_IsTrue(hide_subtitle);\n        auto lcd_display = dynamic_cast<LcdDisplay *>(display);\n        if (lcd_display != nullptr)\n        {\n            lcd_display->SetHideSubtitle(hide);\n            ESP_LOGI(TAG, \"Set hide_subtitle to %s\", hide ? \"true\" : \"false\");\n        }\n    }\n\n#elif defined(CONFIG_USE_EMOTE_MESSAGE_STYLE)\n    auto &board = Board::GetInstance();\n    auto display = board.GetDisplay();\n    auto emote_display = dynamic_cast<emote::EmoteDisplay *>(display);\n\n    cJSON *font = cJSON_GetObjectItem(root, \"text_font\");\n    if (cJSON_IsString(font))\n    {\n        std::string fonts_text_file = font->valuestring;\n        if (GetAssetData(fonts_text_file, ptr, size))\n        {\n            auto text_font = std::make_shared<LvglCBinFont>(ptr);\n            if (text_font->font() == nullptr)\n            {\n                ESP_LOGE(TAG, \"Failed to load fonts.bin\");\n                return false;\n            }\n\n            if (emote_display)\n            {\n                emote_display->AddTextFont(text_font);\n            }\n        }\n        else\n        {\n            ESP_LOGE(TAG, \"The font file %s is not found\", fonts_text_file.c_str());\n        }\n    }\n\n    cJSON *emoji_collection = cJSON_GetObjectItem(root, \"emoji_collection\");\n    if (cJSON_IsArray(emoji_collection))\n    {\n        int emoji_count = cJSON_GetArraySize(emoji_collection);\n        if (emote_display)\n        {\n            for (int i = 0; i < emoji_count; i++)\n            {\n                cJSON *icon = cJSON_GetArrayItem(emoji_collection, i);\n                if (cJSON_IsObject(icon))\n                {\n                    cJSON *name = cJSON_GetObjectItem(icon, \"name\");\n                    cJSON *file = cJSON_GetObjectItem(icon, \"file\");\n\n                    if (cJSON_IsString(name) && cJSON_IsString(file))\n                    {\n                        if (GetAssetData(file->valuestring, ptr, size))\n                        {\n                            cJSON *eaf = cJSON_GetObjectItem(icon, \"eaf\");\n                            bool lack_value = false;\n                            bool loop_value = false;\n                            int fps_value = 0;\n\n                            if (cJSON_IsObject(eaf))\n                            {\n                                cJSON *lack = cJSON_GetObjectItem(eaf, \"lack\");\n                                cJSON *loop = cJSON_GetObjectItem(eaf, \"loop\");\n                                cJSON *fps = cJSON_GetObjectItem(eaf, \"fps\");\n\n                                lack_value = lack ? cJSON_IsTrue(lack) : false;\n                                loop_value = loop ? cJSON_IsTrue(loop) : false;\n                                fps_value = fps ? fps->valueint : 0;\n\n                                emote_display->AddEmojiData(name->valuestring, ptr, size,\n                                                            static_cast<uint8_t>(fps_value),\n                                                            loop_value, lack_value);\n                            }\n                        }\n                        else\n                        {\n                            ESP_LOGE(TAG, \"Emoji \\\"%10s\\\" image file %s is not found\", name->valuestring, file->valuestring);\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n    cJSON *icon_collection = cJSON_GetObjectItem(root, \"icon_collection\");\n    if (cJSON_IsArray(icon_collection))\n    {\n        if (emote_display)\n        {\n            int icon_count = cJSON_GetArraySize(icon_collection);\n            for (int i = 0; i < icon_count; i++)\n            {\n                cJSON *icon = cJSON_GetArrayItem(icon_collection, i);\n                if (cJSON_IsObject(icon))\n                {\n                    cJSON *name = cJSON_GetObjectItem(icon, \"name\");\n                    cJSON *file = cJSON_GetObjectItem(icon, \"file\");\n\n                    if (cJSON_IsString(name) && cJSON_IsString(file))\n                    {\n                        if (GetAssetData(file->valuestring, ptr, size))\n                        {\n                            emote_display->AddIconData(name->valuestring, ptr, size);\n                        }\n                        else\n                        {\n                            ESP_LOGE(TAG, \"Icon \\\"%10s\\\" image file %s is not found\", name->valuestring, file->valuestring);\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n    cJSON *layout_json = cJSON_GetObjectItem(root, \"layout\");\n    if (cJSON_IsArray(layout_json))\n    {\n        int layout_count = cJSON_GetArraySize(layout_json);\n\n        for (int i = 0; i < layout_count; i++)\n        {\n            cJSON *layout_item = cJSON_GetArrayItem(layout_json, i);\n            if (cJSON_IsObject(layout_item))\n            {\n                cJSON *name = cJSON_GetObjectItem(layout_item, \"name\");\n                cJSON *align = cJSON_GetObjectItem(layout_item, \"align\");\n                cJSON *x = cJSON_GetObjectItem(layout_item, \"x\");\n                cJSON *y = cJSON_GetObjectItem(layout_item, \"y\");\n                cJSON *width = cJSON_GetObjectItem(layout_item, \"width\");\n                cJSON *height = cJSON_GetObjectItem(layout_item, \"height\");\n\n                if (cJSON_IsString(name) && cJSON_IsString(align) && cJSON_IsNumber(x) && cJSON_IsNumber(y))\n                {\n                    int width_val = cJSON_IsNumber(width) ? width->valueint : 0;\n                    int height_val = cJSON_IsNumber(height) ? height->valueint : 0;\n\n                    if (emote_display)\n                    {\n                        emote_display->AddLayoutData(name->valuestring, align->valuestring,\n                                                     x->valueint, y->valueint, width_val, height_val);\n                    }\n                }\n                else\n                {\n                    ESP_LOGW(TAG, \"Invalid layout item %d: missing required fields\", i);\n                }\n            }\n        }\n    }\n#endif\n\n    cJSON_Delete(root);\n    return true;\n}\n\nbool Assets::Download(std::string url, std::function<void(int progress, size_t speed)> progress_callback)\n{\n    ESP_LOGI(TAG, \"Downloading new version of assets from %s\", url.c_str());\n\n    // 取消当前资源分区的内存映射\n    if (mmap_handle_ != 0)\n    {\n        esp_partition_munmap(mmap_handle_);\n        mmap_handle_ = 0;\n        mmap_root_ = nullptr;\n    }\n    checksum_valid_ = false;\n    assets_.clear();\n\n    // 下载新的资源文件\n    auto network = Board::GetInstance().GetNetwork();\n    auto http = network->CreateHttp(0);\n\n    if (!http->Open(\"GET\", url))\n    {\n        ESP_LOGE(TAG, \"Failed to open HTTP connection\");\n        return false;\n    }\n\n    if (http->GetStatusCode() != 200)\n    {\n        ESP_LOGE(TAG, \"Failed to get assets, status code: %d\", http->GetStatusCode());\n        return false;\n    }\n\n    size_t content_length = http->GetBodyLength();\n    if (content_length == 0)\n    {\n        ESP_LOGE(TAG, \"Failed to get content length\");\n        return false;\n    }\n\n    if (content_length > partition_->size)\n    {\n        ESP_LOGE(TAG, \"Assets file size (%u) is larger than partition size (%lu)\", content_length, partition_->size);\n        return false;\n    }\n\n    // 定义扇区大小为4KB（ESP32的标准扇区大小）\n    const size_t SECTOR_SIZE = esp_partition_get_main_flash_sector_size();\n\n    // 计算需要擦除的扇区数量\n    size_t sectors_to_erase = (content_length + SECTOR_SIZE - 1) / SECTOR_SIZE; // 向上取整\n    size_t total_erase_size = sectors_to_erase * SECTOR_SIZE;\n\n    ESP_LOGI(TAG, \"Sector size: %u, content length: %u, sectors to erase: %u, total erase size: %u\",\n             SECTOR_SIZE, content_length, sectors_to_erase, total_erase_size);\n\n    // 写入新的资源文件到分区，一边erase一边写入\n    char buffer[512];\n    size_t total_written = 0;\n    size_t recent_written = 0;\n    size_t current_sector = 0;\n    auto last_calc_time = esp_timer_get_time();\n\n    while (true)\n    {\n        int ret = http->Read(buffer, sizeof(buffer));\n        if (ret < 0)\n        {\n            ESP_LOGE(TAG, \"Failed to read HTTP data: %s\", esp_err_to_name(ret));\n            return false;\n        }\n\n        if (ret == 0)\n        {\n            break;\n        }\n\n        // 检查是否需要擦除新的扇区\n        size_t write_end_offset = total_written + ret;\n        size_t needed_sectors = (write_end_offset + SECTOR_SIZE - 1) / SECTOR_SIZE;\n\n        // 擦除需要的新扇区\n        while (current_sector < needed_sectors)\n        {\n            size_t sector_start = current_sector * SECTOR_SIZE;\n            size_t sector_end = (current_sector + 1) * SECTOR_SIZE;\n\n            // 确保擦除范围不超过分区大小\n            if (sector_end > partition_->size)\n            {\n                ESP_LOGE(TAG, \"Sector end (%u) exceeds partition size (%lu)\", sector_end, partition_->size);\n                return false;\n            }\n\n            ESP_LOGD(TAG, \"Erasing sector %u (offset: %u, size: %u)\", current_sector, sector_start, SECTOR_SIZE);\n            esp_err_t err = esp_partition_erase_range(partition_, sector_start, SECTOR_SIZE);\n            if (err != ESP_OK)\n            {\n                ESP_LOGE(TAG, \"Failed to erase sector %u at offset %u: %s\", current_sector, sector_start, esp_err_to_name(err));\n                return false;\n            }\n\n            current_sector++;\n        }\n\n        // 写入数据到分区\n        esp_err_t err = esp_partition_write(partition_, total_written, buffer, ret);\n        if (err != ESP_OK)\n        {\n            ESP_LOGE(TAG, \"Failed to write to assets partition at offset %u: %s\", total_written, esp_err_to_name(err));\n            return false;\n        }\n\n        total_written += ret;\n        recent_written += ret;\n\n        // 计算进度和速度\n        if (esp_timer_get_time() - last_calc_time >= 1000000 || total_written == content_length || ret == 0)\n        {\n            size_t progress = total_written * 100 / content_length;\n            size_t speed = recent_written; // 每秒的字节数\n            ESP_LOGI(TAG, \"Progress: %u%% (%u/%u), Speed: %u B/s, Sectors erased: %u\",\n                     progress, total_written, content_length, speed, current_sector);\n            if (progress_callback)\n            {\n                progress_callback(progress, speed);\n            }\n            last_calc_time = esp_timer_get_time();\n            recent_written = 0; // 重置最近写入的字节数\n        }\n    }\n\n    http->Close();\n\n    if (total_written != content_length)\n    {\n        ESP_LOGE(TAG, \"Downloaded size (%u) does not match expected size (%u)\", total_written, content_length);\n        return false;\n    }\n\n    ESP_LOGI(TAG, \"Assets download completed, total written: %u bytes, total sectors erased: %u\",\n             total_written, current_sector);\n\n    // 重新初始化资源分区\n    if (!InitializePartition())\n    {\n        ESP_LOGE(TAG, \"Failed to re-initialize assets partition\");\n        return false;\n    }\n\n    return true;\n}\n\nbool Assets::GetAssetData(const std::string &name, void *&ptr, size_t &size)\n{\n    auto asset = assets_.find(name);\n    if (asset == assets_.end())\n    {\n        return false;\n    }\n    auto data = (const char *)(mmap_root_ + asset->second.offset);\n    if (data[0] != 'Z' || data[1] != 'Z')\n    {\n        ESP_LOGE(TAG, \"The asset %s is not valid with magic %02x%02x\", name.c_str(), data[0], data[1]);\n        return false;\n    }\n\n    ptr = static_cast<void *>(const_cast<char *>(data + 2));\n    size = asset->second.size;\n    return true;\n}\n"
+      },
+      "code_generation": "Assets::Assets()\n{\n    InitializePartition();\n}",
+      "debugging": null,
+      "evaluation": {
+        "quantitative": {
+          "correctly_reused": {
+            "functions": [
+              "InitializePartition"
+            ],
+            "variables": []
+          },
+          "incorrectly_constructed": {
+            "functions": [],
+            "variables": []
+          },
+          "reference_functions_cnt": 1,
+          "reference_variables_cnt": 0
+        },
+        "qualitative": {
+          "semantic_score": 100,
+          "structure_score": 95,
+          "completeness_score": 100,
+          "analysis": "Semantic Correctness (100): The generated code has identical semantic meaning to the ground truth. Both constructors call the InitializePartition() method to initialize the partition, which is the core functionality required.\n\nStructure Similarity (95): The code structure is nearly identical. The only difference is formatting - the generated code uses Allman brace style (opening brace on new line) while the ground truth uses K&R style (opening brace on same line as function declaration). The function signature, control flow, and API calls are otherwise identical.\n\nFunctional Completeness (100): The generated code covers all key functionalities present in the ground truth. Both implementations correctly define the Assets constructor and call InitializePartition() exactly once. No functionality is missing or extraneous."
+        }
+      },
+      "timing": {
+        "knowledge_extraction": 6.337480306625366,
+        "code_generation": 0.6752438545227051,
+        "debugging": 0.0,
+        "evaluation": 1.9634640216827393
+      }
+    }
+  ]
+}

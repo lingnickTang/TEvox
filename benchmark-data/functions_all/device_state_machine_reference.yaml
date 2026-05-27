@@ -1,0 +1,66 @@
+complete the function GetStateName(DeviceState)():
+  functions: []
+  variables:
+  - state
+  - kDeviceStateFatalError
+  - STATE_STRINGS
+complete the function IsValidTransition(DeviceState, DeviceState) const():
+  functions: []
+  variables:
+  - from
+  - to
+complete the function AddStateChangeListener(StateCallback)():
+  functions:
+  - std::lock_guard<std::mutex>
+  - mutex_
+  - next_listener_id_++
+  - listeners_.emplace_back
+  - std::move
+  variables:
+  - mutex_
+  - next_listener_id_
+  - listeners_
+  - id
+  - callback
+complete the function RemoveStateChangeListener(int)():
+  functions:
+  - std::lock_guard<std::mutex>::lock_guard()
+  - listeners_.erase()
+  - std::remove_if()
+  - listeners_.begin()
+  - listeners_.end()
+  - p.first
+  variables:
+  - mutex_
+  - listeners_
+  - listener_id
+  - p
+complete the function NotifyStateChange(DeviceState, DeviceState)():
+  functions:
+  - std::vector<StateCallback> callbacks_copy
+  - std::lock_guard<std::mutex> lock(mutex_)
+  - callbacks_copy.reserve(listeners_.size())
+  - callbacks_copy.push_back(cb)
+  - cb(old_state, new_state)
+  variables:
+  - mutex_
+  - listeners_
+  - callbacks_copy
+  - old_state
+  - new_state
+  - id
+  - cb
+complete the function TransitionTo(DeviceState)():
+  functions:
+  - current_state_.load()
+  - IsValidTransition()
+  - ESP_LOGW()
+  - GetStateName()
+  - current_state_.store()
+  - ESP_LOGI()
+  - NotifyStateChange()
+  variables:
+  - current_state_
+  - new_state
+  - old_state
+  - TAG

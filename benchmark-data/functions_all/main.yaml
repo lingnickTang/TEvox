@@ -1,0 +1,683 @@
+file_path: main/main.cc
+benchmark:
+- query: complete the function app_main(void)()
+  ground_truth: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash\
+    \ for WiFi configuration\n    esp_err_t ret = nvs_flash_init();\n    if (ret ==\
+    \ ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n     \
+    \   ESP_LOGW(TAG, \"Erasing NVS flash to fix corruption\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ and run the application\n    auto& app = Application::GetInstance();\n    app.Initialize();\n\
+    \    app.Run();  // This function runs the main event loop and never returns\n\
+    }"
+  workflow: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS\n    esp_err_t\
+    \ err = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err ==\
+    \ ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated and\
+    \ needs to be erased\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        err\
+    \ = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(err);\n\n    // Initialize TCP/IP\
+    \ network stack\n    ESP_ERROR_CHECK(esp_netif_init());\n\n    // Initialize event\
+    \ loop\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\n    // Initialize\
+    \ system components\n    initialize_system_info();\n\n    // Initialize application\n\
+    \    application_init();\n\n    // Main application loop or task creation\n  \
+    \  // xTaskCreate(app_task, \"app_task\", 4096, NULL, 5, NULL);\n}"
+  cursor: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\n\
+    \    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ the application\n    auto& app = Application::GetInstance();\n    app.Initialize();\n\
+    \n    // Run the main event loop (this function never returns)\n    app.Run();\n\
+    }"
+  without: "void app_main(void)\n{\n    // Initialize I2C master interface\n    i2c_master_init();\n\
+    \    \n    // Initialize SSD1306 display\n    ssd1306_init();\n    \n    // Clear\
+    \ the display\n    ssd1306_clear_screen();\n    \n    // Set cursor position and\
+    \ print text\n    ssd1306_set_cursor(0, 0);\n    ssd1306_print_string(\"Hello\
+    \ World\");\n    \n    // Refresh display to show content\n    ssd1306_refresh();\n\
+    }"
+  tools: "extern \"C\" void app_main(void) {\n    // Initialize NVS (Non-Volatile\
+    \ Storage)\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ TCP/IP stack and default event loop\n    ESP_ERROR_CHECK(esp_netif_init());\n\
+    \    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\n    // Create and initialize\
+    \ the application instance\n    Application& app = Application::GetInstance();\n\
+    \    app.Initialize();\n\n    // Run the main event loop (this call never returns)\n\
+    \    app.Run();\n}"
+  without-small: "#include <stdio.h>\n#include <stdlib.h>\n\n// Mock function declarations\
+    \ for common embedded system components\nvoid system_init(void);\nvoid peripheral_init(void);\n\
+    void task_scheduler_start(void);\nint device_status_check(void);\n\n// Main application\
+    \ function\nint app_main(void)\n{\n    // Initialize system components\n    system_init();\n\
+    \    \n    // Initialize peripherals\n    peripheral_init();\n    \n    // Check\
+    \ device status\n    if (device_status_check() != 0)\n    {\n        // Handle\
+    \ initialization failure\n        return -1;\n    }\n    \n    // Start task scheduler\
+    \ or main loop\n    task_scheduler_start();\n    \n    // Main application loop\n\
+    \    while(1)\n    {\n        // Application logic here\n        // This could\
+    \ include:\n        // - Processing sensor data\n        // - Handling user input\n\
+    \        // - Controlling actuators\n        // - Communication tasks\n      \
+    \  \n        // Example placeholder for application work\n        // In real implementation,\
+    \ this would contain actual application logic\n        \n        // For demonstration\
+    \ purposes, we'll just return success\n        // In practice, this loop would\
+    \ run indefinitely or until system shutdown\n    }\n    \n    // This return statement\
+    \ is typically unreachable\n    return 0;\n}\n\n// Helper functions (these would\
+    \ typically be defined elsewhere)\nvoid system_init(void)\n{\n    // System initialization\
+    \ code\n}\n\nvoid peripheral_init(void)\n{\n    // Peripheral initialization code\n\
+    }\n\nvoid task_scheduler_start(void)\n{\n    // Task scheduler start code\n}\n\
+    \nint device_status_check(void)\n{\n    // Device status check code\n    return\
+    \ 0; // Success\n}"
+  tools-small: "extern \"C\" void app_main(void)\n{\n    // Initialize logging\n \
+    \   esp_log_level_set(\"*\", ESP_LOG_INFO);\n    \n    // Initialize NVS flash\n\
+    \    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(ret);\n    \n    // Initialize GPIO\n    gpio_config_t\
+    \ io_conf = {};\n    io_conf.intr_type = GPIO_INTR_DISABLE;\n    io_conf.mode\
+    \ = GPIO_MODE_OUTPUT;\n    io_conf.pin_bit_mask = (1ULL << 2);\n    io_conf.pull_down_en\
+    \ = GPIO_PULLDOWN_DISABLE;\n    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;\n  \
+    \  gpio_config(&io_conf);\n    \n    // Create a sample task\n    xTaskCreate([](void\
+    \ *pvParameters) {\n        while (1) {\n            // Toggle GPIO pin\n    \
+    \        static bool level = false;\n            gpio_set_level(GPIO_NUM_2, level\
+    \ ? 1 : 0);\n            level = !level;\n            \n            // Log information\n\
+    \            ESP_LOGI(\"MAIN_TASK\", \"Task executing, GPIO level: %s\", level\
+    \ ? \"HIGH\" : \"LOW\");\n            \n            // Delay for 1 second\n  \
+    \          vTaskDelay(1000 / portTICK_PERIOD_MS);\n        }\n    }, \"main_task\"\
+    , 4096, NULL, 5, NULL);\n    \n    // Main loop\n    while (1) {\n        vTaskDelay(1000\
+    \ / portTICK_PERIOD_MS);\n    }\n}"
+  workflow+sd+mi: "#include <esp_log.h>\n#include <nvs_flash.h>\n#include <esp_event.h>\n\
+    \n// Assuming these classes exist based on context\nclass Board {\npublic:\n \
+    \   static Board& GetInstance();\n    void Initialize();\n};\n\nclass Application\
+    \ {\npublic:\n    static Application& GetInstance();\n    void Initialize();\n\
+    \    void Run(); // Should not return\n};\n\n#define TAG \"main\"\n\nextern \"\
+    C\" void app_main(void)\n{\n    ESP_LOGI(TAG, \"Starting up...\");\n\n    // Initialize\
+    \ NVS flash\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_DETECTED)\
+    \ {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(ret);\n\n    // Create default event loop\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\
+    \n    // Initialize board hardware\n    auto& board = Board::GetInstance();\n\
+    \    board.Initialize();\n\n    // Initialize application subsystems\n    auto&\
+    \ app = Application::GetInstance();\n    app.Initialize();\n\n    ESP_LOGI(TAG,\
+    \ \"Entering main application loop...\");\n    \n    // Enter the main run loop\
+    \ (should not return)\n    app.Run();\n}"
+  workflow+sd+mi+rf: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n\
+    #include <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n#include\
+    \ <freertos/FreeRTOS.h>\n#include <freertos/task.h>\n\n#include \"application.h\"\
+    \n#include \"system_info.h\"\n#include \"board.h\"\n\n#define TAG \"main\"\n\n\
+    extern \"C\" void app_main(void)\n{\n    ESP_LOGI(TAG, \"Starting up...\");\n\n\
+    \    // Initialize NVS flash\n    esp_err_t ret = nvs_flash_init();\n    if (ret\
+    \ == ESP_ERR_NVS_NEW_VERSION_DETECTED) {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Create\
+    \ default event loop\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\n\
+    \    // Initialize board hardware\n    auto& board = Board::GetInstance();\n \
+    \   board.Initialize();\n\n    // Initialize application subsystems\n    auto&\
+    \ app = Application::GetInstance();\n    app.Initialize();\n\n    ESP_LOGI(TAG,\
+    \ \"Entering main application loop...\");\n    \n    // Enter the main run loop\
+    \ (should not return)\n    app.Run();\n}"
+  local: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\n\
+    \    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated\
+    \ and needs to be erased\n        ESP_ERROR_CHECK(nvs_flash_erase());\n      \
+    \  ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ GPIOs if needed\n    gpio_install_isr_service(0);\n\n    // Print system information\n\
+    \    print_system_info();\n\n    // Initialize and start the main application\n\
+    \    Application app;\n    app.initialize();\n    app.run();\n}"
+  workflow-small-rf: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs_flash.h>\n\
+    #include <esp_event.h>\n\n#include \"application.h\"\n#include \"boards/common/board.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    // Initialize\
+    \ NVS (Non-Volatile Storage)\n    esp_err_t ret = nvs_flash_init();\n    if (ret\
+    \ == ESP_ERR_NVS_NEW_VERSION_DETECTED) {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Create\
+    \ default event loop\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\n\
+    \    // Log start message\n    ESP_LOGI(TAG, \"Starting application...\");\n\n\
+    \    // Initialize board-level peripherals\n    auto& board = Board::GetInstance();\n\
+    \    board.Initialize();\n\n    // Initialize application subsystems\n    auto&\
+    \ app = Application::GetInstance();\n    app.Initialize();\n\n    // Enter the\
+    \ main run loop (should never return)\n    app.Run();\n}"
+  local-small: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS (Non-Volatile\
+    \ Storage)\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize GPIO pins (example configuration)\n\
+    \    gpio_config_t io_conf = {};\n    io_conf.pin_bit_mask = (1ULL << 2) | (1ULL\
+    \ << 4); // Example pins 2 and 4\n    io_conf.mode = GPIO_MODE_OUTPUT;\n    io_conf.pull_up_en\
+    \ = GPIO_PULLUP_DISABLE;\n    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;\n\
+    \    io_conf.intr_type = GPIO_INTR_DISABLE;\n    gpio_config(&io_conf);\n\n  \
+    \  // Initialize system information\n    init_system_info();\n\n    // Create\
+    \ application tasks\n    xTaskCreate(application_task, \"application_task\", 4096,\
+    \ NULL, 5, NULL);\n\n    // Main loop - could be empty or contain periodic tasks\n\
+    \    while (1) {\n        vTaskDelay(1000 / portTICK_PERIOD_MS);\n    }\n}"
+  tools-long: "extern \"C\" void app_main(void) {\n    Application::GetInstance().Initialize();\n\
+    \    Application::GetInstance().Run();\n}"
+  graph: "void app_main(void)\n{\n    // Initialize NVS flash storage\n    esp_err_t\
+    \ ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret ==\
+    \ ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n    \n   \
+    \ // Initialize logging\n    esp_log_level_set(\"*\", ESP_LOG_INFO);\n    \n \
+    \   // Get the singleton instance of Application\n    Application& app = Application::GetInstance();\n\
+    \    \n    // Initialize the application components\n    esp_err_t init_result\
+    \ = app.Initialize();\n    if (init_result != ESP_OK) {\n        ESP_LOGE(\"APP_MAIN\"\
+    , \"Application initialization failed: %s\", esp_err_to_name(init_result));\n\
+    \        return;\n    }\n    \n    // Run the application main loop\n    app.Run();\n\
+    }"
+  graph-5-5: "void app_main(void) {\n    // Get the singleton instance of the Application\n\
+    \    Application& app = Application::GetInstance();\n    \n    // Get the board\
+    \ instance to ensure system info is available\n    Board& board = Board::GetInstance();\n\
+    \    \n    // Initialize and start the application's core functionality\n    //\
+    \ This typically starts the scheduler/event loop\n    app.StartListening();\n\
+    \    \n    // Register user-only tools with the MCP server\n    // This would\
+    \ typically be done through a method like AddUserOnlyTools\n    // Assuming there's\
+    \ a way to access the McpServer instance through the Application\n    // For now,\
+    \ we'll assume this is handled internally by the Application\n    \n    // Schedule\
+    \ any initial tasks if needed\n    // app.Schedule([]() {\n    //     // Initial\
+    \ setup tasks could go here\n    // });\n    \n    // Toggle initial chat state\
+    \ if required\n    // app.ToggleChatState();\n    \n    // The application's main\
+    \ loop would typically be started here\n    // This keeps the application running\
+    \ and processing events\n}"
+  graph-small-5-5: "void app_main(void)\n{\n    // Initialize NVS flash storage\n\
+    \    esp_err_t err = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // If new version found, erase and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        err = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(err);\n\n    // Initialize\
+    \ the Application singleton instance\n    Application* app = Application::GetInstance();\n\
+    \n    // Start the activation task to handle OTA, version checking, etc.\n   \
+    \ xTaskCreate(Application::ActivationTask, \"activation_task\", 8192, app, 5,\
+    \ NULL);\n\n    // Wait for activation to complete\n    EventBits_t bits = xEventGroupWaitBits(app->GetEventGroup(),\
+    \ \n                                          MAIN_EVENT_ACTIVATION_DONE, \n \
+    \                                         pdTRUE, \n                         \
+    \                 pdFALSE, \n                                          portMAX_DELAY);\n\
+    \    \n    if (bits & MAIN_EVENT_ACTIVATION_DONE) {\n        // Activation completed\
+    \ successfully\n        \n        // Schedule any additional startup tasks\n \
+    \       app->Schedule([]() {\n            // Initialize audio subsystem\n    \
+    \        // Initialize display subsystem\n            // Initialize network interfaces\n\
+    \        });\n        \n        // Start listening for events\n        app->StartListening();\n\
+    \        \n        // Start periodic clock timer if needed\n        // esp_timer_start_periodic(app->GetClockTimerHandle(),\
+    \ 1000000); // 1 second\n        \n        // Main application loop - could be\
+    \ empty or contain event processing\n        while (1) {\n            // Main\
+    \ loop can process events or perform periodic tasks\n            vTaskDelay(1000\
+    \ / portTICK_PERIOD_MS);\n        }\n    }\n    \n    // Cleanup will happen automatically\
+    \ in Application destructor\n}"
+  graph+wf-5-5: "extern \"C\" void app_main(void) {\n    static const char* TAG =\
+    \ \"main\";\n\n    // Initialize NVS (Non-Volatile Storage)\n    esp_err_t err\
+    \ = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        err = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(err);\n\n    // TODO: Add your application-specific\
+    \ initialization here\n    // Examples:\n    // - Wi-Fi or Ethernet setup\n  \
+    \  // - Peripheral initialization (I2C, SPI, UART)\n    // - Start application\
+    \ tasks using xTaskCreate()\n\n    ESP_LOGI(TAG, \"System initialized successfully\"\
+    );\n}"
+  Desc+without: "void app_main(void)\n{\n    // Initialize NVS flash storage\n   \
+    \ esp_err_t ret = nvs_flash_init();\n    \n    // Handle potential NVS corruption\n\
+    \    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // Erase NVS partition and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    \n    // Check if NVS initialization\
+    \ was successful\n    ESP_ERROR_CHECK(ret);\n    \n    // Initialize TCP/IP stack\
+    \ and WiFi subsystem\n    ESP_ERROR_CHECK(esp_netif_init());\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\
+    \    \n    // Initialize WiFi in station mode\n    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\n\
+    \    ESP_ERROR_CHECK(esp_wifi_init(&cfg));\n    \n    // Create and start the\
+    \ main application instance\n    // This would typically involve initializing\
+    \ audio subsystem,\n    // setting up network connections, and starting background\
+    \ tasks\n    \n    // Example: Initialize audio processing component\n    // audio_system_init();\n\
+    \    \n    // Example: Connect to WiFi network using stored credentials\n    //\
+    \ wifi_connect();\n    \n    // Start the main event loop for continuous operation\n\
+    \    // This loop handles:\n    // - Audio processing tasks\n    // - Network\
+    \ communication\n    // - Device state management\n    // - System monitoring\
+    \ and maintenance\n    \n    while (1) {\n        // Main application logic would\
+    \ go here\n        // This could include:\n        // - Processing audio data\n\
+    \        // - Handling network events\n        // - Managing device states\n \
+    \       // - Performing periodic maintenance tasks\n        \n        // Yield\
+    \ control to other tasks in the RTOS\n        vTaskDelay(pdMS_TO_TICKS(10));\n\
+    \    }\n}"
+  Desc+local: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\n\
+    \    esp_err_t ret = nvs_flash_init();\n    \n    // Handle NVS corruption by\
+    \ erasing and reinitializing if necessary\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // Erase NVS partition and\
+    \ retry initialization\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret\
+    \ = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n    \n    // Initialize\
+    \ the system information module\n    system_info_init();\n    \n    // Create\
+    \ and start the main application instance\n    Application* app = new Application();\n\
+    \    \n    // Initialize the application\n    app->init();\n    \n    // Start\
+    \ the application's main event loop\n    // This will handle audio processing,\
+    \ network communication, and device state management\n    app->run();\n    \n\
+    \    // The application should run indefinitely in the event loop\n    // If we\
+    \ reach here, something went wrong\n    ESP_LOGE(TAG, \"Application terminated\
+    \ unexpectedly\");\n}"
+  Desc+graph-5-5: "#include \"nvs_flash.h\"\n#include \"esp_log.h\"\n#include \"wifi_manager.hpp\"\
+    \n#include \"application.hpp\"\n\nstatic const char* TAG = \"app_main\";\n\nextern\
+    \ \"C\" void app_main(void) {\n    // Step 1: Initialize NVS Flash Storage\n \
+    \   esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_LOGW(TAG, \"NVS flash\
+    \ error detected, erasing and reinitializing...\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Step\
+    \ 2: Initialize WiFi Manager\n    auto& wifi_manager = WifiManager::GetInstance();\n\
+    \    WifiManagerConfig config;\n    config.ssid_prefix = \"Xiaozhi\";\n    config.language\
+    \ = Lang::CODE;\n    wifi_manager.Initialize(config);\n\n    // Step 3: Start\
+    \ Application Event Loop\n    Application::GetInstance().Run();\n}"
+  Desc+tools: "#include \"nvs_flash.h\"\n#include \"esp_log.h\"\n#include \"Application.h\"\
+    \  // Assuming this header declares the Application class\n\nextern \"C\" void\
+    \ app_main(void) {\n    // Initialize NVS flash storage\n    esp_err_t ret = nvs_flash_init();\n\
+    \    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // Erase and retry if NVS is corrupt or incompatible\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Get\
+    \ the singleton instance of the Application class\n    Application& app = Application::GetInstance();\n\
+    \n    // Perform application-specific initialization\n    app.Initialize();\n\n\
+    \    // Enter the main event loop (this should never return)\n    app.Run();\n\
+    }"
+  Desc+graph-KG-5-5: "extern \"C\" void app_main(void) {\n    // Step 1: Initialize\
+    \ NVS flash for WiFi configuration storage\n    esp_err_t nvs_result = nvs_flash_init();\n\
+    \    if (nvs_result == ESP_ERR_NVS_NO_FREE_PAGES || nvs_result == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // Erase and reinitialize if NVS is corrupted or version mismatch\
+    \ occurs\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        nvs_result = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(nvs_result);\n\n    // Step 2: Get singleton instance\
+    \ of Application and start activation task\n    auto& app = Application::GetInstance();\n\
+    \    app.StartActivationTask();\n\n    // Step 3: Start the main event loop\n\
+    \    app.Run();\n}"
+  Desc+workflow: "#include <nvs_flash.h>\n#include <esp_log.h>\n#include <driver/gpio.h>\n\
+    #include <esp_event.h>\n#include \"application.h\"\n\n#define TAG \"main\"\n#define\
+    \ BOOT_BUTTON_GPIO   GPIO_NUM_0\n#define LED_GPIO           GPIO_NUM_1\n\n// Helper\
+    \ function to initialize NVS flash with error recovery\nvoid initialize_nvs()\
+    \ {\n    esp_err_t err = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || err == ESP_ERR_NVS_NEW_VERSION_DETECTED) {\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        err = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(err);\n}\n\n// Helper\
+    \ function to initialize basic GPIOs\nvoid initialize_gpio() {\n    gpio_reset_pin(LED_GPIO);\n\
+    \    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);\n    gpio_set_level(LED_GPIO,\
+    \ 0);  // Turn off LED initially\n\n    gpio_reset_pin(BOOT_BUTTON_GPIO);\n  \
+    \  gpio_set_direction(BOOT_BUTTON_GPIO, GPIO_MODE_INPUT);\n    gpio_pullup_en(BOOT_BUTTON_GPIO);\n\
+    }\n\n// Helper function to create default event loop\nvoid initialize_event_loop()\
+    \ {\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n}\n\n// Main application\
+    \ entry point\nextern \"C\" void app_main(void) {\n    ESP_LOGI(TAG, \"Starting\
+    \ application\");\n\n    // Initialize NVS\n    initialize_nvs();\n\n    // Initialize\
+    \ GPIOs\n    initialize_gpio();\n\n    // Initialize event loop\n    initialize_event_loop();\n\
+    \n    // Start main application logic\n    Application& app = Application::getInstance();\n\
+    \    app.start();\n}"
+  Desc+without-small: "void app_main(void)\n{\n    // Initialize NVS flash storage\
+    \ for WiFi configuration\n    esp_err_t ret = nvs_flash_init();\n    if (ret ==\
+    \ ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // If NVS corruption detected, erase\
+    \ and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret =\
+    \ nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize WiFi\
+    \ configuration\n    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\n  \
+    \  ESP_ERROR_CHECK(esp_wifi_init(&cfg));\n    \n    // Set WiFi mode to station\n\
+    \    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));\n    \n    // Start WiFi\n\
+    \    ESP_ERROR_CHECK(esp_wifi_start());\n\n    // Initialize application components\n\
+    \    audio_processing_init();\n    network_communication_init();\n    device_state_manager_init();\n\
+    \n    // Main application event loop\n    while (1) {\n        // Handle audio\
+    \ processing tasks\n        audio_processing_task();\n        \n        // Handle\
+    \ network communication tasks\n        network_communication_task();\n       \
+    \ \n        // Handle device state management tasks\n        device_state_manager_task();\n\
+    \        \n        // Small delay to prevent blocking\n        vTaskDelay(10 /\
+    \ portTICK_PERIOD_MS);\n    }\n}"
+  Desc+graph-SRP_KG-5-5-rf: "#include <esp_log.h>\n#include <esp_err.h>\n#include\
+    \ <nvs_flash.h>\n#include <esp_wifi.h>\n#include <esp_event.h>\n\n#define TAG\
+    \ \"main\"\n\nextern \"C\" void app_main(void)\n{\n    // Initialize NVS flash\
+    \ storage\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_LOGW(TAG, \"NVS partition\
+    \ was truncated or has new version, erasing...\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ TCP/IP adapter and Wi-Fi\n    ESP_ERROR_CHECK(esp_netif_init());\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\
+    \n    // Create and initialize the application\n    Application& app = Application::GetInstance();\n\
+    \    \n    // Start the application\n    app.Start();\n}"
+  Desc+graph-SRP_KG-5-5-small-rf: "#include <esp_log.h>\n#include <esp_err.h>\n#include\
+    \ <nvs.h>\n#include <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n\
+    #include <freertos/FreeRTOS.h>\n#include <freertos/task.h>\n#include <freertos/event_groups.h>\n\
+    \n#include \"application.h\"\n#include \"system_info.h\"\n\n#define TAG \"main\"\
+    \n\n// Event group bits\nconst int MAIN_EVENT_SCHEDULE = 0x01;\nconst int MAIN_EVENT_START_LISTENING\
+    \ = 0x02;\nconst int MAIN_EVENT_TOGGLE_CHAT = 0x04;\n\n// Global variables\nstatic\
+    \ EventGroupHandle_t event_group_ = NULL;\nstatic SemaphoreHandle_t mutex_ = NULL;\n\
+    \nextern \"C\" void app_main(void)\n{\n    // Initialize NVS flash with error\
+    \ handling\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        ESP_LOGW(TAG, \"NVS flash version mismatch, erasing and reinitializing\"\
+    );\n        ret = nvs_flash_erase();\n        if (ret != ESP_OK) {\n         \
+    \   ESP_LOGE(TAG, \"Failed to erase NVS flash\");\n            return;\n     \
+    \   }\n        ret = nvs_flash_init();\n    }\n    if (ret != ESP_OK) {\n    \
+    \    ESP_LOGE(TAG, \"Failed to initialize NVS flash\");\n        return;\n   \
+    \ }\n    ESP_LOGI(TAG, \"NVS flash initialized successfully\");\n\n    // Configure\
+    \ GPIO for system reset functionality\n    gpio_num_t reset_nvs_pin = GPIO_NUM_0;\
+    \      // Example pin, adjust as needed\n    gpio_num_t reset_factory_pin = GPIO_NUM_4;\
+    \  // Example pin, adjust as needed\n    \n    gpio_config_t io_conf;\n    io_conf.intr_type\
+    \ = GPIO_INTR_DISABLE;\n    io_conf.mode = GPIO_MODE_INPUT;\n    io_conf.pin_bit_mask\
+    \ = (1ULL << reset_nvs_pin) | (1ULL << reset_factory_pin);\n    io_conf.pull_down_en\
+    \ = GPIO_PULLDOWN_DISABLE;\n    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;\n   \
+    \ gpio_config(&io_conf);\n    \n    ESP_LOGI(TAG, \"GPIO reset pins configured\
+    \ successfully\");\n\n    // Initialize event group for task scheduling\n    event_group_\
+    \ = xEventGroupCreate();\n    if (event_group_ == NULL) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create event group\");\n        return;\n    }\n\n    // Initialize\
+    \ mutex for thread safety\n    mutex_ = xSemaphoreCreateMutex();\n    if (mutex_\
+    \ == NULL) {\n        ESP_LOGE(TAG, \"Failed to create mutex\");\n        return;\n\
+    \    }\n\n    // Start listening event\n    xEventGroupSetBits(event_group_, MAIN_EVENT_START_LISTENING);\n\
+    \    \n    ESP_LOGI(TAG, \"System initialized and ready for operation\");\n  \
+    \  \n    // Main loop - in a real implementation, this would contain the main\
+    \ application logic\n    while (1) {\n        // Wait for events or tasks to execute\n\
+    \        EventBits_t uxBits = xEventGroupWaitBits(event_group_,\n            \
+    \                                    MAIN_EVENT_SCHEDULE | \n                \
+    \                                MAIN_EVENT_START_LISTENING |\n              \
+    \                                  MAIN_EVENT_TOGGLE_CHAT,\n                 \
+    \                               pdTRUE,    // Clear bits before returning\n  \
+    \                                              pdFALSE,   // Wait for any bit\n\
+    \                                                portMAX_DELAY);\n        \n \
+    \       // Process scheduled tasks\n        if (uxBits & MAIN_EVENT_SCHEDULE)\
+    \ {\n            // Critical section for accessing shared data\n            if\
+    \ (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE) {\n                // Process\
+    \ tasks here when implemented\n                xSemaphoreGive(mutex_);\n     \
+    \       }\n        }\n        \n        // Handle start listening event\n    \
+    \    if (uxBits & MAIN_EVENT_START_LISTENING) {\n            // Implementation\
+    \ for starting listening functionality\n            ESP_LOGI(TAG, \"Starting listening\
+    \ mode\");\n        }\n        \n        // Handle toggle chat state event\n \
+    \       if (uxBits & MAIN_EVENT_TOGGLE_CHAT) {\n            // Implementation\
+    \ for toggling chat state\n            ESP_LOGI(TAG, \"Toggling chat state\");\n\
+    \        }\n    }\n}"
+  Desc+graph-wt-SRP_KG-3-3: "extern \"C\" void app_main(void) {\n    // Initialize\
+    \ NVS flash and handle potential corruption\n    esp_err_t ret = nvs_flash_init();\n\
+    \    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_LOGW(TAG, \"NVS\
+    \ version mismatch, erasing and reinitializing\");\n        nvs_flash_erase();\n\
+    \        ret = nvs_flash_init();\n    }\n    if (ret != ESP_OK) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to initialize NVS flash\");\n        abort();\n    }\n\n    // Start\
+    \ the main application task or event loop\n    // Example implementation would\
+    \ create tasks here\n    // xTaskCreate(main_application_task, \"main_app\", 4096,\
+    \ NULL, 5, NULL);\n    \n    // For demonstration purposes, we'll create a simple\
+    \ task loop\n    // In a real application, this would be replaced with actual\
+    \ application logic\n    while (1) {\n        // Main application loop\n     \
+    \   vTaskDelay(1000 / portTICK_PERIOD_MS);\n    }\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "extern \"C\" void app_main(void)\n{\n \
+    \   esp_err_t err;\n\n    // Initialize NVS flash storage\n    err = nvs_flash_init();\n\
+    \    if (err == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // If NVS has a newer\
+    \ version, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS flash has new version,\
+    \ erasing and reinitializing\");\n        err = nvs_flash_erase();\n        if\
+    \ (err != ESP_OK) {\n            ESP_LOGE(TAG, \"Failed to erase NVS flash\");\n\
+    \            return;\n        }\n        err = nvs_flash_init();\n    }\n    if\
+    \ (err != ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to initialize NVS flash\"\
+    );\n        return;\n    }\n\n    // Initialize event loop\n    err = esp_event_loop_create_default();\n\
+    \    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to create event loop\"\
+    );\n        return;\n    }\n\n    // Initialize system information\n    init_system_info();\n\
+    \n    // Initialize application\n    err = application_init();\n    if (err !=\
+    \ ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to initialize application\");\n  \
+    \      return;\n    }\n\n    // Start the main application task/event loop\n \
+    \   ESP_LOGI(TAG, \"Starting main application loop\");\n    \n    // The application\
+    \ will run in its own tasks/events\n    // Main loop is handled by the application\
+    \ framework\n    while (1) {\n        vTaskDelay(pdMS_TO_TICKS(1000)); // Keep\
+    \ the main task alive\n    }\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "extern \"C\" void app_main(void)\n\
+    {\n    esp_err_t err;\n\n    // Initialize NVS flash storage\n    err = nvs_flash_init();\n\
+    \    if (err == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // If NVS has a newer\
+    \ version, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS flash has new version,\
+    \ erasing and reinitializing\");\n        err = nvs_flash_erase();\n        if\
+    \ (err != ESP_OK) {\n            ESP_LOGE(TAG, \"Failed to erase NVS flash\");\n\
+    \            return;\n        }\n        err = nvs_flash_init();\n    }\n    if\
+    \ (err != ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to initialize NVS flash\"\
+    );\n        return;\n    }\n\n    // Initialize event loop\n    err = esp_event_loop_create_default();\n\
+    \    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to create event loop\"\
+    );\n        return;\n    }\n\n    // Initialize system information\n    init_system_info();\n\
+    \n    // Initialize application\n    err = application_init();\n    if (err !=\
+    \ ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to initialize application\");\n  \
+    \      return;\n    }\n\n    // Start the main application task/event loop\n \
+    \   ESP_LOGI(TAG, \"Starting main application loop\");\n    \n    // The application\
+    \ will run in its own tasks/events\n    // Main loop is handled by the application\
+    \ framework\n    while (1) {\n        vTaskDelay(pdMS_TO_TICKS(1000)); // Keep\
+    \ the main task alive\n    }\n}"
+  Desc+graph-SRP_KG-3-5-plan-direct_return: "extern \"C\" void app_main(void)\n{\n\
+    \    // Initialize NVS\n    esp_err_t ret = nvs_flash_init();\n    if (ret ==\
+    \ ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n     \
+    \   // NVS partition was truncated or version changed, erase and reinitialize\n\
+    \        ESP_LOGW(TAG, \"NVS init failed due to new version or corrupted pages,\
+    \ erasing...\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(ret);\n\n    // Launch the main application\n    Application\
+    \ app;\n    // Assuming the constructor or some method starts internal event loops/tasks\n\
+    }"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void app_main(void)\n{\n    // Initialize\
+    \ NVS flash storage for WiFi configuration persistence\n    esp_err_t err = nvs_flash_init();\n\
+    \    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // Handle NVS corruption by erasing and reinitializing if needed\n\
+    \        ESP_ERROR_CHECK(nvs_flash_erase());\n        err = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(err);\n\n    // Initialize WiFi manager with predefined\
+    \ configuration\n    auto& wifi_manager = WifiManager::GetInstance();\n    WifiManagerConfig\
+    \ config;\n    config.ssid_prefix = \"Xiaozhi\";\n    config.language = Lang::CODE;\n\
+    \    wifi_manager.Initialize(config);\n\n    // Launch the main application instance\
+    \ and start core services\n    auto& app = Application::GetInstance();\n    \n\
+    \    // Start network connection\n    auto& board = Board::GetInstance();\n  \
+    \  board.StartNetwork();\n    \n    // Initialize audio service\n    auto audio_codec\
+    \ = board.GetAudioCodec();\n    if (audio_codec != nullptr) {\n        auto& audio_service\
+    \ = app.GetAudioService();\n        audio_service.Initialize(audio_codec);\n \
+    \       audio_service.Start();\n    }\n\n    // Enter the main event loop to manage\
+    \ audio, network, and device state\n    app.Run();\n}"
+  graph-SRP_KG-it-small;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n\
+    #include <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n#include\
+    \ <freertos/FreeRTOS.h>\n#include <freertos/task.h>\n\n#include \"application.h\"\
+    \n#include \"system_info.h\"\n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n\
+    {\n    // Initialize NVS flash storage for WiFi configuration\n    esp_err_t err\
+    \ = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n     \
+    \   // NVS partition may be corrupted, erase and reinitialize\n        ESP_LOGW(TAG,\
+    \ \"NVS partition was truncated or corrupted, erasing and reinitializing\");\n\
+    \        ESP_ERROR_CHECK(nvs_flash_erase());\n        err = nvs_flash_init();\n\
+    \    }\n    ESP_ERROR_CHECK(err);\n\n    // Initialize system information\n  \
+    \  SystemInfo::GetInstance()->Initialize();\n\n    // Initialize assets partition\n\
+    \    if (!AssetsManager::GetInstance()->InitializePartition()) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to initialize assets partition\");\n        return;\n    }\n\n    //\
+    \ Initialize display components if needed\n    // This would typically involve\
+    \ LCD display initialization\n    \n    // Create and start the main application\
+    \ instance\n    Application* app = Application::GetInstance();\n    if (app ==\
+    \ nullptr) {\n        ESP_LOGE(TAG, \"Failed to create application instance\"\
+    );\n        return;\n    }\n\n    // Start the main application event loop\n \
+    \   app->Run();\n}"
+  graph-SRP_KG-it;: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash\
+    \ storage\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated\
+    \ or version changed, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS flash\
+    \ corruption detected, erasing and reinitializing...\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n    \n   \
+    \ // Print system information\n    MemoryInfo::PrintHeapStats();\n    ESP_LOGI(TAG,\
+    \ \"Flash size: %zu bytes\", MemoryInfo::GetFlashSize());\n    \n    // Initialize\
+    \ and run the main application\n    auto& app = Application::GetInstance();\n\
+    \    if (!app.Initialize()) {\n        ESP_LOGE(TAG, \"Failed to initialize application\"\
+    );\n        return;\n    }\n    \n    // Start the main event loop\n    app.Run();\n\
+    }"
+  without-small;: "void app_main(void)\n{\n    // Initialize NVS flash storage for\
+    \ WiFi configuration\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // If NVS corruption detected, erase and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ WiFi configuration\n    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\n\
+    \    ESP_ERROR_CHECK(esp_wifi_init(&cfg));\n    \n    // Set WiFi mode to station\n\
+    \    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));\n    \n    // Start WiFi\n\
+    \    ESP_ERROR_CHECK(esp_wifi_start());\n\n    // Initialize application components\n\
+    \    audio_processing_init();\n    network_communication_init();\n    device_state_manager_init();\n\
+    \n    // Main application event loop\n    while (1) {\n        // Handle audio\
+    \ processing tasks\n        audio_processing_task();\n        \n        // Handle\
+    \ network communication tasks\n        network_communication_task();\n       \
+    \ \n        // Handle device state management tasks\n        device_state_manager_task();\n\
+    \        \n        // Small delay to prevent blocking\n        vTaskDelay(10 /\
+    \ portTICK_PERIOD_MS);\n    }\n}"
+  local-small;: "extern \"C\" void app_main(void)\n{\n    esp_err_t ret = nvs_flash_init();\n\
+    \    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_LOGW(TAG, \"NVS\
+    \ flash version mismatch, erasing and reinitializing\");\n        nvs_flash_erase();\n\
+    \        ret = nvs_flash_init();\n    }\n    if (ret != ESP_OK) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to initialize NVS flash: %s\", esp_err_to_name(ret));\n        return;\n\
+    \    }\n    \n    ESP_LOGI(TAG, \"NVS flash initialized successfully\");\n   \
+    \ \n    // Initialize system information\n    init_system_info();\n    \n    //\
+    \ Start the main application\n    start_application();\n}"
+  tools-small;: "extern \"C\" void app_main(void)\n{\n    esp_err_t err = nvs_flash_init();\n\
+    \    if (err == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition may\
+    \ be corrupted, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS partition\
+    \ has new version, erasing and reinitializing\");\n        nvs_flash_erase();\n\
+    \        err = nvs_flash_init();\n    }\n    \n    if (err != ESP_OK) {\n    \
+    \    ESP_LOGE(TAG, \"Failed to initialize NVS: %s\", esp_err_to_name(err));\n\
+    \        return;\n    }\n    \n    ESP_LOGI(TAG, \"NVS flash initialized successfully\"\
+    );\n    \n    // Initialize the main application\n    application_init();\n  \
+    \  \n    // Start the main event loop\n    while (1) {\n        // Main application\
+    \ loop - handles audio processing, \n        // network communication, and device\
+    \ state management\n        application_run();\n        \n        // Small delay\
+    \ to prevent excessive CPU usage\n        vTaskDelay(10 / portTICK_PERIOD_MS);\n\
+    \    }\n}"
+  without;: "void app_main(void)\n{\n    // Initialize NVS flash storage\n    esp_err_t\
+    \ ret = nvs_flash_init();\n    \n    // Handle potential NVS corruption\n    if\
+    \ (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n\
+    \        // Erase NVS partition and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    \n    // Check if NVS initialization\
+    \ was successful\n    ESP_ERROR_CHECK(ret);\n    \n    // Initialize TCP/IP stack\
+    \ and WiFi subsystem\n    ESP_ERROR_CHECK(esp_netif_init());\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\
+    \    \n    // Initialize WiFi in station mode\n    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\n\
+    \    ESP_ERROR_CHECK(esp_wifi_init(&cfg));\n    \n    // Create and start the\
+    \ main application instance\n    // This would typically involve initializing\
+    \ audio subsystem,\n    // setting up network connections, and starting background\
+    \ tasks\n    \n    // Example: Initialize audio processing component\n    // audio_system_init();\n\
+    \    \n    // Example: Connect to WiFi network using stored credentials\n    //\
+    \ wifi_connect();\n    \n    // Start the main event loop for continuous operation\n\
+    \    // This loop handles:\n    // - Audio processing tasks\n    // - Network\
+    \ communication\n    // - Device state management\n    // - System monitoring\
+    \ and maintenance\n    \n    while (1) {\n        // Main application logic would\
+    \ go here\n        // This could include:\n        // - Processing audio data\n\
+    \        // - Handling network events\n        // - Managing device states\n \
+    \       // - Performing periodic maintenance tasks\n        \n        // Yield\
+    \ control to other tasks in the RTOS\n        vTaskDelay(pdMS_TO_TICKS(10));\n\
+    \    }\n}"
+  local;: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\n\
+    \    esp_err_t ret = nvs_flash_init();\n    \n    // Handle NVS corruption by\
+    \ erasing and reinitializing if necessary\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // Erase NVS partition and\
+    \ retry initialization\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        ret\
+    \ = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n    \n    // Initialize\
+    \ the system information module\n    system_info_init();\n    \n    // Create\
+    \ and start the main application instance\n    Application* app = new Application();\n\
+    \    \n    // Initialize the application\n    app->init();\n    \n    // Start\
+    \ the application's main event loop\n    // This will handle audio processing,\
+    \ network communication, and device state management\n    app->run();\n    \n\
+    \    // The application should run indefinitely in the event loop\n    // If we\
+    \ reach here, something went wrong\n    ESP_LOGE(TAG, \"Application terminated\
+    \ unexpectedly\");\n}"
+  tools;: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\n\
+    \    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated\
+    \ or has a newer version, erase and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Get\
+    \ the singleton instance of the application\n    Application& app = Application::GetInstance();\n\
+    \    \n    // Initialize the application components\n    app.Initialize();\n \
+    \   \n    // Run the main event loop (this will never return)\n    app.Run();\n\
+    }"
+  eg;: "#include <stdio.h>\n#include <stdlib.h>\n#include \"nvs_flash.h\"\n#include\
+    \ \"esp_wifi.h\"\n#include \"esp_event.h\"\n#include \"esp_log.h\"\n\nstatic const\
+    \ char *TAG = \"APP_MAIN\";\n\nvoid app_main(void)\n{\n    // Step 1: Initialize\
+    \ NVS (Non-Volatile Storage)\n    esp_err_t ret = nvs_flash_init();\n    if (ret\
+    \ == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n  \
+    \      // NVS partition was truncated or version changed, erase and reinitialize\n\
+    \        ESP_LOGW(TAG, \"NVS flash corrupted or outdated. Erasing...\");\n   \
+    \     ESP_ERROR_CHECK(nvs_flash_erase());\n        ret = nvs_flash_init();\n \
+    \   }\n    ESP_ERROR_CHECK(ret);\n\n    // Step 2: Initialize TCP/IP adapter and\
+    \ Wi-Fi\n    ESP_ERROR_CHECK(esp_netif_init());\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\
+    \n    // Create default Wi-Fi station\n    esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();\n\
+    \    assert(sta_netif);\n\n    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();\n\
+    \    ESP_ERROR_CHECK(esp_wifi_init(&cfg));\n\n    // Optional: Set Wi-Fi mode\
+    \ and start\n    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));\n    ESP_ERROR_CHECK(esp_wifi_start());\n\
+    \n    // Step 3: Launch Core Subsystems\n    // Here would go calls to initialize\
+    \ audio service, device manager, etc.\n    // For example:\n    // audio_service_init();\n\
+    \    // device_state_manager_start();\n\n    // Step 4: Enter Main Event Loop\n\
+    \    while (1) {\n        // Placeholder for actual logic:\n        // e.g., process\
+    \ audio buffer, check network status, update device state\n        vTaskDelay(pdMS_TO_TICKS(1000));\
+    \ // Sleep for 1 second\n    }\n}"
+  a3;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n#include <nvs_flash.h>\n\
+    #include <driver/gpio.h>\n#include <esp_event.h>\n#include <freertos/FreeRTOS.h>\n\
+    #include <freertos/task.h>\n\n#include \"application.h\"\n#include \"system_info.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    // Initialize\
+    \ NVS flash storage\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated\
+    \ or version changed, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS flash\
+    \ init failed (0x%x), erasing and retrying...\", ret);\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Get\
+    \ the singleton application instance\n    Application& app = Application::GetInstance();\n\
+    \    \n    // Initialize the application\n    app.Initialize();\n    \n    //\
+    \ Run the main event loop (this never returns)\n    app.Run();\n}"
+  eg-small;: "#include <stdio.h>\n#include \"freertos/FreeRTOS.h\"\n#include \"freertos/task.h\"\
+    \n#include \"nvs_flash.h\"\n#include \"esp_log.h\"\n\n// Forward declarations\
+    \ for functions that would be implemented elsewhere\nvoid app_main_init(void);\n\
+    void app_main_event_loop(void);\n\nvoid app_main(void)\n{\n    esp_err_t ret =\
+    \ nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n       \
+    \ // NVS corruption detected, erase and reinitialize\n        ESP_LOGW(\"app_main\"\
+    , \"NVS corruption detected, erasing and reinitializing...\");\n        nvs_flash_erase();\n\
+    \        ret = nvs_flash_init();\n    }\n    \n    if (ret != ESP_OK) {\n    \
+    \    ESP_LOGE(\"app_main\", \"Failed to initialize NVS flash storage\");\n   \
+    \     return;\n    }\n    \n    ESP_LOGI(\"app_main\", \"NVS flash storage initialized\
+    \ successfully\");\n    \n    // Launch the main application instance\n    app_main_init();\n\
+    \    \n    // Start the main event loop for core functionality management\n  \
+    \  app_main_event_loop();\n}"
+  a3-small;: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\
+    \ for WiFi configuration\n    esp_err_t ret = nvs_flash_init();\n    if (ret ==\
+    \ ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition has a newer version\
+    \ than expected, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS partition\
+    \ has newer version, erasing and reinitializing\");\n        ret = nvs_flash_erase();\n\
+    \        if (ret != ESP_OK) {\n            ESP_LOGE(TAG, \"Failed to erase NVS\
+    \ partition\");\n            return;\n        }\n        ret = nvs_flash_init();\n\
+    \    }\n    \n    if (ret != ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to initialize\
+    \ NVS flash\");\n        return;\n    }\n\n    // Initialize the application\n\
+    \    Application& app = Application::GetInstance();\n    app.Initialize();\n\n\
+    \    // Start the main event loop\n    app.Run();\n}"
+  SRP-small;: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS flash storage\
+    \ for WiFi configuration\n    esp_err_t ret = nvs_flash_init();\n    if (ret ==\
+    \ ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // Erase NVS flash if there's a version\
+    \ mismatch and reinitialize\n        ESP_ERROR_CHECK(nvs_flash_erase());\n   \
+    \     ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ WiFi manager with predefined configuration\n    auto& wifi_manager = WifiManager::GetInstance();\n\
+    \    WifiManagerConfig config;\n    config.ssid_prefix = \"Xiaozhi\";\n    config.language\
+    \ = Lang::CODE;\n    wifi_manager.Initialize(config);\n\n    // Initialize and\
+    \ start the main application\n    auto& app = Application::GetInstance();\n  \
+    \  app.Initialize();\n\n    // Start the main event loop\n    app.Run();\n}"
+  SRP;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n#include <nvs_flash.h>\n\
+    #include <driver/gpio.h>\n#include <esp_event.h>\n#include <freertos/FreeRTOS.h>\n\
+    #include <freertos/task.h>\n\n#include \"application.h\"\n#include \"system_info.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    // Initialize\
+    \ NVS flash storage\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated\
+    \ or version changed, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS flash\
+    \ error detected, erasing and reinitializing...\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Print\
+    \ system information\n    ESP_LOGI(TAG, \"Flash size: %d bytes\", SystemInfo::GetFlashSize());\n\
+    \    ESP_LOGI(TAG, \"Free heap size: %d bytes\", SystemInfo::GetFreeHeapSize());\n\
+    \    SystemInfo::PrintHeapStats();\n\n    // Initialize and start the main application\n\
+    \    Application& app = Application::GetInstance();\n    \n    // Initialize the\
+    \ application components\n    if (!app.Initialize()) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to initialize application\");\n        return;\n    }\n\n    // Start\
+    \ the main event loop\n    app.Run();\n}"
+  eg-small-168;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n#include\
+    \ <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n#include <freertos/FreeRTOS.h>\n\
+    #include <freertos/task.h>\n\n#include \"application.h\"\n#include \"system_info.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    esp_err_t\
+    \ ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n \
+    \       // NVS partition has been formatted, erase and reinitialize\n        ESP_LOGW(TAG,\
+    \ \"NVS partition has been formatted, erasing and reinitializing...\");\n    \
+    \    ESP_ERROR_CHECK(nvs_flash_erase());\n        ret = nvs_flash_init();\n  \
+    \  }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize the main application instance\n\
+    \    ESP_ERROR_CHECK(application_init());\n\n    // Start the main event loop\n\
+    \    ESP_ERROR_CHECK(application_start_event_loop());\n}"
+  eg-168;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n#include\
+    \ <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n#include <freertos/FreeRTOS.h>\n\
+    #include <freertos/task.h>\n\n#include \"application.h\"\n#include \"system_info.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    // Step 1:\
+    \ Initialize NVS\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_DETECTED) {\n        // NVS partition was\
+    \ truncated or version changed, erase and reinit\n        ESP_LOGW(TAG, \"NVS\
+    \ flash init failed (0x%x), erasing...\", ret);\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Step\
+    \ 2: Launch main application instance\n    ESP_LOGI(TAG, \"Starting application...\"\
+    );\n    Application& app = Application::instance();\n    app.start();\n\n    //\
+    \ Step 3: Enter main event loop\n    ESP_LOGI(TAG, \"Entering main event loop\"\
+    );\n    app.run(); // Should not return unless shutdown is triggered\n\n    //\
+    \ Cleanup may go here if needed\n}"
+  SRP-small-168;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n\
+    #include <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n#include\
+    \ <freertos/FreeRTOS.h>\n#include <freertos/task.h>\n\n#include \"application.h\"\
+    \n#include \"system_info.h\"\n#include \"wifi_board.h\"\n#include \"lcd_display.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    ESP_LOGI(TAG,\
+    \ \"Starting application...\");\n    \n    // Initialize NVS flash storage for\
+    \ WiFi configuration\n    esp_err_t err = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NEW_VERSION_FOUND)\
+    \ {\n        // If NVS is corrupted, erase and reinitialize\n        ESP_LOGW(TAG,\
+    \ \"NVS flash corrupted, erasing and reinitializing...\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        err = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(err);\n    \n   \
+    \ // Initialize the application instance\n    Application& app = Application::GetInstance();\n\
+    \    \n    // Initialize WiFi manager with predefined configuration\n    auto&\
+    \ wifi_manager = WifiManager::GetInstance();\n    WifiManagerConfig config;\n\
+    \    config.ssid_prefix = \"Xiaozhi\";\n    config.language = Lang::CODE;\n  \
+    \  wifi_manager.Initialize(config);\n    \n    // Initialize display\n    auto&\
+    \ board = Board::GetInstance();\n    auto display = board.GetDisplay();\n    if\
+    \ (display) {\n        display->Init();\n        display->SetupUI();\n    }\n\
+    \    \n    // Start network\n    StartNetwork();\n    \n    // Start the main\
+    \ application event loop\n    app.Run();\n}"
+  SRP-168;: "#include <esp_log.h>\n#include <esp_err.h>\n#include <nvs.h>\n#include\
+    \ <nvs_flash.h>\n#include <driver/gpio.h>\n#include <esp_event.h>\n#include <freertos/FreeRTOS.h>\n\
+    #include <freertos/task.h>\n\n#include \"application.h\"\n#include \"system_info.h\"\
+    \n\n#define TAG \"main\"\n\nextern \"C\" void app_main(void)\n{\n    // Initialize\
+    \ NVS flash storage\n    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated\
+    \ or has new version, erase and reinitialize\n        ESP_LOGW(TAG, \"NVS flash\
+    \ error detected, erasing and reinitializing\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Print\
+    \ system information\n    ESP_LOGI(TAG, \"Starting application\");\n    SystemInfo::PrintHeapStats();\n\
+    \n    // Get the singleton instance of the application\n    Application& app =\
+    \ Application::GetInstance();\n\n    // Run the main application event loop\n\
+    \    // This will handle audio processing, network communication, and device state\
+    \ management\n    app.Run();\n}"

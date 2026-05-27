@@ -1,0 +1,16 @@
+complete the function SetChatMessage(const char *, const char *)():
+  functions:
+  - ESP_LOGW
+  - ESP_LOGW
+  variables:
+  - TAG
+  - role
+  - content
+complete the function SetTheme(Theme *)():
+  functions:
+  - theme->name()
+  - settings.SetString()
+  variables:
+  - current_theme_
+  - theme
+  - settings

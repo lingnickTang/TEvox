@@ -1,0 +1,54 @@
+complete the function SetError(const std::string &)():
+  functions:
+  - on_network_error_
+  variables:
+  - error_occurred_
+  - on_network_error_
+  - message
+complete the function SendAbortSpeaking(AbortReason)():
+  functions:
+  - SendText
+  variables:
+  - session_id_
+  - reason
+  - message
+  - kAbortReasonWakeWordDetected
+complete the function SendWakeWordDetected(const std::string &)():
+  functions:
+  - SendText
+  variables:
+  - session_id_
+  - wake_word
+complete the function SendStartListening(ListeningMode)():
+  functions:
+  - SendText
+  variables:
+  - session_id_
+  - mode
+  - kListeningModeRealtime
+  - kListeningModeAutoStop
+  - message
+complete the function SendStopListening()():
+  functions:
+  - SendText
+  variables:
+  - session_id_
+complete the function SendMcpMessage(const std::string &)():
+  functions:
+  - SendText
+  variables:
+  - session_id_
+  - payload
+  - message
+complete the function IsTimeout() const():
+  functions:
+  - std::chrono::steady_clock::now()
+  - std::chrono::duration_cast<std::chrono::seconds>()
+  - ESP_LOGE()
+  variables:
+  - kTimeoutSeconds
+  - now
+  - duration
+  - last_incoming_time_
+  - timeout
+  - TAG

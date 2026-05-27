@@ -1,0 +1,31 @@
+- query: complete the function AudioCodec()()
+  file_path: main/audio/audio_codec.cc
+  ground_truth: 'AudioCodec::AudioCodec() {
+
+    }'
+  workflow: "AudioCodec::AudioCodec()\n    : tx_handle_(nullptr),\n      rx_handle_(nullptr),\n\
+    \      input_enabled_(false),\n      output_enabled_(false),\n      output_volume_(10)\n\
+    { // Constructor intentionally left minimal.\n  // Actual initialization will\
+    \ happen in Start() or similar lifecycle methods.\n}"
+- query: complete the function AudioCodec::Start()
+  file_path: main/audio/audio_codec.cc
+  ground_truth: 'void AudioCodec::Start() { Settings settings("audio", false); output_volume_
+    = settings.GetInt("output_volume", output_volume_); if (output_volume_ <= 0) {
+    ESP_LOGW(TAG, "Output volume value (%d) is too small, setting to default (10)",
+    output_volume_); output_volume_ = 10; }
+
+    if (tx_handle_ != nullptr) { ESP_ERROR_CHECK(i2s_channel_enable(tx_handle_));
+    }
+
+    if (rx_handle_ != nullptr) { ESP_ERROR_CHECK(i2s_channel_enable(rx_handle_));
+    }
+
+    EnableInput(true); EnableOutput(true); ESP_LOGI(TAG, "Audio codec started"); }'
+  cursor: "void AudioCodec::Start() {\n    // Load output volume from settings\n \
+    \   Settings settings(\"audio\", false);\n    output_volume_ = settings.GetInt(\"\
+    output_volume\", output_volume_);\n    if (output_volume_ <= 0) {\n        ESP_LOGW(TAG,\
+    \ \"Output volume value (%d) is too small, setting to default (70)\", output_volume_);\n\
+    \        output_volume_ = 70;\n    }\n\n    // Enable I2S channels if they exist\n\
+    \    if (tx_handle_ != nullptr) {\n        ESP_ERROR_CHECK(i2s_channel_enable(tx_handle_));\n\
+    \    }\n    if (rx_handle_ != nullptr) {\n        ESP_ERROR_CHECK(i2s_channel_enable(rx_handle_));\n\
+    \    }\n\n    ESP_LOGI(TAG, \"Audio codec started\");\n}"

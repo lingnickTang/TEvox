@@ -1,0 +1,61 @@
+complete the function Board()():
+  functions:
+  - Settings("board", true)
+  - settings.GetString("uuid")
+  - uuid_.empty()
+  - GenerateUuid()
+  - settings.SetString("uuid", uuid_)
+  - ESP_LOGI(TAG, "UUID=%s SKU=%s", uuid_.c_str(), BOARD_NAME)
+  variables:
+  - settings
+  - uuid_
+  - TAG
+  - BOARD_NAME
+complete the function GenerateUuid()():
+  functions:
+  - esp_fill_random
+  - snprintf
+  - std::string
+  variables:
+  - uuid
+  - uuid_str
+complete the function GetDisplay()():
+  functions: []
+  variables:
+  - display
+complete the function GetLed()():
+  functions: []
+  variables:
+  - led
+complete the function GetSystemInfoJson()():
+  functions:
+  - SystemInfo::GetFlashSize
+  - SystemInfo::GetMinimumFreeHeapSize
+  - SystemInfo::GetMacAddress
+  - SystemInfo::GetChipModelName
+  - esp_chip_info
+  - esp_app_get_description
+  - snprintf
+  - esp_partition_find
+  - esp_partition_get
+  - esp_partition_next
+  - esp_ota_get_running_partition
+  - GetDisplay
+  - dynamic_cast<OledDisplay*>
+  - display->width
+  - display->height
+  - GetBoardJson
+  - std::to_string
+  - std::string
+  variables:
+  - Lang::CODE
+  - uuid_
+  - chip_info
+  - app_desc
+  - sha256_str
+  - i
+  - it
+  - partition
+  - ota_partition
+  - display
+  - json

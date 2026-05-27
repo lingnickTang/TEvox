@@ -1,0 +1,1827 @@
+file_path: main/audio/processors/audio_debugger.cc
+benchmark:
+- query: complete the function AudioDebugger()()
+  ground_truth: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ >= 0)\
+    \ {\n        // 解析配置的服务器地址 \"IP:PORT\"\n        std::string server_addr = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \        size_t colon_pos = server_addr.find(':');\n        \n        if (colon_pos\
+    \ != std::string::npos) {\n            std::string ip = server_addr.substr(0,\
+    \ colon_pos);\n            int port = std::stoi(server_addr.substr(colon_pos +\
+    \ 1));\n            \n            memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \            udp_server_addr_.sin_family = AF_INET;\n            udp_server_addr_.sin_port\
+    \ = htons(port);\n            inet_pton(AF_INET, ip.c_str(), &udp_server_addr_.sin_addr);\n\
+    \            \n            ESP_LOGI(TAG, \"Initialized server address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        } else {\n            ESP_LOGW(TAG, \"Invalid server address: %s, should\
+    \ be IP:PORT\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n            close(udp_sockfd_);\n\
+    \            udp_sockfd_ = -1;\n        }\n    } else {\n        ESP_LOGW(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n    }\n#endif\n}"
+  workflow: ''
+  cursor: ''
+  without: "void AudioDebugger() {\n    // Initialize debug output\n    printf(\"\
+    === Audio Debugger Started ===\\n\");\n    \n    // Check audio system status\n\
+    \    printf(\"Checking audio system...\\n\");\n    \n    // Simulate audio device\
+    \ detection\n    printf(\"Detecting audio devices...\\n\");\n    printf(\"  -\
+    \ Default output device: Speakers (Realtek High Definition Audio)\\n\");\n   \
+    \ printf(\"  - Default input device: Microphone (Realtek High Definition Audio)\\\
+    n\");\n    \n    // Simulate audio format information\n    printf(\"Audio format\
+    \ info:\\n\");\n    printf(\"  - Sample rate: 44100 Hz\\n\");\n    printf(\" \
+    \ - Bit depth: 16-bit\\n\");\n    printf(\"  - Channels: Stereo (2)\\n\");\n \
+    \   \n    // Simulate buffer status\n    printf(\"Buffer status:\\n\");\n    printf(\"\
+    \  - Buffer size: 1024 samples\\n\");\n    printf(\"  - Latency: ~23ms\\n\");\n\
+    \    \n    // Simulate error checking\n    printf(\"Error check:\\n\");\n    printf(\"\
+    \  - No audio device errors detected\\n\");\n    printf(\"  - Audio stream running\
+    \ normally\\n\");\n    \n    // Simulate volume levels\n    printf(\"Volume levels:\\\
+    n\");\n    printf(\"  - Master volume: 85%%\\n\");\n    printf(\"  - Application\
+    \ volume: 100%%\\n\");\n    \n    printf(\"=== Audio Debugger Complete ===\\n\"\
+    );\n}"
+  tools: "AudioDebugger::AudioDebugger()\n    : udp_sockfd_(-1) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n\
+    \    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket:\
+    \ %d\", errno);\n        return;\n    }\n\n    // Zero out server address structure\n\
+    \    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    \n    // Set\
+    \ up server address\n    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port\
+    \ = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\n    // Convert IP address string to\
+    \ binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        ESP_LOGE(TAG, \"Invalid UDP server IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    ESP_LOGI(TAG, \"AudioDebugger initialized: sending to %s:%d\",\n  \
+    \           CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\
+    \ // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  without-small: "#include <iostream>\n#include <vector>\n#include <string>\n#include\
+    \ <algorithm>\n\n// Assuming these are the necessary includes for audio debugging\n\
+    // In a real implementation, these would be actual audio libraries\nclass AudioDebugger\
+    \ {\nprivate:\n    bool isInitialized;\n    std::vector<std::string> debugMessages;\n\
+    \    int sampleRate;\n    int bitDepth;\n    int channels;\n\npublic:\n    AudioDebugger()\
+    \ : isInitialized(false), sampleRate(44100), bitDepth(16), channels(2) {}\n  \
+    \  \n    void initialize() {\n        isInitialized = true;\n        debugMessages.push_back(\"\
+    Audio debugger initialized successfully\");\n    }\n    \n    void checkAudioDevice()\
+    \ {\n        if (!isInitialized) {\n            debugMessages.push_back(\"Error:\
+    \ Audio debugger not initialized\");\n            return;\n        }\n       \
+    \ \n        // Simulate audio device checking\n        debugMessages.push_back(\"\
+    Checking audio device...\");\n        debugMessages.push_back(\"Audio device:\
+    \ Default Output\");\n        debugMessages.push_back(\"Status: Active\");\n \
+    \   }\n    \n    void analyzeAudioFormat() {\n        if (!isInitialized) {\n\
+    \            debugMessages.push_back(\"Error: Audio debugger not initialized\"\
+    );\n            return;\n        }\n        \n        debugMessages.push_back(\"\
+    Analyzing audio format...\");\n        debugMessages.push_back(\"Sample Rate:\
+    \ \" + std::to_string(sampleRate) + \" Hz\");\n        debugMessages.push_back(\"\
+    Bit Depth: \" + std::to_string(bitDepth) + \" bits\");\n        debugMessages.push_back(\"\
+    Channels: \" + std::to_string(channels));\n    }\n    \n    void detectDistortion()\
+    \ {\n        if (!isInitialized) {\n            debugMessages.push_back(\"Error:\
+    \ Audio debugger not initialized\");\n            return;\n        }\n       \
+    \ \n        // Simulate distortion detection\n        debugMessages.push_back(\"\
+    Detecting audio distortion...\");\n        debugMessages.push_back(\"Distortion\
+    \ level: Normal\");\n        debugMessages.push_back(\"Clipping detected: No\"\
+    );\n    }\n    \n    void checkLatency() {\n        if (!isInitialized) {\n  \
+    \          debugMessages.push_back(\"Error: Audio debugger not initialized\");\n\
+    \            return;\n        }\n        \n        // Simulate latency checking\n\
+    \        debugMessages.push_back(\"Measuring audio latency...\");\n        debugMessages.push_back(\"\
+    Latency: 2.5 ms\");\n        debugMessages.push_back(\"Buffer size: 1024 samples\"\
+    );\n    }\n    \n    void printDebugInfo() {\n        std::cout << \"=== Audio\
+    \ Debugger Report ===\" << std::endl;\n        for (const auto& message : debugMessages)\
+    \ {\n            std::cout << message << std::endl;\n        }\n        std::cout\
+    \ << \"=============================\" << std::endl;\n    }\n    \n    void clearLogs()\
+    \ {\n        debugMessages.clear();\n    }\n};\n\n// The main function as requested\n\
+    void AudioDebugger() {\n    // Create audio debugger instance\n    AudioDebugger\
+    \ debugger;\n    \n    // Initialize the debugger\n    debugger.initialize();\n\
+    \    \n    // Perform various audio checks\n    debugger.checkAudioDevice();\n\
+    \    debugger.analyzeAudioFormat();\n    debugger.detectDistortion();\n    debugger.checkLatency();\n\
+    \    \n    // Print all debug information\n    debugger.printDebugInfo();\n  \
+    \  \n    // Optional: Return status or perform cleanup\n    // For this implementation,\
+    \ we'll just complete the function\n}"
+  tools-small: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n\
+    \    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create UDP\
+    \ socket: %d\", errno);\n        return;\n    }\n\n    // Initialize server address\
+    \ structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n   \
+    \ udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    \n    // Convert server IP address\n    if (inet_pton(AF_INET, CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ &udp_server_addr_.sin_addr) <= 0)\n    {\n        ESP_LOGE(TAG, \"Invalid audio\
+    \ debug server address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n\n    ESP_LOGI(TAG, \"Audio\
+    \ debugger initialized with server %s:%d\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  workflow+sd+mi: "AudioDebugger::AudioDebugger() : udp_sockfd_(-1) {\n    #if CONFIG_ENABLE_AUDIO_DEBUGGER\n\
+    \        // Create UDP socket\n        int sockfd = socket(AF_INET, SOCK_DGRAM,\
+    \ 0);\n        if (sockfd < 0) {\n            ESP_LOGE(TAG, \"Failed to create\
+    \ UDP socket: %d\", errno);\n            return;\n        }\n\n        // Configure\
+    \ server address\n        struct sockaddr_in server_addr;\n        memset(&server_addr,\
+    \ 0, sizeof(server_addr));\n        server_addr.sin_family = AF_INET;\n      \
+    \  server_addr.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n        server_addr.sin_addr.s_addr\
+    \ = inet_addr(CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\n        // Store for later use\n\
+    \        udp_sockfd_ = sockfd;\n        memcpy(&udp_server_addr_, &server_addr,\
+    \ sizeof(udp_server_addr_));\n\n        ESP_LOGI(TAG, \"AudioDebugger initialized\
+    \ with UDP target %s:%d\",\n                 CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    #else\n        ESP_LOGI(TAG, \"AudioDebugger is disabled via Kconfig\");\n\
+    \    #endif\n}"
+  workflow+sd+mi+rf: "#include \"audio_debugger.h\"\n#include \"sdkconfig.h\"\n\n\
+    #if CONFIG_ENABLE_AUDIO_DEBUGGER\n#include <esp_log.h>\n#include <arpa/inet.h>\n\
+    #include <unistd.h>\n#include <errno.h>\n#include <cstring>\n#include <string>\n\
+    #endif\n\n#define TAG \"AudioDebugger\"\n\nAudioDebugger::AudioDebugger() : udp_sockfd_(-1)\n\
+    {\n#if CONFIG_ENABLE_AUDIO_DEBUGGER\n    // Create UDP socket\n    int sockfd\
+    \ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (sockfd < 0)\n    {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n        return;\n    }\n\n   \
+    \ // Configure server address\n    struct sockaddr_in server_addr;\n    memset(&server_addr,\
+    \ 0, sizeof(server_addr));\n    server_addr.sin_family = AF_INET;\n    server_addr.sin_port\
+    \ = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n    server_addr.sin_addr.s_addr = inet_addr(CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \n    // Store for later use\n    udp_sockfd_ = sockfd;\n    memcpy(&udp_server_addr_,\
+    \ &server_addr, sizeof(udp_server_addr_));\n\n    ESP_LOGI(TAG, \"AudioDebugger\
+    \ initialized with UDP target %s:%d\",\n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#else\n    ESP_LOGI(TAG, \"AudioDebugger is disabled\
+    \ via Kconfig\");\n#endif\n}\n\nAudioDebugger::~AudioDebugger()\n{\n#if CONFIG_ENABLE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}\n\nvoid AudioDebugger::Feed(const std::vector<int16_t>\
+    \ &data)\n{\n#if CONFIG_ENABLE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0)\n   \
+    \ {\n        ssize_t sent = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t),\
+    \ 0,\n                              (struct sockaddr *)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent < 0)\n        {\n            ESP_LOGW(TAG, \"Failed to send\
+    \ audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n        }\n\
+    \        else\n        {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data\
+    \ to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"
+  local: "AudioDebugger::AudioDebugger()\n{\n}\n```\n\nHowever, looking at the destructor\
+    \ and other methods like `Feed`, we can infer that this class is intended to initialize\
+    \ a UDP socket for sending audio data to a remote server specified by `CONFIG_AUDIO_DEBUG_UDP_SERVER`.\n\
+    \nTo complete the constructor properly, it should perform the following tasks\
+    \ **only** when `CONFIG_USE_AUDIO_DEBUGGER` is defined:\n1. Create a UDP socket.\n\
+    2. Configure the destination server address using `CONFIG_AUDIO_DEBUG_UDP_SERVER`\
+    \ and `CONFIG_AUDIO_DEBUG_PORT`.\n3. Store the socket file descriptor (`udp_sockfd_`)\
+    \ for later use in `Feed()` and the destructor.\n\nWe also need to include necessary\
+    \ headers only under the conditional compilation guard.\n\n---\n\n### Completed\
+    \ Constructor Implementation\n\nHere's how you could implement the full constructor\
+    \ logic inside its body:\n\n```cpp\n#include \"audio_debugger.h\"\n#include \"\
+    sdkconfig.h\"\n\n#if CONFIG_USE_AUDIO_DEBUGGER\n#include <esp_log.h>\n#include\
+    \ <arpa/inet.h>\n#include <unistd.h>\n#include <errno.h>\n#include <cstring>\n\
+    #include <string>\n#endif\n\n#define TAG \"AudioDebugger\"\n\nAudioDebugger::AudioDebugger()\n\
+    {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM,\
+    \ IPPROTO_UDP);\n    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed\
+    \ to create UDP socket: %d\", errno);\n        return;\n    }\n\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n\
+    \    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_PORT);\n\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ &udp_server_addr_.sin_addr) == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid IP\
+    \ address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n\n    ESP_LOGI(TAG, \"Initialized\
+    \ UDP debugger to %s:%d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_PORT);\n\
+    #else\n    // If not enabled, explicitly set to invalid state\n    udp_sockfd_\
+    \ = -1;\n#endif\n}"
+  workflow-small-rf: "#if CONFIG_AUDIO_DEBUG_ENABLED\n  ```\n- However, both `find_in_files`\
+    \ queries show that neither `CONFIG_AUDIO_DEBUG_ENABLED` nor `CONFIG_USE_AUDIO_DEBUGGER`\
+    \ exist in any header files (`*.h`). This implies that this macro is either undefined\
+    \ or misspelled.\n  \n✅ **Fix**: We should standardize on one configuration name.\
+    \ Since most includes use `CONFIG_USE_AUDIO_DEBUGGER`, we'll assume that’s the\
+    \ intended flag and correct all references accordingly.\n\n---\n\n#### 2. **Missing\
+    \ Destructor Definition in Class Declaration**\n- The destructor `~AudioDebugger()`\
+    \ is defined outside the class but not declared inside it.\n  \n✅ **Fix**: Add\
+    \ a declaration for the destructor within the class definition.\n\n---\n\n####\
+    \ 3. **Duplicate Includes and TAG Definitions**\n- There are duplicate include\
+    \ statements and two definitions of `TAG`.\n  \n✅ **Fix**: Remove redundant includes\
+    \ and keep only one `TAG`.\n\n---\n\n#### 4. **Incomplete Class Declaration**\n\
+    - The original file has an incomplete class declaration with missing destructor\
+    \ and possibly other members like `Feed`.\n\n✅ **Fix**: Ensure full class declaration\
+    \ including all member functions.\n\n---\n\n#### 5. **No Header Guard in `.cc`\
+    \ File**\n- While acceptable, adding a safeguard against multiple inclusion can\
+    \ help avoid potential redefinition errors during compilation.\n\n✅ **Fix**: Optional\
+    \ – add header guard pattern if needed.\n\n---\n\n### ✅ Final Corrected Code\n\
+    \nHere is the refined version of `audio_debugger.cc` addressing all identified\
+    \ issues:\n\n```cpp\n#include \"audio_debugger.h\"\n#include \"sdkconfig.h\"\n\
+    \n// Conditional compilation based on configuration\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    #include <esp_log.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include\
+    \ <arpa/inet.h>\n#include <unistd.h>\n#include <errno.h>\n#include <cstring>\n\
+    #include <string>\n#include <vector>\n#endif\n\n#define TAG \"AudioDebugger\"\n\
+    \nclass AudioDebugger {\nprivate:\n    int udp_sockfd_;\n    struct sockaddr_in\
+    \ udp_server_addr_;\n\npublic:\n    AudioDebugger();\n    ~AudioDebugger();\n\
+    \    void Feed(const std::vector<int16_t>& data);\n};\n\nAudioDebugger::AudioDebugger()\
+    \ : udp_sockfd_(-1) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    // Create UDP socket\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n\n    // Configure server address\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    udp_server_addr_.sin_addr.s_addr = inet_addr(CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \n    ESP_LOGI(TAG, \"Initialized UDP socket for audio debugging\");\n#else\n\
+    \    ESP_LOGI(TAG, \"Audio debugging disabled via config\");\n#endif\n}\n\nAudioDebugger::~AudioDebugger()\
+    \ {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n\
+    \        ESP_LOGI(TAG, \"Closed UDP socket\");\n    }\n#endif\n}\n\nvoid AudioDebugger::Feed(const\
+    \ std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_\
+    \ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_,\n                      \
+    \        data.data(),\n                              data.size() * sizeof(int16_t),\n\
+    \                              0,\n                              (struct sockaddr*)&udp_server_addr_,\n\
+    \                              sizeof(udp_server_addr_));\n        if (sent <\
+    \ 0) {\n            ESP_LOGW(TAG, \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ errno);\n        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data\
+    \ to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"
+  local-small: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = -1;\n    \n    // Initialize UDP socket\n    udp_sockfd_ =\
+    \ socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n        return;\n    }\n    \n\
+    \    // Configure UDP server address\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    \n    // Convert IP address string to binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ &udp_server_addr_.sin_addr) == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid UDP\
+    \ server IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n    \n    ESP_LOGI(TAG, \"\
+    AudioDebugger initialized with server %s:%d\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  tools-long: "AudioDebugger::AudioDebugger() : udp_sockfd_(-1) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n\n    // Optional: Parse CONFIG_AUDIO_DEBUG_UDP_SERVER for IP and\
+    \ Port\n    std::string server_str(CONFIG_AUDIO_DEBUG_UDP_SERVER);\n    size_t\
+    \ colon_pos = server_str.find(':');\n    if (colon_pos != std::string::npos) {\n\
+    \        std::string ip_str = server_str.substr(0, colon_pos);\n        std::string\
+    \ port_str = server_str.substr(colon_pos + 1);\n\n        udp_server_addr_.sin_port\
+    \ = htons(static_cast<uint16_t>(std::stoi(port_str)));\n        inet_pton(AF_INET,\
+    \ ip_str.c_str(), &udp_server_addr_.sin_addr);\n    } else {\n        ESP_LOGE(TAG,\
+    \ \"Invalid server address format: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n   \
+    \     close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n    }\n\
+    \n    ESP_LOGI(TAG, \"Initialized UDP socket for audio debugging to %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    #endif\n}"
+  graph-5-5: "AudioDebugger::AudioDebugger() : udp_sockfd_(-1) {\n    // Initialize\
+    \ the UDP socket file descriptor to -1 indicating no socket\n    \n#ifdef CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Only proceed with UDP setup if audio debugging is enabled\n    \n    //\
+    \ Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n\
+    \    if (udp_sockfd_ < 0) {\n        ESP_LOGE(\"AudioDebugger\", \"Failed to create\
+    \ UDP socket: %s\", strerror(errno));\n        return;\n    }\n    \n    // Configure\
+    \ server address structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\
+    \  // Assuming port config exists\n    \n    // Convert server IP address from\
+    \ string to binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        ESP_LOGE(\"AudioDebugger\", \"Invalid server IP address: %s\"\
+    , CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n    \n    ESP_LOGI(\"AudioDebugger\", \"Initialized\
+    \ UDP debugger to %s:%d\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    #endif\n}"
+  graph-small-5-5: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor to invalid value\n    udp_sockfd_ =\
+    \ -1;\n    \n    // Clear server address structure\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  Desc+without: "AudioDebugger::AudioDebugger() {\n    // Initialize member variables\n\
+    \    m_udpSocket = -1;\n    m_isInitialized = false;\n    m_serverPort = 0;\n\
+    \    \n    // Get configuration settings for server IP and port\n    std::string\
+    \ serverIP = getConfigServerIP();\n    m_serverPort = getConfigServerPort();\n\
+    \    \n    // Validate configuration parameters\n    if (serverIP.empty() || m_serverPort\
+    \ == 0) {\n        logError(\"Invalid server configuration: IP or port not set\"\
+    );\n        return;\n    }\n    \n    // Create UDP socket\n    m_udpSocket =\
+    \ socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (m_udpSocket < 0) {\n    \
+    \    logError(\"Failed to create UDP socket: \" + std::string(strerror(errno)));\n\
+    \        return;\n    }\n    \n    // Configure server address structure\n   \
+    \ memset(&m_serverAddr, 0, sizeof(m_serverAddr));\n    m_serverAddr.sin_family\
+    \ = AF_INET;\n    m_serverAddr.sin_port = htons(m_serverPort);\n    \n    // Parse\
+    \ and set server IP address\n    if (inet_pton(AF_INET, serverIP.c_str(), &m_serverAddr.sin_addr)\
+    \ <= 0) {\n        logError(\"Failed to parse server IP address: \" + serverIP);\n\
+    \        close(m_udpSocket);\n        m_udpSocket = -1;\n        return;\n   \
+    \ }\n    \n    // Test connection by sending a simple debug message\n    const\
+    \ char* testMessage = \"AudioDebugger initialized\";\n    ssize_t sentBytes =\
+    \ sendto(m_udpSocket, testMessage, strlen(testMessage), \n                   \
+    \           0, (struct sockaddr*)&m_serverAddr, sizeof(m_serverAddr));\n    \n\
+    \    if (sentBytes < 0) {\n        logError(\"Failed to send test message to server:\
+    \ \" + std::string(strerror(errno)));\n        close(m_udpSocket);\n        m_udpSocket\
+    \ = -1;\n        return;\n    }\n    \n    // Mark as successfully initialized\n\
+    \    m_isInitialized = true;\n    logInfo(\"AudioDebugger successfully initialized.\
+    \ Connected to \" + serverIP + \":\" + std::to_string(m_serverPort));\n}"
+  Desc+local: "AudioDebugger::AudioDebugger()\n    : udp_sockfd_(-1)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n\
+    \    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create UDP\
+    \ socket: %d\", errno);\n        return;\n    }\n\n    // Zero out server address\
+    \ structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\n \
+    \   // Setup server address\n    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port\
+    \ = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\n    // Convert IP address string to\
+    \ binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid server IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    ESP_LOGI(TAG, \"Initialized UDP socket to %s:%d\", CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  Desc+graph-5-5: "#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n\
+    #include <unistd.h>\n#include <cstring>\n#include <cerrno>\n#include \"esp_log.h\"\
+    \n\n#define TAG \"AudioDebugger\"\n\n// Assume these are defined in sdkconfig\
+    \ or build system\n#ifndef CONFIG_AUDIO_DEBUG_UDP_SERVER\n#define CONFIG_AUDIO_DEBUG_UDP_SERVER\
+    \ \"192.168.1.100\"\n#endif\n\n#ifndef CONFIG_AUDIO_DEBUG_UDP_PORT\n#define CONFIG_AUDIO_DEBUG_UDP_PORT\
+    \ 9001\n#endif\n\nint udp_sockfd_ = -1;\nstruct sockaddr_in udp_server_addr_;\n\
+    \nAudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n  \
+    \      ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \n    const char* server_ip = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    if (inet_aton(server_ip,\
+    \ &udp_server_addr_.sin_addr) == 0) {\n        ESP_LOGE(TAG, \"Invalid server\
+    \ IP address: %s\", server_ip);\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n\n    ESP_LOGI(TAG, \"AudioDebugger initialized:\
+    \ sending to %s:%d\",\n             server_ip, CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    #endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  Desc+tools: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_\
+    \ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n\
+    \        return;\n    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n\n    // Expecting CONFIG_AUDIO_DEBUG_UDP_SERVER\
+    \ to be of form \"IP:PORT\"\n    std::string server_str = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \    size_t colon_pos = server_str.find(':');\n    if (colon_pos == std::string::npos)\n\
+    \    {\n        ESP_LOGE(TAG, \"Invalid server config format: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    std::string ip_str = server_str.substr(0, colon_pos);\n    std::string\
+    \ port_str = server_str.substr(colon_pos + 1);\n\n    if (inet_pton(AF_INET, ip_str.c_str(),\
+    \ &udp_server_addr_.sin_addr) <= 0)\n    {\n        ESP_LOGE(TAG, \"Invalid IP\
+    \ address: %s\", ip_str.c_str());\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n\n    try {\n        uint16_t port = static_cast<uint16_t>(std::stoi(port_str));\n\
+    \        udp_server_addr_.sin_port = htons(port);\n    }\n    catch (...) {\n\
+    \        ESP_LOGE(TAG, \"Invalid port number: %s\", port_str.c_str());\n     \
+    \   close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n    }\n\n\
+    \    ESP_LOGI(TAG, \"Initialized UDP socket to %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    #else\n    udp_sockfd_ = -1;\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  Desc+graph-KG-5-5: "AudioDebugger::AudioDebugger() : udp_sockfd_(-1) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n    } else\
+    \ {\n        memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n       \
+    \ udp_server_addr_.sin_family = AF_INET;\n        udp_server_addr_.sin_port =\
+    \ htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n        if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ &udp_server_addr_.sin_addr) == 0) {\n            ESP_LOGE(TAG, \"Invalid server\
+    \ IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n            close(udp_sockfd_);\n\
+    \            udp_sockfd_ = -1;\n        } else {\n            ESP_LOGI(TAG, \"\
+    Initialized UDP debugger to %s:%d\", \n                     CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n        }\n    }\n#endif\n}"
+  Desc+workflow: "AudioDebugger::AudioDebugger() : udp_sockfd_(-1) {\n    // Create\
+    \ UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_\
+    \ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n\
+    \        return;\n    }\n\n    // Initialize server address structure\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n\
+    \    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\n    //\
+    \ Convert IP address from string to binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER_IP,\
+    \ &udp_server_addr_.sin_addr) == 0) {\n        ESP_LOGE(TAG, \"Invalid server\
+    \ IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER_IP);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n\n    ESP_LOGI(TAG, \"UDP\
+    \ socket initialized to %s:%d\",\n             CONFIG_AUDIO_DEBUG_UDP_SERVER_IP,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n}"
+  Desc+without-small: "AudioDebugger::AudioDebugger(const std::string& serverIp, int\
+    \ serverPort)\n{\n    // Initialize logging\n    Logger::log(\"AudioDebugger:\
+    \ Initializing UDP socket connection\");\n    \n    // Store server configuration\n\
+    \    m_serverIp = serverIp;\n    m_serverPort = serverPort;\n    \n    // Initialize\
+    \ socket\n    m_socketFd = socket(AF_INET, SOCK_DGRAM, 0);\n    if (m_socketFd\
+    \ < 0) {\n        Logger::log(\"AudioDebugger: Failed to create UDP socket\",\
+    \ LogLevel::ERROR);\n        m_initialized = false;\n        return;\n    }\n\
+    \    \n    // Set up server address structure\n    memset(&m_serverAddr, 0, sizeof(m_serverAddr));\n\
+    \    m_serverAddr.sin_family = AF_INET;\n    m_serverAddr.sin_port = htons(serverPort);\n\
+    \    \n    // Parse IP address\n    if (inet_pton(AF_INET, serverIp.c_str(), &m_serverAddr.sin_addr)\
+    \ <= 0) {\n        Logger::log(\"AudioDebugger: Failed to parse server IP address\"\
+    , LogLevel::ERROR);\n        close(m_socketFd);\n        m_initialized = false;\n\
+    \        return;\n    }\n    \n    // Set socket options for better performance\n\
+    \    int opt = 1;\n    if (setsockopt(m_socketFd, SOL_SOCKET, SO_REUSEADDR, &opt,\
+    \ sizeof(opt)) < 0) {\n        Logger::log(\"AudioDebugger: Failed to set socket\
+    \ options\", LogLevel::WARNING);\n    }\n    \n    // Log successful initialization\n\
+    \    Logger::log(\"AudioDebugger: UDP socket initialized successfully\");\n  \
+    \  Logger::log(\"AudioDebugger: Connected to \" + serverIp + \":\" + std::to_string(serverPort));\n\
+    \    \n    m_initialized = true;\n}"
+  Desc+graph-SRP_KG-5-5-rf: "#include \"audio_debugger.h\"\n#include \"sdkconfig.h\"\
+    \n\n// Provide fallback definitions if not configured elsewhere\n#ifndef CONFIG_USE_AUDIO_DEBUGGER\n\
+    #define CONFIG_USE_AUDIO_DEBUGGER 0\n#endif\n\n#ifndef CONFIG_AUDIO_DEBUG_UDP_PORT\n\
+    #define CONFIG_AUDIO_DEBUG_UDP_PORT 9000\n#endif\n\n#ifndef CONFIG_AUDIO_DEBUG_UDP_SERVER\n\
+    #define CONFIG_AUDIO_DEBUG_UDP_SERVER \"192.168.1.100\"\n#endif\n\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    #include <esp_log.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n#include <errno.h>\n\
+    #include <cstring>\n#include <string>\n#endif\n\n#define TAG \"AudioDebugger\"\
+    \n\nAudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n  \
+    \      ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr);\n\n\
+    \    ESP_LOGI(TAG, \"Initialized UDP debugger to %s:%d\", CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#else\n    udp_sockfd_ = -1;\n#endif\n}\n\nAudioDebugger::~AudioDebugger()\n\
+    {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n\
+    \        ESP_LOGI(TAG, \"Closed UDP socket\");\n    }\n#endif\n}\n\nvoid AudioDebugger::Feed(const\
+    \ std::vector<int16_t> &data)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_\
+    \ >= 0)\n    {\n        ssize_t sent = sendto(udp_sockfd_, data.data(), data.size()\
+    \ * sizeof(int16_t), 0,\n                              (struct sockaddr *)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        if (sent < 0)\n        {\n            ESP_LOGW(TAG,\
+    \ \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n\
+    \        }\n        else\n        {\n            ESP_LOGD(TAG, \"Sent %d bytes\
+    \ audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n\
+    #endif\n}"
+  Desc+graph-wt-SRP_KG-3-3: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n\n    // Parse server address from config\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n\
+    \    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\n    if\
+    \ (inet_pton(AF_INET, CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ <= 0) {\n        ESP_LOGE(TAG, \"Invalid server IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    ESP_LOGI(TAG, \"AudioDebugger initialized with server %s:%d\", \n \
+    \            CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "cpp\nAudioDebugger::AudioDebugger() {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    // Initialize socket file descriptor\n    udp_sockfd_\
+    \ = -1;\n    \n    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM,\
+    \ 0);\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP\
+    \ socket: %d\", errno);\n        return;\n    }\n    \n    // Initialize server\
+    \ address structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    \n    // Parse IP address from\
+    \ configuration\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        ESP_LOGE(TAG, \"Invalid IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    // Parse port from configuration\n    char* endptr;\n    long port\
+    \ = strtol(CONFIG_AUDIO_DEBUG_UDP_SERVER_PORT, &endptr, 10);\n    if (*endptr\
+    \ != '\\0' || port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port\
+    \ number: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER_PORT);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n    udp_server_addr_.sin_port\
+    \ = htons(static_cast<uint16_t>(port));\n    \n    ESP_LOGI(TAG, \"UDP socket\
+    \ initialized successfully to %s:%s\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_SERVER_PORT);\n#endif\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "cpp\nAudioDebugger::AudioDebugger()\
+    \ {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    // Initialize socket file descriptor\n\
+    \    udp_sockfd_ = -1;\n    \n    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET,\
+    \ SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed\
+    \ to create UDP socket: %d\", errno);\n        return;\n    }\n    \n    // Initialize\
+    \ server address structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    \n    // Parse IP address from\
+    \ configuration\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        ESP_LOGE(TAG, \"Invalid IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    // Parse port from configuration\n    char* endptr;\n    long port\
+    \ = strtol(CONFIG_AUDIO_DEBUG_UDP_SERVER_PORT, &endptr, 10);\n    if (*endptr\
+    \ != '\\0' || port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port\
+    \ number: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER_PORT);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n    udp_server_addr_.sin_port\
+    \ = htons(static_cast<uint16_t>(port));\n    \n    ESP_LOGI(TAG, \"UDP socket\
+    \ initialized successfully to %s:%s\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_SERVER_PORT);\n#endif\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "AudioDebugger::AudioDebugger() {\n    ESP_LOGI(TAG,\
+    \ \"Initializing Audio Debugger\");\n    \n    // Get network interface from board\n\
+    \    auto& board = Board::GetInstance();\n    auto* network = board.GetNetwork();\n\
+    \    \n    if (network == nullptr) {\n        ESP_LOGE(TAG, \"Failed to get network\
+    \ interface\");\n        return;\n    }\n    \n    // Create UDP socket\n    udp_socket_\
+    \ = network->CreateUdp();\n    if (udp_socket_ == nullptr) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket\");\n        return;\n    }\n    \n    // Parse\
+    \ server configuration from settings\n    Settings settings(\"audio_debug\", false);\n\
+    \    std::string server_ip = settings.GetString(\"server_ip\", \"\");\n    int\
+    \ server_port = settings.GetInt(\"server_port\", 0);\n    \n    if (server_ip.empty()\
+    \ || server_port == 0) {\n        ESP_LOGE(TAG, \"Invalid debugger server configuration:\
+    \ ip=%s, port=%d\", \n                 server_ip.c_str(), server_port);\n    \
+    \    udp_socket_.reset();\n        return;\n    }\n    \n    // Connect to the\
+    \ debugger server\n    ESP_LOGI(TAG, \"Connecting to audio debugger at %s:%d\"\
+    , \n             server_ip.c_str(), server_port);\n    \n    if (!udp_socket_->Connect(server_ip,\
+    \ server_port)) {\n        ESP_LOGE(TAG, \"Failed to connect to audio debugger\
+    \ server\");\n        udp_socket_.reset();\n        return;\n    }\n    \n   \
+    \ is_initialized_ = true;\n    ESP_LOGI(TAG, \"Audio debugger initialized successfully\"\
+    );\n}"
+  without-small;: "AudioDebugger::AudioDebugger(const std::string& serverIp, int serverPort)\n\
+    {\n    // Initialize logging\n    Logger::log(\"AudioDebugger: Initializing UDP\
+    \ socket connection\");\n    \n    // Store server configuration\n    m_serverIp\
+    \ = serverIp;\n    m_serverPort = serverPort;\n    \n    // Initialize socket\n\
+    \    m_socketFd = socket(AF_INET, SOCK_DGRAM, 0);\n    if (m_socketFd < 0) {\n\
+    \        Logger::log(\"AudioDebugger: Failed to create UDP socket\", LogLevel::ERROR);\n\
+    \        m_initialized = false;\n        return;\n    }\n    \n    // Set up server\
+    \ address structure\n    memset(&m_serverAddr, 0, sizeof(m_serverAddr));\n   \
+    \ m_serverAddr.sin_family = AF_INET;\n    m_serverAddr.sin_port = htons(serverPort);\n\
+    \    \n    // Parse IP address\n    if (inet_pton(AF_INET, serverIp.c_str(), &m_serverAddr.sin_addr)\
+    \ <= 0) {\n        Logger::log(\"AudioDebugger: Failed to parse server IP address\"\
+    , LogLevel::ERROR);\n        close(m_socketFd);\n        m_initialized = false;\n\
+    \        return;\n    }\n    \n    // Set socket options for better performance\n\
+    \    int opt = 1;\n    if (setsockopt(m_socketFd, SOL_SOCKET, SO_REUSEADDR, &opt,\
+    \ sizeof(opt)) < 0) {\n        Logger::log(\"AudioDebugger: Failed to set socket\
+    \ options\", LogLevel::WARNING);\n    }\n    \n    // Log successful initialization\n\
+    \    Logger::log(\"AudioDebugger: UDP socket initialized successfully\");\n  \
+    \  Logger::log(\"AudioDebugger: Connected to \" + serverIp + \":\" + std::to_string(serverPort));\n\
+    \    \n    m_initialized = true;\n}"
+  local-small;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0)\n\
+    \    {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n \
+    \       return;\n    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \n    // Parse IP address from CONFIG_AUDIO_DEBUG_UDP_SERVER\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ &udp_server_addr_.sin_addr) == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid IP\
+    \ address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n\n    ESP_LOGI(TAG, \"Audio\
+    \ debugger initialized with server %s:%d\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  graph-SRP_KG-small;: "void AudioDebugger() {\n    // Parse the UDP server IP address\
+    \ and port from configuration settings\n    // This would typically involve extracting\
+    \ from JSON configuration\n    // For now, we'll assume the values are already\
+    \ available in member variables\n    // from previous configuration parsing (similar\
+    \ to ParseServerHello)\n    \n    try {\n        // Initialize network interface\n\
+    \        auto network = Board::GetInstance().GetNetwork();\n        if (!network)\
+    \ {\n            ESP_LOGE(TAG, \"Failed to get network interface\");\n       \
+    \     return;\n        }\n        \n        // Create UDP socket connection\n\
+    \        udp_debug_ = network->CreateUdp(2);\n        if (!udp_debug_) {\n   \
+    \         ESP_LOGE(TAG, \"Failed to create UDP socket for debugging\");\n    \
+    \        return;\n        }\n        \n        // Connect to the UDP server (assuming\
+    \ udp_server_debug_ and udp_port_debug_ are set)\n        // Note: This would\
+    \ normally come from configuration parsing like in ValidateAndExtractUdpConfig\n\
+    \        if (!udp_debug_->Connect(udp_server_debug_, udp_port_debug_)) {\n   \
+    \         ESP_LOGE(TAG, \"Failed to connect UDP debug socket to %s:%d\", \n  \
+    \                  udp_server_debug_.c_str(), udp_port_debug_);\n            udp_debug_.reset();\n\
+    \            return;\n        }\n        \n        ESP_LOGI(TAG, \"UDP debug socket\
+    \ initialized successfully to %s:%d\", \n                udp_server_debug_.c_str(),\
+    \ udp_port_debug_);\n        \n    } catch (const std::exception& e) {\n     \
+    \   ESP_LOGE(TAG, \"Exception in AudioDebugger: %s\", e.what());\n        udp_debug_.reset();\n\
+    \    } catch (...) {\n        ESP_LOGE(TAG, \"Unknown exception in AudioDebugger\"\
+    );\n        udp_debug_.reset();\n    }\n}"
+  tools-small;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM,\
+    \ 0);\n    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create\
+    \ UDP socket: %d\", errno);\n        return;\n    }\n    \n    // Initialize server\
+    \ address structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    \n    // Set default server address\
+    \ and port\n    // Since CONFIG_AUDIO_DEBUG_UDP_SERVER is not found in codebase,\n\
+    \    // we'll use a reasonable default or try to parse from a common config\n\
+    \    const char* server_ip = \"127.0.0.1\";  // Default to localhost\n    int\
+    \ server_port = 12345;              // Default port\n    \n    // Try to parse\
+    \ server address - in real implementation this would read from config\n    //\
+    \ For now using hardcoded values as fallback\n    udp_server_addr_.sin_addr.s_addr\
+    \ = inet_addr(server_ip);\n    udp_server_addr_.sin_port = htons(server_port);\n\
+    \    \n    ESP_LOGI(TAG, \"Initialized UDP socket to %s:%d\", server_ip, server_port);\n\
+    #endif\n}"
+  graph-SRP_KG-it;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = -1;\n    \n    // Parse server IP and port from configuration\n\
+    \    std::string server_addr = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    int server_port\
+    \ = CONFIG_AUDIO_DEBUG_UDP_PORT;\n    \n    // Create UDP socket\n    udp_sockfd_\
+    \ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n  \
+    \      ESP_LOGE(TAG, \"Failed to create UDP socket: %s\", strerror(errno));\n\
+    \        return;\n    }\n    \n    // Configure server address\n    memset(&server_addr_,\
+    \ 0, sizeof(server_addr_));\n    server_addr_.sin_family = AF_INET;\n    server_addr_.sin_port\
+    \ = htons(server_port);\n    \n    // Convert server address string to binary\
+    \ form\n    if (inet_aton(server_addr.c_str(), &server_addr_.sin_addr) == 0) {\n\
+    \        ESP_LOGE(TAG, \"Invalid server IP address: %s\", server_addr.c_str());\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    ESP_LOGI(TAG, \"Initialized UDP debugger connection to %s:%d\"\
+    , \n             server_addr.c_str(), server_port);\n#else\n    udp_sockfd_ =\
+    \ -1;\n#endif\n}"
+  graph-SRP_KG-it-small;: "#include \"audio_debugger.h\"\n#include \"sdkconfig.h\"\
+    \n\n#if CONFIG_USE_AUDIO_DEBUGGER\n#include <esp_log.h>\n#include <arpa/inet.h>\n\
+    #include <unistd.h>\n#include <errno.h>\n#include <cstring>\n#include <string>\n\
+    #endif\n\n#define TAG \"AudioDebugger\"\n\nAudioDebugger::AudioDebugger() {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_ = -1;\n    \n    // Create UDP\
+    \ socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_\
+    \ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n\
+    \        return;\n    }\n    \n    // Parse server address from configuration\n\
+    \    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    \n    // Convert IP address string to binary form\n    if (inet_pton(AF_INET,\
+    \ CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr) <= 0) {\n       \
+    \ ESP_LOGE(TAG, \"Invalid server address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully for server\
+    \ %s:%d\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    #endif\n}"
+  without;: "AudioDebugger::AudioDebugger() {\n    // Initialize member variables\n\
+    \    m_udpSocket = -1;\n    m_isInitialized = false;\n    m_serverPort = 0;\n\
+    \    \n    // Get configuration settings for server IP and port\n    std::string\
+    \ serverIP = getConfigServerIP();\n    m_serverPort = getConfigServerPort();\n\
+    \    \n    // Validate configuration parameters\n    if (serverIP.empty() || m_serverPort\
+    \ == 0) {\n        logError(\"Invalid server configuration: IP or port not set\"\
+    );\n        return;\n    }\n    \n    // Create UDP socket\n    m_udpSocket =\
+    \ socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (m_udpSocket < 0) {\n    \
+    \    logError(\"Failed to create UDP socket: \" + std::string(strerror(errno)));\n\
+    \        return;\n    }\n    \n    // Configure server address structure\n   \
+    \ memset(&m_serverAddr, 0, sizeof(m_serverAddr));\n    m_serverAddr.sin_family\
+    \ = AF_INET;\n    m_serverAddr.sin_port = htons(m_serverPort);\n    \n    // Parse\
+    \ and set server IP address\n    if (inet_pton(AF_INET, serverIP.c_str(), &m_serverAddr.sin_addr)\
+    \ <= 0) {\n        logError(\"Failed to parse server IP address: \" + serverIP);\n\
+    \        close(m_udpSocket);\n        m_udpSocket = -1;\n        return;\n   \
+    \ }\n    \n    // Test connection by sending a simple debug message\n    const\
+    \ char* testMessage = \"AudioDebugger initialized\";\n    ssize_t sentBytes =\
+    \ sendto(m_udpSocket, testMessage, strlen(testMessage), \n                   \
+    \           0, (struct sockaddr*)&m_serverAddr, sizeof(m_serverAddr));\n    \n\
+    \    if (sentBytes < 0) {\n        logError(\"Failed to send test message to server:\
+    \ \" + std::string(strerror(errno)));\n        close(m_udpSocket);\n        m_udpSocket\
+    \ = -1;\n        return;\n    }\n    \n    // Mark as successfully initialized\n\
+    \    m_isInitialized = true;\n    logInfo(\"AudioDebugger successfully initialized.\
+    \ Connected to \" + serverIP + \":\" + std::to_string(m_serverPort));\n}"
+  local;: "AudioDebugger::AudioDebugger()\n    : udp_sockfd_(-1)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n\
+    \    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create UDP\
+    \ socket: %d\", errno);\n        return;\n    }\n\n    // Zero out server address\
+    \ structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\n \
+    \   // Setup server address\n    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port\
+    \ = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\n    // Convert IP address string to\
+    \ binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid server IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    ESP_LOGI(TAG, \"Initialized UDP socket to %s:%d\", CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  tools;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0)\n    {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n\n    // Expecting CONFIG_AUDIO_DEBUG_UDP_SERVER to be of form \"\
+    IP:PORT\"\n    std::string server_str = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t\
+    \ colon_pos = server_str.find(':');\n    if (colon_pos == std::string::npos)\n\
+    \    {\n        ESP_LOGE(TAG, \"Invalid server config format: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    std::string ip_str = server_str.substr(0, colon_pos);\n    std::string\
+    \ port_str = server_str.substr(colon_pos + 1);\n\n    if (inet_pton(AF_INET, ip_str.c_str(),\
+    \ &udp_server_addr_.sin_addr) <= 0)\n    {\n        ESP_LOGE(TAG, \"Invalid IP\
+    \ address: %s\", ip_str.c_str());\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n\n    try {\n        uint16_t port = static_cast<uint16_t>(std::stoi(port_str));\n\
+    \        udp_server_addr_.sin_port = htons(port);\n    }\n    catch (...) {\n\
+    \        ESP_LOGE(TAG, \"Invalid port number: %s\", port_str.c_str());\n     \
+    \   close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n    }\n\n\
+    \    ESP_LOGI(TAG, \"Initialized UDP socket to %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    #else\n    udp_sockfd_ = -1;\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  eg;: "#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n\
+    #include <unistd.h>\n#include <cstring>\n\n// Assuming these exist elsewhere\n\
+    namespace Board {\n    bool getDebugServerAddress(std::string& ip, int& port);\
+    \ // Retrieves config\n}\n\nnamespace Logging {\n    void LOG_INFO(const char*\
+    \ msg);\n    void LOG_ERROR(const char* msg);\n}\n\nclass AudioDebugger {\nprivate:\n\
+    \    int udp_socket_;\n    struct sockaddr_in server_addr_;\n    bool initialized_;\n\
+    \npublic:\n    // Constructor / Callable Object Functionality\n    AudioDebugger()\
+    \ : udp_socket_(-1), initialized_(false) {\n        std::string server_ip;\n \
+    \       int server_port;\n\n        // Step 1: Parse server IP and port from configuration\n\
+    \        if (!Board::getDebugServerAddress(server_ip, server_port)) {\n      \
+    \      Logging::LOG_ERROR(\"Failed to retrieve debug server address from config.\"\
+    );\n            return;\n        }\n\n        // Step 2: Initialize UDP socket\n\
+    \        udp_socket_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n        if (udp_socket_\
+    \ < 0) {\n            Logging::LOG_ERROR(\"Failed to create UDP socket.\");\n\
+    \            return;\n        }\n\n        // Setup server address structure\n\
+    \        memset(&server_addr_, 0, sizeof(server_addr_));\n        server_addr_.sin_family\
+    \ = AF_INET;\n        server_addr_.sin_port = htons(server_port);\n\n        if\
+    \ (inet_pton(AF_INET, server_ip.c_str(), &server_addr_.sin_addr) <= 0) {\n   \
+    \         Logging::LOG_ERROR(\"Invalid server IP address.\");\n            close(udp_socket_);\n\
+    \            udp_socket_ = -1;\n            return;\n        }\n\n        // Optional:\
+    \ Attempt connection (for connected UDP sockets)\n        // Not strictly necessary\
+    \ for sending unconnected packets\n\n        initialized_ = true;\n        Logging::LOG_INFO(\"\
+    AudioDebugger successfully initialized.\");\n    }\n\n    ~AudioDebugger() {\n\
+    \        if (udp_socket_ >= 0) {\n            close(udp_socket_);\n        }\n\
+    \    }\n\n    // Example usage function for transmitting data\n    bool sendData(const\
+    \ void* data, size_t length) {\n        if (!initialized_) return false;\n\n \
+    \       ssize_t sent = sendto(udp_socket_, data, length, 0,\n                \
+    \              reinterpret_cast<struct sockaddr*>(&server_addr_), sizeof(server_addr_));\n\
+    \        return sent == static_cast<ssize_t>(length);\n    }\n};"
+  a3;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = -1;\n    \n    // Parse the server address and port from configuration\n \
+    \   std::string server_config = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t colon_pos\
+    \ = server_config.find(':');\n    \n    if (colon_pos == std::string::npos) {\n\
+    \        ESP_LOGE(TAG, \"Invalid server configuration format, expected IP:PORT\"\
+    );\n        return;\n    }\n    \n    std::string ip_str = server_config.substr(0,\
+    \ colon_pos);\n    std::string port_str = server_config.substr(colon_pos + 1);\n\
+    \    \n    int port = atoi(port_str.c_str());\n    if (port <= 0 || port > 65535)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid port number: %s\", port_str.c_str());\n \
+    \       return;\n    }\n    \n    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET,\
+    \ SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n        return;\n    }\n    \n\
+    \    // Configure server address\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(port);\n\
+    \    \n    if (inet_aton(ip_str.c_str(), &udp_server_addr_.sin_addr) == 0) {\n\
+    \        ESP_LOGE(TAG, \"Invalid IP address: %s\", ip_str.c_str());\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n    \n    ESP_LOGI(TAG, \"\
+    Initialized UDP debugger to %s:%d\", ip_str.c_str(), port);\n#else\n    // When\
+    \ debugger is disabled, ensure socket is invalid\n    udp_sockfd_ = -1;\n#endif\n\
+    }"
+  eg-small;: "void AudioDebugger() {\n    // Parse the UDP server IP address and port\
+    \ from configuration settings\n    std::string server_ip = GetConfigString(\"\
+    audio_debugger_server_ip\", \"127.0.0.1\");\n    int server_port = GetConfigInt(\"\
+    audio_debugger_server_port\", 8080);\n    \n    // Initialize a UDP socket connection\
+    \ using the parsed server details\n    int udp_socket = socket(AF_INET, SOCK_DGRAM,\
+    \ 0);\n    if (udp_socket < 0) {\n        LOG_ERROR(\"Failed to create UDP socket\
+    \ for audio debugger\");\n        return;\n    }\n    \n    struct sockaddr_in\
+    \ server_addr;\n    memset(&server_addr, 0, sizeof(server_addr));\n    server_addr.sin_family\
+    \ = AF_INET;\n    server_addr.sin_port = htons(server_port);\n    \n    if (inet_pton(AF_INET,\
+    \ server_ip.c_str(), &server_addr.sin_addr) <= 0) {\n        LOG_ERROR(\"Invalid\
+    \ UDP server address: \" + server_ip);\n        close(udp_socket);\n        return;\n\
+    \    }\n    \n    // Attempt to connect to the UDP server\n    if (connect(udp_socket,\
+    \ (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {\n        LOG_ERROR(\"\
+    Failed to connect UDP socket to server \" + server_ip + \":\" + std::to_string(server_port));\n\
+    \        close(udp_socket);\n        return;\n    }\n    \n    // Log the initialization\
+    \ status\n    LOG_INFO(\"Successfully initialized UDP connection to audio debugger\
+    \ server: \" + \n             server_ip + \":\" + std::to_string(server_port));\n\
+    \    \n    // Store the socket for later use in the audio debugging process\n\
+    \    // This would typically be stored in a class member variable or global state\n\
+    \    g_audio_debugger_socket = udp_socket;\n}"
+  a3-small;: "cpp\nAudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n\
+    \    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket:\
+    \ %d\", errno);\n        return;\n    }\n    \n    // Parse server address from\
+    \ configuration\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    \n    // Extract IP address and\
+    \ port from CONFIG_AUDIO_DEBUG_UDP_SERVER\n    // Format expected: \"IP_ADDRESS:PORT\"\
+    \ or \"HOSTNAME:PORT\"\n    const char* server_config = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \    if (server_config == nullptr || strlen(server_config) == 0) {\n        ESP_LOGE(TAG,\
+    \ \"Invalid server configuration\");\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n    \n    // Parse IP address and port\n    std::string\
+    \ server_str(server_config);\n    size_t colon_pos = server_str.find(':');\n \
+    \   if (colon_pos == std::string::npos) {\n        ESP_LOGE(TAG, \"Invalid server\
+    \ format, expected IP:PORT\");\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n    \n    std::string ip_str = server_str.substr(0,\
+    \ colon_pos);\n    std::string port_str = server_str.substr(colon_pos + 1);\n\
+    \    \n    // Convert port string to integer\n    int port = atoi(port_str.c_str());\n\
+    \    if (port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port number:\
+    \ %d\", port);\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n     \
+    \   return;\n    }\n    \n    // Set up server address structure\n    udp_server_addr_.sin_port\
+    \ = htons(port);\n    \n    // Parse IP address\n    if (inet_aton(ip_str.c_str(),\
+    \ &udp_server_addr_.sin_addr) == 0) {\n        ESP_LOGE(TAG, \"Invalid IP address:\
+    \ %s\", ip_str.c_str());\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n\
+    \        return;\n    }\n    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully\
+    \ to %s:%d\", \n             ip_str.c_str(), port);\n#endif\n}"
+  SRP-small;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n \
+    \   // Parse server IP and port from configuration\n    std::string ip = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \    int port = CONFIG_AUDIO_DEBUG_UDP_PORT;\n    \n    // Initialize UDP socket\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket\");\n        return;\n  \
+    \  }\n    \n    // Construct address structure\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n\
+    \    udp_server_addr_.sin_port = htons(port);\n    if (inet_pton(AF_INET, ip.c_str(),\
+    \ &udp_server_addr_.sin_addr) <= 0) {\n        ESP_LOGE(TAG, \"Failed to parse\
+    \ server IP address: %s\", ip.c_str());\n        close(udp_sockfd_);\n       \
+    \ udp_sockfd_ = -1;\n        return;\n    }\n    \n    // Attempt to connect to\
+    \ server\n    if (connect(udp_sockfd_, (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_))\
+    \ < 0) {\n        ESP_LOGE(TAG, \"Failed to connect to debug server %s:%d\", ip.c_str(),\
+    \ port);\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n\
+    \    }\n    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully for server\
+    \ %s:%d\", ip.c_str(), port);\n#endif\n}"
+  SRP;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = -1;\n    \n    // Parse server address and port from configuration\n    std::string\
+    \ server_config = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t colon_pos = server_config.find(':');\n\
+    \    \n    if (colon_pos == std::string::npos) {\n        ESP_LOGE(TAG, \"Invalid\
+    \ server configuration format, expected host:port\");\n        return;\n    }\n\
+    \    \n    std::string host = server_config.substr(0, colon_pos);\n    std::string\
+    \ port_str = server_config.substr(colon_pos + 1);\n    \n    int port = atoi(port_str.c_str());\n\
+    \    if (port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port number:\
+    \ %s\", port_str.c_str());\n        return;\n    }\n    \n    // Create UDP socket\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n    \n    // Configure server address\n    memset(&udp_server_addr_, 0,\
+    \ sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n   \
+    \ udp_server_addr_.sin_port = htons(port);\n    \n    // Convert IP address string\
+    \ to binary form\n    if (inet_aton(host.c_str(), &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        ESP_LOGE(TAG, \"Invalid IP address: %s\", host.c_str());\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    ESP_LOGI(TAG, \"Initialized UDP debugger to %s:%d\", host.c_str(),\
+    \ port);\n#else\n    // Debugger disabled\n    udp_sockfd_ = -1;\n#endif\n}"
+  eg-small-168;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor\n    udp_sockfd_ = -1;\n    \n    //\
+    \ Parse server address and port from configuration\n    std::string server_config\
+    \ = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t colon_pos = server_config.find(':');\n\
+    \    \n    if (colon_pos == std::string::npos) {\n        ESP_LOGE(TAG, \"Invalid\
+    \ server configuration format: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n       \
+    \ return;\n    }\n    \n    std::string ip_str = server_config.substr(0, colon_pos);\n\
+    \    std::string port_str = server_config.substr(colon_pos + 1);\n    \n    //\
+    \ Convert port string to integer\n    int port = atoi(port_str.c_str());\n   \
+    \ if (port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port number:\
+    \ %s\", port_str.c_str());\n        return;\n    }\n    \n    // Create UDP socket\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n    \n    // Configure server address structure\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n\
+    \    udp_server_addr_.sin_port = htons(port);\n    \n    // Parse IP address\n\
+    \    if (inet_pton(AF_INET, ip_str.c_str(), &udp_server_addr_.sin_addr) <= 0)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid IP address: %s\", ip_str.c_str());\n    \
+    \    close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n    }\n\
+    \    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully to %s:%d\", \n\
+    \             ip_str.c_str(), port);\n#endif\n}"
+  eg-168;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = -1;\n    const char* server_info = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\n    if\
+    \ (!server_info || strlen(server_info) == 0) {\n        ESP_LOGE(TAG, \"UDP server\
+    \ info not configured\");\n        return;\n    }\n\n    // Find colon separating\
+    \ IP and port\n    std::string server_str(server_info);\n    size_t colon_pos\
+    \ = server_str.find(':');\n    if (colon_pos == std::string::npos) {\n       \
+    \ ESP_LOGE(TAG, \"Invalid UDP server format: expected ip:port\");\n        return;\n\
+    \    }\n\n    std::string ip_str = server_str.substr(0, colon_pos);\n    std::string\
+    \ port_str = server_str.substr(colon_pos + 1);\n\n    // Resolve address\n   \
+    \ struct sockaddr_in serv_addr {};\n    serv_addr.sin_family = AF_INET;\n    serv_addr.sin_port\
+    \ = htons(static_cast<uint16_t>(std::stoi(port_str)));\n    \n    if (inet_pton(AF_INET,\
+    \ ip_str.c_str(), &serv_addr.sin_addr) <= 0) {\n        ESP_LOGE(TAG, \"Invalid\
+    \ IP address: %s\", ip_str.c_str());\n        return;\n    }\n\n    // Create\
+    \ UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n  \
+    \  if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket:\
+    \ %d\", errno);\n        return;\n    }\n\n    // Store server address for future\
+    \ sends\n    memcpy(&udp_server_addr_, &serv_addr, sizeof(udp_server_addr_));\n\
+    \n    ESP_LOGI(TAG, \"Initialized UDP debugger to %s:%s\", ip_str.c_str(), port_str.c_str());\n\
+    #else\n    udp_sockfd_ = -1;\n#endif\n}"
+  local-small-96;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0)\n\
+    \    {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n \
+    \       return;\n    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \n    // Parse IP address from CONFIG_AUDIO_DEBUG_UDP_SERVER\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ &udp_server_addr_.sin_addr) == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid IP\
+    \ address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n\n    ESP_LOGI(TAG, \"Audio\
+    \ debugger initialized with server %s:%d\", \n             CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  local-96;: "AudioDebugger::AudioDebugger()\n    : udp_sockfd_(-1)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n\
+    \    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create UDP\
+    \ socket: %d\", errno);\n        return;\n    }\n\n    // Zero out server address\
+    \ structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\n \
+    \   // Setup server address\n    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port\
+    \ = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\n    // Convert IP address string to\
+    \ binary form\n    if (inet_aton(CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr)\
+    \ == 0)\n    {\n        ESP_LOGE(TAG, \"Invalid server IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    ESP_LOGI(TAG, \"Initialized UDP socket to %s:%d\", CONFIG_AUDIO_DEBUG_UDP_SERVER,\
+    \ CONFIG_AUDIO_DEBUG_UDP_PORT);\n#endif\n}"
+  eg-small-96;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor\n    udp_sockfd_ = -1;\n    \n    //\
+    \ Parse server address and port from configuration\n    std::string server_config\
+    \ = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t colon_pos = server_config.find(':');\n\
+    \    \n    if (colon_pos == std::string::npos) {\n        ESP_LOGE(TAG, \"Invalid\
+    \ server configuration format: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n       \
+    \ return;\n    }\n    \n    std::string ip_str = server_config.substr(0, colon_pos);\n\
+    \    std::string port_str = server_config.substr(colon_pos + 1);\n    \n    //\
+    \ Convert port string to integer\n    int port = atoi(port_str.c_str());\n   \
+    \ if (port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port number:\
+    \ %s\", port_str.c_str());\n        return;\n    }\n    \n    // Create UDP socket\n\
+    \    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if (udp_sockfd_ < 0) {\n\
+    \        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n        return;\n\
+    \    }\n    \n    // Configure server address structure\n    memset(&udp_server_addr_,\
+    \ 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n\
+    \    udp_server_addr_.sin_port = htons(port);\n    \n    // Parse IP address\n\
+    \    if (inet_pton(AF_INET, ip_str.c_str(), &udp_server_addr_.sin_addr) <= 0)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid IP address: %s\", ip_str.c_str());\n    \
+    \    close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n    }\n\
+    \    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully to %s:%d\", \n\
+    \             ip_str.c_str(), port);\n#endif\n}"
+  eg-96;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = -1;\n    const char* server_info = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\n    if\
+    \ (!server_info || strlen(server_info) == 0) {\n        ESP_LOGE(TAG, \"UDP server\
+    \ info not configured\");\n        return;\n    }\n\n    // Find colon separating\
+    \ IP and port\n    std::string server_str(server_info);\n    size_t colon_pos\
+    \ = server_str.find(':');\n    if (colon_pos == std::string::npos) {\n       \
+    \ ESP_LOGE(TAG, \"Invalid UDP server format: expected ip:port\");\n        return;\n\
+    \    }\n\n    std::string ip_str = server_str.substr(0, colon_pos);\n    std::string\
+    \ port_str = server_str.substr(colon_pos + 1);\n\n    // Resolve address\n   \
+    \ struct sockaddr_in serv_addr {};\n    serv_addr.sin_family = AF_INET;\n    serv_addr.sin_port\
+    \ = htons(static_cast<uint16_t>(std::stoi(port_str)));\n    \n    if (inet_pton(AF_INET,\
+    \ ip_str.c_str(), &serv_addr.sin_addr) <= 0) {\n        ESP_LOGE(TAG, \"Invalid\
+    \ IP address: %s\", ip_str.c_str());\n        return;\n    }\n\n    // Create\
+    \ UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n  \
+    \  if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket:\
+    \ %d\", errno);\n        return;\n    }\n\n    // Store server address for future\
+    \ sends\n    memcpy(&udp_server_addr_, &serv_addr, sizeof(udp_server_addr_));\n\
+    \n    ESP_LOGI(TAG, \"Initialized UDP debugger to %s:%s\", ip_str.c_str(), port_str.c_str());\n\
+    #else\n    udp_sockfd_ = -1;\n#endif\n}"
+  SRP-96;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = -1;\n    \n    // Parse the configuration string (format: \"IP:PORT\" or \"\
+    HOSTNAME:PORT\")\n    std::string config_str = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \    size_t colon_pos = config_str.find(':');\n    \n    if (colon_pos == std::string::npos)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid UDP server configuration format. Expected\
+    \ IP:PORT\");\n        return;\n    }\n    \n    std::string server_addr = config_str.substr(0,\
+    \ colon_pos);\n    std::string port_str = config_str.substr(colon_pos + 1);\n\
+    \    \n    int port = atoi(port_str.c_str());\n    if (port <= 0 || port > 65535)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid UDP port: %s\", port_str.c_str());\n    \
+    \    return;\n    }\n    \n    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET,\
+    \ SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n        return;\n    }\n    \n\
+    \    // Initialize server address structure\n    memset(&udp_server_addr_, 0,\
+    \ sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n   \
+    \ udp_server_addr_.sin_port = htons(port);\n    \n    // Convert IP address or\
+    \ resolve hostname\n    if (inet_aton(server_addr.c_str(), &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        // If inet_aton fails, it might be a hostname, but for simplicity\
+    \ we'll treat it as an error\n        ESP_LOGE(TAG, \"Invalid IP address: %s\"\
+    , server_addr.c_str());\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n\
+    \        return;\n    }\n    \n    ESP_LOGI(TAG, \"Initialized UDP socket for\
+    \ audio debugging to %s:%d\", \n             server_addr.c_str(), port);\n#else\n\
+    \    // Initialize to default values when debugger is disabled\n    udp_sockfd_\
+    \ = -1;\n#endif\n}"
+  tools-small-96;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM,\
+    \ 0);\n    if (udp_sockfd_ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create\
+    \ UDP socket: %d\", errno);\n        return;\n    }\n    \n    // Initialize server\
+    \ address structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    \n    // Set default server address\
+    \ and port\n    // Since CONFIG_AUDIO_DEBUG_UDP_SERVER is not found in codebase,\n\
+    \    // we'll use a reasonable default or try to parse from a common config\n\
+    \    const char* server_ip = \"127.0.0.1\";  // Default to localhost\n    int\
+    \ server_port = 12345;              // Default port\n    \n    // Try to parse\
+    \ server address - in real implementation this would read from config\n    //\
+    \ For now using hardcoded values as fallback\n    udp_server_addr_.sin_addr.s_addr\
+    \ = inet_addr(server_ip);\n    udp_server_addr_.sin_port = htons(server_port);\n\
+    \    \n    ESP_LOGI(TAG, \"Initialized UDP socket to %s:%d\", server_ip, server_port);\n\
+    #endif\n}"
+  tools-96;: "AudioDebugger::AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n \
+    \   udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_\
+    \ < 0)\n    {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\", errno);\n\
+    \        return;\n    }\n\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n\n    // Expecting CONFIG_AUDIO_DEBUG_UDP_SERVER\
+    \ to be of form \"IP:PORT\"\n    std::string server_str = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \    size_t colon_pos = server_str.find(':');\n    if (colon_pos == std::string::npos)\n\
+    \    {\n        ESP_LOGE(TAG, \"Invalid server config format: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n\n    std::string ip_str = server_str.substr(0, colon_pos);\n    std::string\
+    \ port_str = server_str.substr(colon_pos + 1);\n\n    if (inet_pton(AF_INET, ip_str.c_str(),\
+    \ &udp_server_addr_.sin_addr) <= 0)\n    {\n        ESP_LOGE(TAG, \"Invalid IP\
+    \ address: %s\", ip_str.c_str());\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n\n    try {\n        uint16_t port = static_cast<uint16_t>(std::stoi(port_str));\n\
+    \        udp_server_addr_.sin_port = htons(port);\n    }\n    catch (...) {\n\
+    \        ESP_LOGE(TAG, \"Invalid port number: %s\", port_str.c_str());\n     \
+    \   close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n    }\n\n\
+    \    ESP_LOGI(TAG, \"Initialized UDP socket to %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    #else\n    udp_sockfd_ = -1;\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  without-96;: "AudioDebugger::AudioDebugger() {\n    // Initialize member variables\n\
+    \    m_udpSocket = -1;\n    m_isInitialized = false;\n    m_serverPort = 0;\n\
+    \    \n    // Get configuration settings for server IP and port\n    std::string\
+    \ serverIP = getConfigServerIP();\n    m_serverPort = getConfigServerPort();\n\
+    \    \n    // Validate configuration parameters\n    if (serverIP.empty() || m_serverPort\
+    \ == 0) {\n        logError(\"Invalid server configuration: IP or port not set\"\
+    );\n        return;\n    }\n    \n    // Create UDP socket\n    m_udpSocket =\
+    \ socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n    if (m_udpSocket < 0) {\n    \
+    \    logError(\"Failed to create UDP socket: \" + std::string(strerror(errno)));\n\
+    \        return;\n    }\n    \n    // Configure server address structure\n   \
+    \ memset(&m_serverAddr, 0, sizeof(m_serverAddr));\n    m_serverAddr.sin_family\
+    \ = AF_INET;\n    m_serverAddr.sin_port = htons(m_serverPort);\n    \n    // Parse\
+    \ and set server IP address\n    if (inet_pton(AF_INET, serverIP.c_str(), &m_serverAddr.sin_addr)\
+    \ <= 0) {\n        logError(\"Failed to parse server IP address: \" + serverIP);\n\
+    \        close(m_udpSocket);\n        m_udpSocket = -1;\n        return;\n   \
+    \ }\n    \n    // Test connection by sending a simple debug message\n    const\
+    \ char* testMessage = \"AudioDebugger initialized\";\n    ssize_t sentBytes =\
+    \ sendto(m_udpSocket, testMessage, strlen(testMessage), \n                   \
+    \           0, (struct sockaddr*)&m_serverAddr, sizeof(m_serverAddr));\n    \n\
+    \    if (sentBytes < 0) {\n        logError(\"Failed to send test message to server:\
+    \ \" + std::string(strerror(errno)));\n        close(m_udpSocket);\n        m_udpSocket\
+    \ = -1;\n        return;\n    }\n    \n    // Mark as successfully initialized\n\
+    \    m_isInitialized = true;\n    logInfo(\"AudioDebugger successfully initialized.\
+    \ Connected to \" + serverIP + \":\" + std::to_string(m_serverPort));\n}"
+  without-small-96;: "AudioDebugger::AudioDebugger(const std::string& serverIp, int\
+    \ serverPort)\n{\n    // Initialize logging\n    Logger::log(\"AudioDebugger:\
+    \ Initializing UDP socket connection\");\n    \n    // Store server configuration\n\
+    \    m_serverIp = serverIp;\n    m_serverPort = serverPort;\n    \n    // Initialize\
+    \ socket\n    m_socketFd = socket(AF_INET, SOCK_DGRAM, 0);\n    if (m_socketFd\
+    \ < 0) {\n        Logger::log(\"AudioDebugger: Failed to create UDP socket\",\
+    \ LogLevel::ERROR);\n        m_initialized = false;\n        return;\n    }\n\
+    \    \n    // Set up server address structure\n    memset(&m_serverAddr, 0, sizeof(m_serverAddr));\n\
+    \    m_serverAddr.sin_family = AF_INET;\n    m_serverAddr.sin_port = htons(serverPort);\n\
+    \    \n    // Parse IP address\n    if (inet_pton(AF_INET, serverIp.c_str(), &m_serverAddr.sin_addr)\
+    \ <= 0) {\n        Logger::log(\"AudioDebugger: Failed to parse server IP address\"\
+    , LogLevel::ERROR);\n        close(m_socketFd);\n        m_initialized = false;\n\
+    \        return;\n    }\n    \n    // Set socket options for better performance\n\
+    \    int opt = 1;\n    if (setsockopt(m_socketFd, SOL_SOCKET, SO_REUSEADDR, &opt,\
+    \ sizeof(opt)) < 0) {\n        Logger::log(\"AudioDebugger: Failed to set socket\
+    \ options\", LogLevel::WARNING);\n    }\n    \n    // Log successful initialization\n\
+    \    Logger::log(\"AudioDebugger: UDP socket initialized successfully\");\n  \
+    \  Logger::log(\"AudioDebugger: Connected to \" + serverIp + \":\" + std::to_string(serverPort));\n\
+    \    \n    m_initialized = true;\n}"
+  SRP-small-96;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor\n    udp_sockfd_ = -1;\n    \n    //\
+    \ Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if\
+    \ (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\"\
+    , errno);\n        return;\n    }\n    \n    // Initialize server address structure\n\
+    \    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n    \n    // Parse IP address from configuration\n    if (inet_pton(AF_INET,\
+    \ CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr) <= 0) {\n       \
+    \ ESP_LOGE(TAG, \"Invalid IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    // Parse port from configuration\n    char* endptr;\n    int port\
+    \ = strtol(CONFIG_AUDIO_DEBUG_UDP_PORT, &endptr, 10);\n    if (*endptr != '\\\
+    0' || port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port number:\
+    \ %s\", CONFIG_AUDIO_DEBUG_UDP_PORT);\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n    udp_server_addr_.sin_port = htons(port);\n\
+    \    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully for server %s:%s\"\
+    , \n             CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    #endif\n}"
+  a3-96;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    udp_sockfd_\
+    \ = -1;\n    \n    // Parse the server address and port from configuration\n \
+    \   std::string server_config = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t colon_pos\
+    \ = server_config.find(':');\n    \n    if (colon_pos == std::string::npos) {\n\
+    \        ESP_LOGE(TAG, \"Invalid server configuration format, expected IP:PORT\"\
+    );\n        return;\n    }\n    \n    std::string ip_str = server_config.substr(0,\
+    \ colon_pos);\n    std::string port_str = server_config.substr(colon_pos + 1);\n\
+    \    \n    int port = atoi(port_str.c_str());\n    if (port <= 0 || port > 65535)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid port number: %s\", port_str.c_str());\n \
+    \       return;\n    }\n    \n    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET,\
+    \ SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n        return;\n    }\n    \n\
+    \    // Configure server address structure\n    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n\
+    \    udp_server_addr_.sin_family = AF_INET;\n    udp_server_addr_.sin_port = htons(port);\n\
+    \    \n    if (inet_aton(ip_str.c_str(), &udp_server_addr_.sin_addr) == 0) {\n\
+    \        ESP_LOGE(TAG, \"Invalid IP address: %s\", ip_str.c_str());\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        return;\n    }\n    \n    ESP_LOGI(TAG, \"\
+    UDP debugger initialized to %s:%d\", ip_str.c_str(), port);\n#else\n    udp_sockfd_\
+    \ = -1;\n#endif\n}"
+  SRP-small-168;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Initialize socket file descriptor\n    udp_sockfd_ = -1;\n    \n    //\
+    \ Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n    if\
+    \ (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket: %d\"\
+    , errno);\n        return;\n    }\n    \n    // Initialize server address structure\n\
+    \    memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n    \n    // Parse IP address from configuration\n    if (inet_pton(AF_INET,\
+    \ CONFIG_AUDIO_DEBUG_UDP_SERVER, &udp_server_addr_.sin_addr) <= 0) {\n       \
+    \ ESP_LOGE(TAG, \"Invalid IP address: %s\", CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        return;\n   \
+    \ }\n    \n    // Parse port from configuration\n    char* endptr;\n    int port\
+    \ = strtol(CONFIG_AUDIO_DEBUG_UDP_PORT, &endptr, 10);\n    if (*endptr != '\\\
+    0' || port <= 0 || port > 65535) {\n        ESP_LOGE(TAG, \"Invalid port number:\
+    \ %s\", CONFIG_AUDIO_DEBUG_UDP_PORT);\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        return;\n    }\n    udp_server_addr_.sin_port = htons(port);\n\
+    \    \n    ESP_LOGI(TAG, \"UDP socket initialized successfully for server %s:%s\"\
+    , \n             CONFIG_AUDIO_DEBUG_UDP_SERVER, CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    #endif\n}"
+  SRP-168;: "AudioDebugger::AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n   \
+    \ udp_sockfd_ = -1;\n    \n    // Parse the configuration string (format: \"IP:PORT\"\
+    \ or \"HOSTNAME:PORT\")\n    std::string config_str = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n\
+    \    size_t colon_pos = config_str.find(':');\n    \n    if (colon_pos == std::string::npos)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid UDP server configuration format. Expected\
+    \ IP:PORT\");\n        return;\n    }\n    \n    std::string server_addr = config_str.substr(0,\
+    \ colon_pos);\n    std::string port_str = config_str.substr(colon_pos + 1);\n\
+    \    \n    int port = atoi(port_str.c_str());\n    if (port <= 0 || port > 65535)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid UDP port: %s\", port_str.c_str());\n    \
+    \    return;\n    }\n    \n    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET,\
+    \ SOCK_DGRAM, IPPROTO_UDP);\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create UDP socket: %d\", errno);\n        return;\n    }\n    \n\
+    \    // Initialize server address structure\n    memset(&udp_server_addr_, 0,\
+    \ sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family = AF_INET;\n   \
+    \ udp_server_addr_.sin_port = htons(port);\n    \n    // Convert IP address or\
+    \ resolve hostname\n    if (inet_aton(server_addr.c_str(), &udp_server_addr_.sin_addr)\
+    \ == 0) {\n        // If inet_aton fails, it might be a hostname, but for simplicity\
+    \ we'll treat it as an error\n        ESP_LOGE(TAG, \"Invalid IP address: %s\"\
+    , server_addr.c_str());\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n\
+    \        return;\n    }\n    \n    ESP_LOGI(TAG, \"Initialized UDP socket for\
+    \ audio debugging to %s:%d\", \n             server_addr.c_str(), port);\n#else\n\
+    \    // Initialize to default values when debugger is disabled\n    udp_sockfd_\
+    \ = -1;\n#endif\n}"
+- query: complete the function ~AudioDebugger()()
+  ground_truth: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"Closed UDP socket\");\n    }\n#endif\n}"
+  workflow: ''
+  cursor: ''
+  without: "~AudioDebugger() {\n    // Stop any active audio processing or monitoring\n\
+    \    if (isMonitoring) {\n        stopMonitoring();\n    }\n    \n    // Clean\
+    \ up audio buffers\n    if (audioBuffer) {\n        delete[] audioBuffer;\n  \
+    \      audioBuffer = nullptr;\n    }\n    \n    // Close file streams if open\n\
+    \    if (logFile.is_open()) {\n        logFile.close();\n    }\n    \n    // Release\
+    \ device handles\n    if (audioDeviceHandle) {\n        closeAudioDevice(audioDeviceHandle);\n\
+    \        audioDeviceHandle = nullptr;\n    }\n    \n    // Clean up any allocated\
+    \ debug data structures\n    clearDebugData();\n    \n    // Join any worker threads\n\
+    \    if (workerThread.joinable()) {\n        workerThread.join();\n    }\n   \
+    \ \n    // Output final debug statistics if needed\n    if (debugEnabled) {\n\
+    \        outputFinalStats();\n    }\n}"
+  tools: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if\
+    \ (udp_sockfd_ >= 0) {\n        if (close(udp_sockfd_) != 0) {\n            ESP_LOGW(TAG,\
+    \ \"Failed to close UDP socket: %d\", errno);\n        }\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}"
+  without-small: "cpp\nAudioDebugger::~AudioDebugger() {\n    // Clean up any allocated\
+    \ resources\n    if (audioBuffer != nullptr) {\n        delete[] audioBuffer;\n\
+    \        audioBuffer = nullptr;\n    }\n    \n    // Close any open audio devices\
+    \ or connections\n    if (audioDevice != nullptr) {\n        audioDevice->close();\n\
+    \        delete audioDevice;\n        audioDevice = nullptr;\n    }\n    \n  \
+    \  // Clear debug log files or streams\n    if (debugLog.is_open()) {\n      \
+    \  debugLog.close();\n    }\n    \n    // Reset any internal state variables\n\
+    \    bufferSize = 0;\n    sampleRate = 0;\n    isRecording = false;\n    isPlaying\
+    \ = false;\n    \n    // Clear any queued audio data\n    while (!audioQueue.empty())\
+    \ {\n        auto item = audioQueue.front();\n        audioQueue.pop();\n    \
+    \    // Clean up individual items if needed\n        if (item.data != nullptr)\
+    \ {\n            delete[] item.data;\n        }\n    }\n    \n    // Release any\
+    \ mutex locks or synchronization primitives\n    if (debugMutex != nullptr) {\n\
+    \        delete debugMutex;\n        debugMutex = nullptr;\n    }\n}"
+  tools-small: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}"
+  workflow+sd+mi: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}"
+  workflow+sd+mi+rf: "51: AudioDebugger::~AudioDebugger()\n52:     AudioDebugger::~AudioDebugger()\n\
+    53: {\n```\n\nThis duplication leads to a **syntax error**, as C++ does not allow\
+    \ two consecutive destructor declarations like this. It seems the generator accidentally\
+    \ duplicated the line.\n\nAlso, the original generated code was correct in logic\
+    \ but had no syntax issues besides being enclosed with `#if CONFIG_USE_AUDIO_DEBUGGER`,\
+    \ which matches the rest of the file structure.\n\n---\n\n### ✅ **Fix Summary**\n\
+    We need to:\n- Remove the duplicate destructor declaration (`AudioDebugger::~AudioDebugger()`\
+    \ on line 52).\n- Keep only one valid destructor implementation.\n- Preserve all\
+    \ existing logic inside `#if CONFIG_USE_AUDIO_DEBUGGER`.\n\n---\n\n### \U0001F6E0\
+    ️ Final Corrected Code\n\nHere is the corrected version of the destructor function:\n\
+    \n```cpp\nAudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}"
+  local: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if\
+    \ (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"Closed UDP socket\");\n    }\n#endif\n}"
+  workflow-small-rf: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_ENABLE_AUDIO_DEBUGGING\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"Closed UDP socket\");\n    }\n#else\n    ESP_LOGI(TAG, \"Audio debugging disabled\
+    \ via config\");\n#endif\n}"
+  local-small: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}\n```\n\nHowever, looking more carefully at the provided\
+    \ code, I notice that the destructor is not actually defined in the shown code\
+    \ - only the constructor is implemented. The destructor would typically be declared\
+    \ in the header file and implemented here. Since the requirement specifically\
+    \ asks for completing the destructor function, and given that the constructor\
+    \ shows proper resource initialization, the destructor should properly clean up\
+    \ those resources.\n\nThe complete implementation would be:\n\n```cpp\nAudioDebugger::~AudioDebugger()\n\
+    {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n    }\n#endif\n}"
+  tools-long: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}"
+  graph-5-5: "AudioDebugger::~AudioDebugger() {\n#ifdef CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ != -1) {\n        int result = close(udp_sockfd_);\n    \
+    \    if (result == 0) {\n            ESP_LOGI(\"AudioDebugger\", \"UDP socket\
+    \ closed successfully\");\n        } else {\n            ESP_LOGW(\"AudioDebugger\"\
+    , \"Failed to close UDP socket: errno %d\", errno);\n        }\n        udp_sockfd_\
+    \ = -1;\n    }\n#endif\n}"
+  graph-small-5-5: "AudioDebugger::~AudioDebugger() {\n    // Close the UDP socket\
+    \ if it's open\n    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n   \
+    \     udp_sockfd_ = -1;\n    }\n    \n    // Clean up any remaining resources\n\
+    \    // Reset any internal state or flags\n    is_running_ = false;\n    \n  \
+    \  // If there are any event handlers or callbacks registered,\n    // unregister\
+    \ them to prevent dangling pointers\n    if (disconnected_callback_) {\n     \
+    \   disconnected_callback_ = nullptr;\n    }\n    \n    // Cleanup any allocated\
+    \ memory or buffers\n    // Clear any pending data structures\n    audio_buffer_.clear();\n\
+    \    \n    // Notify any listeners about disconnection if needed\n    // This\
+    \ follows the pattern seen in Protocol::OnDisconnected\n    if (network_event_manager_)\
+    \ {\n        network_event_manager_->OnDisconnected();\n    }\n}"
+  Desc+without: "AudioDebugger::~AudioDebugger()\n{\n    // Only execute cleanup when\
+    \ audio debugger feature is enabled\n    if (config.isAudioDebuggerEnabled())\
+    \ {\n        // Log the cleanup action for debugging purposes\n        Logger::debug(\"\
+    AudioDebugger: Cleaning up UDP socket resources\");\n        \n        try {\n\
+    \            // Clean up the UDP socket resource\n            if (udpSocket) {\n\
+    \                udpSocket->close();\n                delete udpSocket;\n    \
+    \            udpSocket = nullptr;\n            }\n            \n            //\
+    \ Log successful cleanup\n            Logger::debug(\"AudioDebugger: UDP socket\
+    \ cleanup completed successfully\");\n        }\n        catch (const std::exception&\
+    \ e) {\n            // Log any errors during cleanup but don't let exceptions\
+    \ escape destructor\n            Logger::error(\"AudioDebugger: Error during UDP\
+    \ socket cleanup: \" + std::string(e.what()));\n        }\n        catch (...)\
+    \ {\n            // Handle any other unexpected exceptions\n            Logger::error(\"\
+    AudioDebugger: Unknown error during UDP socket cleanup\");\n        }\n    }\n\
+    }"
+  Desc+local: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        ESP_LOGD(TAG, \"UDP socket closed\");\n    }\n#endif\n}"
+  Desc+graph-5-5: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        ESP_LOGI(TAG, \"UDP socket closed successfully\");\n    }\n#endif\n\
+    }"
+  Desc+tools: "~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_\
+    \ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        ESP_LOGI(TAG,\
+    \ \"UDP socket closed successfully\");\n    }\n#endif\n}"
+  Desc+graph-KG-5-5: "~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_\
+    \ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n        ESP_LOGI(TAG,\
+    \ \"UDP socket closed successfully\");\n    }\n#endif\n}"
+  Desc+workflow: "~AudioDebugger() {\n#if CONFIG_ENABLE_AUDIO_DEBUGGER\n    ESP_LOGD(TAG,\
+    \ \"Cleaning up AudioDebugger resources...\");\n    if (udp_sockfd_ >= 0) {\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n    }\n#endif\n}"
+  Desc+without-small: "AudioDebugger::~AudioDebugger()\n{\n    // Check if audio debugger\
+    \ feature is enabled in configuration\n    if (isAudioDebuggerEnabled())\n   \
+    \ {\n        // Clean up UDP socket resource\n        if (udpSocket != nullptr)\n\
+    \        {\n            // Close the UDP socket to release network resources\n\
+    \            udpSocket->close();\n            \n            // Delete the socket\
+    \ object to prevent memory leaks\n            delete udpSocket;\n            udpSocket\
+    \ = nullptr;\n            \n            // Log the cleanup action for debugging\
+    \ purposes\n            logDebug(\"AudioDebugger: UDP socket cleaned up successfully\"\
+    );\n        }\n        \n        // Additional cleanup if needed\n        // ...\
+    \ other resource cleanup operations ...\n        \n        // Log completion of\
+    \ destructor\n        logDebug(\"AudioDebugger: Destructor executed and resources\
+    \ cleaned up\");\n    }\n    else\n    {\n        // Feature not enabled, no cleanup\
+    \ needed\n        logDebug(\"AudioDebugger: Feature disabled, skipping cleanup\"\
+    );\n    }\n}"
+  Desc+graph-SRP_KG-5-5-rf: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        ESP_LOGI(TAG, \"UDP socket closed successfully.\");\n    }\n\
+    #endif\n}"
+  Desc+graph-wt-SRP_KG-3-3: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        ESP_LOGI(TAG, \"UDP socket closed successfully\");\n    }\n#endif\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "AudioDebugger::~AudioDebugger() {\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        ESP_LOGI(TAG, \"UDP socket cleaned up\");\n\
+    \    }\n#endif\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "AudioDebugger::~AudioDebugger() {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n\
+    \        udp_sockfd_ = -1;\n        ESP_LOGI(TAG, \"UDP socket cleaned up\");\n\
+    \    }\n#endif\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Log the cleanup action for debugging purposes\n    ESP_LOGI(\"AudioDebugger\"\
+    , \"Cleaning up AudioDebugger resources\");\n    \n    // Close and deallocate\
+    \ the UDP socket resource\n    if (udp_socket_) {\n        // Close the UDP socket\n\
+    \        closesocket(udp_socket_);\n        udp_socket_ = -1;\n    }\n    \n \
+    \   // Ensure all network resources are properly released\n    // Reset any allocated\
+    \ buffers or resources\n    send_buffer_.clear();\n    \n    ESP_LOGI(\"AudioDebugger\"\
+    , \"AudioDebugger cleanup completed\");\n#endif\n}"
+  graph-SRP_KG-it-small;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"UDP socket cleaned up successfully\");\n        udp_sockfd_ = -1;  // Mark\
+    \ as closed\n    }\n#endif\n}"
+  graph-SRP_KG-it;: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        int result = close(udp_sockfd_);\n     \
+    \   if (result == 0) {\n            ESP_LOGD(TAG, \"Successfully closed UDP socket\"\
+    );\n        } else {\n            ESP_LOGW(TAG, \"Failed to close UDP socket:\
+    \ %d\", errno);\n        }\n        udp_sockfd_ = -1;\n    }\n#endif\n}"
+  without-small;: "AudioDebugger::~AudioDebugger()\n{\n    // Check if audio debugger\
+    \ feature is enabled in configuration\n    if (isAudioDebuggerEnabled())\n   \
+    \ {\n        // Clean up UDP socket resource\n        if (udpSocket != nullptr)\n\
+    \        {\n            // Close the UDP socket to release network resources\n\
+    \            udpSocket->close();\n            \n            // Delete the socket\
+    \ object to prevent memory leaks\n            delete udpSocket;\n            udpSocket\
+    \ = nullptr;\n            \n            // Log the cleanup action for debugging\
+    \ purposes\n            logDebug(\"AudioDebugger: UDP socket cleaned up successfully\"\
+    );\n        }\n        \n        // Additional cleanup if needed\n        // ...\
+    \ other resource cleanup operations ...\n        \n        // Log completion of\
+    \ destructor\n        logDebug(\"AudioDebugger: Destructor executed and resources\
+    \ cleaned up\");\n    }\n    else\n    {\n        // Feature not enabled, no cleanup\
+    \ needed\n        logDebug(\"AudioDebugger: Feature disabled, skipping cleanup\"\
+    );\n    }\n}"
+  local-small;: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"Closed UDP socket\");\n    }\n#endif\n}"
+  tools-small;: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"UDP socket closed successfully\");\n    }\n#endif\n}"
+  without;: "AudioDebugger::~AudioDebugger()\n{\n    // Only execute cleanup when\
+    \ audio debugger feature is enabled\n    if (config.isAudioDebuggerEnabled())\
+    \ {\n        // Log the cleanup action for debugging purposes\n        Logger::debug(\"\
+    AudioDebugger: Cleaning up UDP socket resources\");\n        \n        try {\n\
+    \            // Clean up the UDP socket resource\n            if (udpSocket) {\n\
+    \                udpSocket->close();\n                delete udpSocket;\n    \
+    \            udpSocket = nullptr;\n            }\n            \n            //\
+    \ Log successful cleanup\n            Logger::debug(\"AudioDebugger: UDP socket\
+    \ cleanup completed successfully\");\n        }\n        catch (const std::exception&\
+    \ e) {\n            // Log any errors during cleanup but don't let exceptions\
+    \ escape destructor\n            Logger::error(\"AudioDebugger: Error during UDP\
+    \ socket cleanup: \" + std::string(e.what()));\n        }\n        catch (...)\
+    \ {\n            // Handle any other unexpected exceptions\n            Logger::error(\"\
+    AudioDebugger: Unknown error during UDP socket cleanup\");\n        }\n    }\n\
+    }"
+  local;: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n   \
+    \ if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"Closed UDP socket\");\n    }\n#endif\n}"
+  tools;: "AudioDebugger::~AudioDebugger()\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n   \
+    \ if (udp_sockfd_ >= 0)\n    {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"UDP socket closed successfully.\");\n    }\n#endif\n}"
+  eg;: "AudioDebugger::~AudioDebugger() {\n    // Step 1: Check if the audio debugger\
+    \ feature is enabled\n    if (!is_enabled_) {\n        return;\n    }\n\n    //\
+    \ Step 2: Log the cleanup action for debugging purposes\n    LOG(INFO) << \"Cleaning\
+    \ up AudioDebugger resources.\";\n\n    // Step 3: Close and deallocate the UDP\
+    \ socket resource\n    if (udp_socket_.IsValid()) {\n        udp_socket_.Close();\n\
+    \        LOG(INFO) << \"UDP socket closed successfully.\";\n    } else {\n   \
+    \     LOG(WARNING) << \"UDP socket was not valid during cleanup.\";\n    }\n\n\
+    \    // Step 4: Ensure all network resources are properly released\n    // Reset\
+    \ internal state if necessary\n    is_enabled_ = false;\n}"
+  a3;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_\
+    \ >= 0) {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG, \"UDP socket closed\
+    \ and resources cleaned up\");\n    }\n#endif\n}"
+  eg-small;: "AudioDebugger::~AudioDebugger() {\n    // Check if the audio debugger\
+    \ feature is enabled in the configuration\n    if (ConfigurationManager::getInstance()->isAudioDebuggerEnabled())\
+    \ {\n        // Close the UDP socket resource if it's open\n        if (udpSocket_\
+    \ != nullptr) {\n            udpSocket_->close();\n            udpSocket_ = nullptr;\n\
+    \        }\n        \n        // Log the cleanup action for debugging purposes\n\
+    \        Logger::debug(\"AudioDebugger destructor executed - UDP socket cleaned\
+    \ up\");\n    }\n}"
+  a3-small;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n \
+    \   if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        ESP_LOGI(TAG, \"UDP socket closed successfully\");\n    }\n#endif\n\
+    }"
+  SRP-small;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"UDP socket closed successfully\");\n    }\n#endif\n}"
+  SRP;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if\
+    \ (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG, \"\
+    UDP socket cleaned up successfully\");\n    }\n#endif\n}"
+  eg-small-168;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        ESP_LOGI(TAG,\
+    \ \"UDP socket cleaned up\");\n    }\n#endif\n}"
+  eg-168;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n   \
+    \ if (udp_sockfd_ >= 0) {\n        ESP_LOGI(TAG, \"Closing UDP socket %d\", udp_sockfd_);\n\
+    \        close(udp_sockfd_);\n        udp_sockfd_ = -1;\n    }\n#endif\n}"
+  SRP-small-168;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_\
+    \ = -1;\n        ESP_LOGI(TAG, \"Cleaned up UDP socket resource\");\n    }\n#endif\n\
+    }"
+  SRP-168;: "AudioDebugger::~AudioDebugger() {\n#if CONFIG_USE_AUDIO_DEBUGGER\n  \
+    \  if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n        udp_sockfd_ =\
+    \ -1;\n        ESP_LOGI(TAG, \"UDP socket closed\");\n    }\n#endif\n}"
+- query: complete the function Feed(const std::vector<int16_t>&)()
+  ground_truth: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        ssize_t sent\
+    \ = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t), 0,\n     \
+    \                        (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent < 0) {\n            ESP_LOGW(TAG, \"Failed to send audio data\
+    \ to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n        } else {\n    \
+    \        ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        }\n    }\n#endif\n}"
+  workflow: ''
+  cursor: ''
+  without: "void Feed(const std::vector<int16_t>& input) {\n    // Add new input samples\
+    \ to the internal buffer\n    _buffer.insert(_buffer.end(), input.begin(), input.end());\n\
+    \    \n    // Process data in chunks of 128 samples\n    while (_buffer.size()\
+    \ >= 128) {\n        // Extract 128 samples from the beginning of the buffer\n\
+    \        std::vector<int16_t> chunk(_buffer.begin(), _buffer.begin() + 128);\n\
+    \        \n        // Remove these 128 samples from the buffer\n        _buffer.erase(_buffer.begin(),\
+    \ _buffer.begin() + 128);\n        \n        // Process the chunk - apply some\
+    \ audio effect/transformation\n        for (size_t i = 0; i < chunk.size(); ++i)\
+    \ {\n            // Apply gain reduction (multiply by 0.5) and convert to float\n\
+    \            float processed_sample = static_cast<float>(chunk[i]) * 0.5f;\n \
+    \           \n            // Clamp the result to prevent overflow\n          \
+    \  if (processed_sample > 32767.0f) {\n                processed_sample = 32767.0f;\n\
+    \            } else if (processed_sample < -32768.0f) {\n                processed_sample\
+    \ = -32768.0f;\n            }\n            \n            // Convert back to int16_t\n\
+    \            chunk[i] = static_cast<int16_t>(processed_sample);\n        }\n \
+    \       \n        // Add processed chunk to output buffer\n        _output.insert(_output.end(),\
+    \ chunk.begin(), chunk.end());\n    }\n}"
+  tools: "void AudioDebugger::Feed(const std::vector<int16_t>& data)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0 && !data.empty()) {\n        ssize_t sent_bytes = sendto(\n\
+    \            udp_sockfd_,\n            data.data(),\n            data.size() *\
+    \ sizeof(int16_t),\n            0,\n            reinterpret_cast<const struct\
+    \ sockaddr*>(&udp_server_addr_),\n            sizeof(udp_server_addr_)\n     \
+    \   );\n\n        if (sent_bytes < 0) {\n            ESP_LOGW(TAG, \"Failed to\
+    \ send audio data: %d\", errno);\n        }\n    }\n#endif\n}"
+  without-small: "cpp\n#include <vector>\n#include <iostream>\n\nclass DataProcessor\
+    \ {\nprivate:\n    std::vector<int16_t> input_data;\n    \npublic:\n    void Feed(const\
+    \ std::vector<int16_t>& data) {\n        // Store the input data for later processing\n\
+    \        input_data = data;\n        \n        // Optional: Print some information\
+    \ about the data being fed\n        std::cout << \"Fed \" << data.size() << \"\
+    \ elements of type int16_t\" << std::endl;\n        \n        // Additional processing\
+    \ could go here\n        // For example, validation, transformation, or forwarding\
+    \ to another component\n    }\n    \n    // Helper method to get the stored data\
+    \ (for testing purposes)\n    const std::vector<int16_t>& GetData() const {\n\
+    \        return input_data;\n    }\n};\n```\n\nHowever, since you specifically\
+    \ asked for just the function body, here's a more focused version:\n\n```cpp\n\
+    cpp\nvoid Feed(const std::vector<int16_t>& data) {\n    // Store or process the\
+    \ input data\n    // This is a placeholder implementation - actual implementation\
+    \ \n    // would depend on the specific use case\n    \n    // Example operations\
+    \ that might be performed:\n    // 1. Store the data for later use\n    // 2.\
+    \ Validate the data\n    // 3. Process the data in some way\n    // 4. Forward\
+    \ to another system\n    \n    // Simple storage operation\n    input_buffer_\
+    \ = data;\n    \n    // Could also perform operations like:\n    // - Data validation\n\
+    \    // - Size checking\n    // - Transformation if needed\n}"
+  tools-small: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0 && !data.empty()) {\n  \
+    \      ssize_t sent_bytes = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t),\n\
+    \                                   0, (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent_bytes < 0) {\n            ESP_LOGE(TAG, \"Failed to send audio\
+    \ data via UDP: %d\", errno);\n        } else {\n            ESP_LOGD(TAG, \"\
+    Sent %zd bytes of audio data\", sent_bytes);\n        }\n    }\n#endif\n}"
+  workflow+sd+mi: "void AudioDebugger::Feed(const std::vector<int16_t>& data)\n{\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0 && !data.empty()) {\n\
+    \        ssize_t sent_bytes = sendto(\n            udp_sockfd_,\n            data.data(),\n\
+    \            data.size() * sizeof(int16_t),\n            0,\n            reinterpret_cast<struct\
+    \ sockaddr*>(&udp_server_addr_),\n            sizeof(udp_server_addr_)\n     \
+    \   );\n        if (sent_bytes < 0) {\n            ESP_LOGW(TAG, \"Failed to send\
+    \ audio data: %d\", errno);\n        }\n    }\n#endif\n}"
+  workflow+sd+mi+rf: "#if CONFIG_USE_AUDIO_DEBUGGER\nvoid AudioDebugger::Feed(const\
+    \ std::vector<int16_t>& data)\n{\n    if (udp_sockfd_ < 0 || data.empty()) {\n\
+    \        return; // Nothing to send or socket not initialized\n    }\n\n    ssize_t\
+    \ sent = sendto(udp_sockfd_,\n                          data.data(),\n       \
+    \                   data.size() * sizeof(int16_t),\n                         \
+    \ 0,\n                          (struct sockaddr *)&udp_server_addr_,\n      \
+    \                    sizeof(udp_server_addr_));\n\n    if (sent < 0) {\n     \
+    \   ESP_LOGW(TAG, \"Failed to send audio data: %d\", errno);\n    } else {\n \
+    \       ESP_LOGD(TAG, \"Successfully sent %d bytes of audio data\", sent);\n \
+    \   }\n}\n#endif"
+  local: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ < 0 || data.empty()) {\n        return;\n    }\n\n    const\
+    \ void* buffer = data.data();\n    size_t length = data.size() * sizeof(int16_t);\n\
+    \n    ssize_t sent_bytes = sendto(\n        udp_sockfd_,\n        buffer,\n  \
+    \      length,\n        0,\n        reinterpret_cast<const struct sockaddr*>(&udp_server_addr_),\n\
+    \        sizeof(udp_server_addr_)\n    );\n\n    if (sent_bytes < 0) {\n     \
+    \   ESP_LOGW(TAG, \"Failed to send audio data: errno %d\", errno);\n    } else\
+    \ if (static_cast<size_t>(sent_bytes) != length) {\n        ESP_LOGW(TAG, \"Incomplete\
+    \ send: expected %zu bytes, sent %zd bytes\", length, sent_bytes);\n    }\n#endif\n\
+    }"
+  workflow-small-rf: "#include \"audio_debugger.h\"\n#include \"sdkconfig.h\"\n\n\
+    // Standard C/C++ headers\n#include <errno.h>\n#include <cstring>\n#include <string>\n\
+    #include <vector>\n\n// POSIX network headers\n#include <sys/socket.h>\n#include\
+    \ <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\n\n#define TAG \"\
+    AudioDebugger\"\n\nAudioDebugger::AudioDebugger() : udp_sockfd_(-1) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    // Create UDP socket\n    udp_sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);\n\
+    \    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"Failed to create UDP socket:\
+    \ %d\", errno);\n        return;\n    }\n\n    // Configure server address\n \
+    \   memset(&udp_server_addr_, 0, sizeof(udp_server_addr_));\n    udp_server_addr_.sin_family\
+    \ = AF_INET;\n    udp_server_addr_.sin_port = htons(CONFIG_AUDIO_DEBUG_UDP_PORT);\n\
+    \    udp_server_addr_.sin_addr.s_addr = inet_addr(CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \n    ESP_LOGI(TAG, \"Initialized UDP socket for audio debugging\");\n#else\n\
+    \    ESP_LOGI(TAG, \"Audio debugging disabled via config\");\n#endif\n}\n\nAudioDebugger::~AudioDebugger()\
+    \ {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        close(udp_sockfd_);\n\
+    \        ESP_LOGI(TAG, \"Closed UDP socket\");\n    }\n#else\n    ESP_LOGI(TAG,\
+    \ \"Audio debugging disabled via config\");\n#endif\n}\n\nvoid AudioDebugger::Feed(const\
+    \ std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_\
+    \ < 0) {\n        ESP_LOGW(TAG, \"UDP socket not initialized. Cannot send audio\
+    \ data.\");\n        return;\n    }\n\n    ssize_t sent = sendto(udp_sockfd_,\n\
+    \                          data.data(),\n                          data.size()\
+    \ * sizeof(int16_t),\n                          0,\n                         \
+    \ (struct sockaddr*)&udp_server_addr_,\n                          sizeof(udp_server_addr_));\n\
+    \    if (sent < 0) {\n        ESP_LOGW(TAG, \"Failed to send audio data to %s:%d\
+    \ - errno=%d\",\n                 CONFIG_AUDIO_DEBUG_UDP_SERVER,\n           \
+    \      CONFIG_AUDIO_DEBUG_UDP_PORT,\n                 errno);\n    } else {\n\
+    \        ESP_LOGD(TAG, \"Sent %ld bytes of audio data to %s:%d\",\n          \
+    \       sent,\n                 CONFIG_AUDIO_DEBUG_UDP_SERVER,\n             \
+    \    CONFIG_AUDIO_DEBUG_UDP_PORT);\n    }\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n\
+    }"
+  local-small: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0 && !data.empty())\n    {\n\
+    \        ssize_t sent_bytes = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t),\
+    \ 0,\n                                   (struct sockaddr *)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        \n        if (sent_bytes < 0)\n        {\n\
+    \            ESP_LOGW(TAG, \"Failed to send audio data via UDP: %d\", errno);\n\
+    \        }\n        else if (sent_bytes != static_cast<ssize_t>(data.size() *\
+    \ sizeof(int16_t)))\n        {\n            ESP_LOGW(TAG, \"Incomplete UDP send,\
+    \ sent %zd bytes of %zu\", sent_bytes, data.size() * sizeof(int16_t));\n     \
+    \   }\n    }\n#endif\n}"
+  tools-long: "void Feed(const std::vector<int16_t>& data)\n{\n    if (udp_sockfd_\
+    \ < 0)\n    {\n        ESP_LOGW(TAG, \"UDP socket not initialized. Cannot send\
+    \ data.\");\n        return;\n    }\n\n    if (data.empty())\n    {\n        ESP_LOGD(TAG,\
+    \ \"No data to send.\");\n        return;\n    }\n\n    ssize_t sent = sendto(udp_sockfd_,\n\
+    \                          data.data(),\n                          data.size()\
+    \ * sizeof(int16_t),\n                          0,\n                         \
+    \ (struct sockaddr*)&udp_server_addr_,\n                          sizeof(udp_server_addr_));\n\
+    \n    if (sent < 0)\n    {\n        ESP_LOGW(TAG, \"Failed to send audio data:\
+    \ %d\", errno);\n    }\n    else\n    {\n        ESP_LOGD(TAG, \"Sent %d bytes\
+    \ of audio data\", sent);\n    }\n}"
+  graph-5-5: "void AudioDebugger::Feed(const std::vector<int16_t>& audio_data) {\n\
+    \    // Check if socket is valid\n    if (udp_sockfd_ < 0) {\n        ESP_LOGW(\"\
+    AudioDebugger\", \"UDP socket not initialized\");\n        return;\n    }\n  \
+    \  \n    // Check if we have data to send\n    if (audio_data.empty()) {\n   \
+    \     return;\n    }\n    \n    // Parse server configuration\n    std::string\
+    \ server_config = CONFIG_AUDIO_DEBUG_UDP_SERVER;\n    size_t colon_pos = server_config.find(':');\n\
+    \    if (colon_pos == std::string::npos) {\n        ESP_LOGW(\"AudioDebugger\"\
+    , \"Invalid server configuration format\");\n        return;\n    }\n    \n  \
+    \  std::string ip_address = server_config.substr(0, colon_pos);\n    int port\
+    \ = std::stoi(server_config.substr(colon_pos + 1));\n    \n    // Prepare socket\
+    \ address structure\n    struct sockaddr_in server_addr;\n    memset(&server_addr,\
+    \ 0, sizeof(server_addr));\n    server_addr.sin_family = AF_INET;\n    server_addr.sin_port\
+    \ = htons(port);\n    inet_pton(AF_INET, ip_address.c_str(), &server_addr.sin_addr);\n\
+    \    \n    // Acquire lock for thread safety\n    std::lock_guard<std::mutex>\
+    \ lock(mutex_);\n    \n    // Send data via UDP\n    ssize_t sent_bytes = sendto(udp_sockfd_,\
+    \ \n                               audio_data.data(), \n                     \
+    \          audio_data.size() * sizeof(int16_t), \n                           \
+    \    0,\n                               (struct sockaddr*)&server_addr, \n   \
+    \                            sizeof(server_addr));\n    \n    if (sent_bytes <\
+    \ 0) {\n        ESP_LOGW(\"AudioDebugger\", \"Failed to send audio data: %s\"\
+    , strerror(errno));\n    } else {\n        ESP_LOGD(\"AudioDebugger\", \"Sent\
+    \ %d bytes of audio data\", sent_bytes);\n    }\n}"
+  graph-small-5-5: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ < 0) {\n        ESP_LOGW(\"\
+    AUDIO_DEBUGGER\", \"UDP socket not initialized\");\n        return;\n    }\n \
+    \   \n    if (udp_server_addr_ == nullptr) {\n        ESP_LOGW(\"AUDIO_DEBUGGER\"\
+    , \"UDP server address not set\");\n        return;\n    }\n    \n    ssize_t\
+    \ sent_bytes = sendto(udp_sockfd_, \n                               data.data(),\
+    \ \n                               data.size() * sizeof(int16_t),\n          \
+    \                     0,\n                               udp_server_addr_,\n \
+    \                              udp_server_addr_len_);\n    \n    if (sent_bytes\
+    \ < 0) {\n        ESP_LOGW(\"AUDIO_DEBUGGER\", \"Failed to send audio data: %d\"\
+    , errno);\n    } else {\n        ESP_LOGD(\"AUDIO_DEBUGGER\", \"Sent %zd bytes\
+    \ of audio data\", sent_bytes);\n    }\n#endif\n}"
+  Desc+without: "void AudioDebugger::Feed(const std::vector<int16_t>& samples) {\n\
+    #ifdef ENABLE_AUDIO_DEBUGGING\n    if (samples.empty()) {\n        LOG_WARNING(\"\
+    AudioDebugger: Empty samples vector provided\");\n        return;\n    }\n\n \
+    \   // Convert int16_t samples to raw bytes\n    const size_t data_size = samples.size()\
+    \ * sizeof(int16_t);\n    const char* raw_data = reinterpret_cast<const char*>(samples.data());\n\
+    \n    // Send data over UDP\n    int bytes_sent = sendto(udp_socket_, raw_data,\
+    \ data_size, 0,\n                           reinterpret_cast<struct sockaddr*>(&server_addr_),\n\
+    \                           sizeof(server_addr_));\n    \n    // Log the result\n\
+    \    if (bytes_sent < 0) {\n        LOG_ERROR(\"AudioDebugger: Failed to send\
+    \ audio data over UDP. Error: %d\", errno);\n    } else if (static_cast<size_t>(bytes_sent)\
+    \ != data_size) {\n        LOG_WARNING(\"AudioDebugger: Incomplete data transmission.\
+    \ Sent %d/%zu bytes\", \n                   bytes_sent, data_size);\n    } else\
+    \ {\n        LOG_DEBUG(\"AudioDebugger: Successfully sent %zu audio samples (%zu\
+    \ bytes)\", \n                 samples.size(), data_size);\n    }\n#else\n   \
+    \ // Audio debugging disabled - empty implementation\n    (void)samples; // Suppress\
+    \ unused parameter warning\n#endif\n}"
+  Desc+local: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ < 0 || data.empty()) {\n    \
+    \    return;\n    }\n\n    const void* buffer = data.data();\n    size_t length\
+    \ = data.size() * sizeof(int16_t);\n\n    ssize_t sent_bytes = sendto(\n     \
+    \   udp_sockfd_,\n        buffer,\n        length,\n        0,\n        reinterpret_cast<const\
+    \ struct sockaddr*>(&udp_server_addr_),\n        sizeof(udp_server_addr_)\n  \
+    \  );\n\n    if (sent_bytes < 0) {\n        ESP_LOGE(TAG, \"Failed to send audio\
+    \ data: errno %d\", errno);\n    } else if (static_cast<size_t>(sent_bytes) !=\
+    \ length) {\n        ESP_LOGW(TAG, \"Incomplete UDP send: sent %d of %zu bytes\"\
+    , sent_bytes, length);\n    } else {\n        ESP_LOGD(TAG, \"Sent %zu bytes of\
+    \ audio data\", length);\n    }\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  Desc+graph-5-5: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        ssize_t sent\
+    \ = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t), 0,\n     \
+    \                        (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent < 0) {\n            ESP_LOGW(TAG, \"Failed to send audio data\
+    \ to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n        } else {\n    \
+    \        ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        }\n    }\n#endif\n}"
+  Desc+tools: "#if CONFIG_USE_AUDIO_DEBUGGER\nvoid AudioDebugger::Feed(const std::vector<int16_t>&\
+    \ data) {\n    if (udp_sockfd_ < 0) {\n        ESP_LOGW(TAG, \"UDP socket not\
+    \ initialized\");\n        return;\n    }\n\n    ssize_t expected_size = data.size()\
+    \ * sizeof(int16_t);\n    ssize_t sent_bytes = sendto(udp_sockfd_,\n         \
+    \                       data.data(),\n                                expected_size,\n\
+    \                                0,\n                                (struct sockaddr*)&udp_server_addr_,\n\
+    \                                sizeof(udp_server_addr_));\n\n    if (sent_bytes\
+    \ < 0) {\n        ESP_LOGW(TAG, \"Failed to send audio data: %d\", errno);\n \
+    \   } else if (sent_bytes != expected_size) {\n        ESP_LOGW(TAG, \"Incomplete\
+    \ send: sent %d of %d bytes\", sent_bytes, expected_size);\n    } else {\n   \
+    \     ESP_LOGD(TAG, \"Sent %d bytes successfully\", sent_bytes);\n    }\n}\n#endif\
+    \ // CONFIG_USE_AUDIO_DEBUGGER"
+  Desc+graph-KG-5-5: "void Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_, data.data(),\
+    \ data.size() * sizeof(int16_t), 0,\n                             (struct sockaddr*)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        if (sent < 0) {\n            ESP_LOGW(TAG,\
+    \ \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n\
+    \        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\"\
+    , sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"
+  Desc+workflow: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (!initialized_ || udp_sockfd_ < 0) {\n   \
+    \     ESP_LOGW(TAG, \"AudioDebugger not properly initialized.\");\n        return;\n\
+    \    }\n\n    if (data.empty()) {\n        ESP_LOGD(TAG, \"Empty audio data provided;\
+    \ nothing to send.\");\n        return;\n    }\n\n    ssize_t sent_bytes = sendto(\n\
+    \        udp_sockfd_,\n        data.data(),\n        data.size() * sizeof(int16_t),\n\
+    \        0,\n        reinterpret_cast<const struct sockaddr*>(&udp_server_addr_),\n\
+    \        sizeof(udp_server_addr_)\n    );\n\n    if (sent_bytes < 0) {\n     \
+    \   ESP_LOGE(TAG, \"Failed to send audio data: errno %d\", errno);\n    } else\
+    \ {\n        ESP_LOGD(TAG, \"Sent %d audio samples (%d bytes)\", data.size(),\
+    \ static_cast<int>(sent_bytes));\n    }\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n\
+    }"
+  Desc+without-small: "void AudioDebugger::Feed(const std::vector<int16_t>& audioSamples)\n\
+    {\n#if defined(AUDIO_DEBUG_ENABLED)\n    // Check if we have valid data to send\n\
+    \    if (audioSamples.empty()) {\n        return;\n    }\n\n    try {\n      \
+    \  // Create UDP socket\n        int sock = socket(AF_INET, SOCK_DGRAM, 0);\n\
+    \        if (sock < 0) {\n            // Log error - failed to create socket\n\
+    \            return;\n        }\n\n        // Set up server address structure\n\
+    \        struct sockaddr_in serverAddr;\n        memset(&serverAddr, 0, sizeof(serverAddr));\n\
+    \        serverAddr.sin_family = AF_INET;\n        serverAddr.sin_port = htons(m_serverPort);\
+    \  // Assuming m_serverPort is member variable\n        inet_pton(AF_INET, m_serverAddress.c_str(),\
+    \ &serverAddr.sin_addr);  // Assuming m_serverAddress is member variable\n\n \
+    \       // Convert vector of int16_t to bytes for transmission\n        size_t\
+    \ dataSize = audioSamples.size() * sizeof(int16_t);\n        const char* dataPtr\
+    \ = reinterpret_cast<const char*>(audioSamples.data());\n\n        // Send data\
+    \ over UDP\n        ssize_t sentBytes = sendto(sock, dataPtr, dataSize, 0, \n\
+    \                                  reinterpret_cast<struct sockaddr*>(&serverAddr),\
+    \ \n                                  sizeof(serverAddr));\n        \n       \
+    \ // Log result\n        if (sentBytes == static_cast<ssize_t>(dataSize)) {\n\
+    \            // Success - log successful transmission\n            // Assuming\
+    \ there's a logging mechanism available\n            LogDebug(\"AudioDebugger:\
+    \ Successfully sent %zu bytes to %s:%d\", \n                    dataSize, m_serverAddress.c_str(),\
+    \ m_serverPort);\n        } else {\n            // Failed to send complete data\n\
+    \            LogError(\"AudioDebugger: Failed to send complete audio data. Sent\
+    \ %zd of %zu bytes\", \n                    sentBytes, dataSize);\n        }\n\
+    \n        // Close socket\n        close(sock);\n    }\n    catch (const std::exception&\
+    \ e) {\n        // Log exception\n        LogError(\"AudioDebugger: Exception\
+    \ during audio feed: %s\", e.what());\n    }\n#endif\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n\
+    {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0 && !data.empty()) {\n\
+    \        ssize_t sent = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t),\
+    \ 0,\n                             (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent < 0) {\n            ESP_LOGW(TAG, \"Failed to send audio data\
+    \ to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n        } else {\n    \
+    \        ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        }\n    }\n#endif\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_, data.data(),\
+    \ data.size() * sizeof(int16_t), 0,\n                              reinterpret_cast<struct\
+    \ sockaddr*>(&udp_server_addr_),\n                              sizeof(udp_server_addr_));\n\
+    \        if (sent < 0) {\n            ESP_LOGE(TAG, \"Failed to send audio data:\
+    \ %d\", errno);\n        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio\
+    \ data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void AudioDebugger::Feed(const std::vector<int16_t>&\
+    \ data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ < 0) {\n       \
+    \ ESP_LOGW(TAG, \"UDP socket not initialized\");\n        return;\n    }\n   \
+    \ \n    if (data.empty()) {\n        ESP_LOGW(TAG, \"No data to send\");\n   \
+    \     return;\n    }\n    \n    ssize_t sent_bytes = sendto(\n        udp_sockfd_,\n\
+    \        data.data(),\n        data.size() * sizeof(int16_t),\n        0,\n  \
+    \      reinterpret_cast<struct sockaddr*>(&udp_server_addr_),\n        sizeof(udp_server_addr_)\n\
+    \    );\n    \n    if (sent_bytes < 0) {\n        ESP_LOGE(TAG, \"Failed to send\
+    \ audio data: %d\", errno);\n    } else {\n        ESP_LOGI(TAG, \"Sent %zd bytes\
+    \ of audio data\", sent_bytes);\n    }\n#endif\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void AudioDebugger::Feed(const std::vector<int16_t>&\
+    \ samples)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0)\n    {\n\
+    \        // Convert vector of int16_t to bytes\n        size_t data_size = samples.size()\
+    \ * sizeof(int16_t);\n        \n        // Send audio data over UDP\n        ssize_t\
+    \ sent = sendto(udp_sockfd_, \n                             samples.data(), \n\
+    \                             data_size, \n                             0, \n\
+    \                             (struct sockaddr*)&udp_server_addr_, \n        \
+    \                     sizeof(udp_server_addr_));\n        \n        if (sent <\
+    \ 0)\n        {\n            ESP_LOGE(TAG, \"Failed to send audio data: %d\",\
+    \ errno);\n        }\n        else\n        {\n            ESP_LOGD(TAG, \"Sent\
+    \ %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n       \
+    \ }\n    }\n#endif\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void AudioDebugger::Feed(const std::vector<int16_t>&\
+    \ audio_data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    // Convert audio samples to\
+    \ byte stream\n    if (audio_data.empty()) {\n        ESP_LOGW(\"AudioDebugger\"\
+    , \"Empty audio data provided\");\n        return;\n    }\n    \n    // Convert\
+    \ vector<int16_t> to raw bytes\n    const size_t byte_size = audio_data.size()\
+    \ * sizeof(int16_t);\n    const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(audio_data.data());\n\
+    \    \n    // Get network interface and create UDP socket if not already created\n\
+    \    if (!udp_socket_) {\n        auto network = Board::GetInstance().GetNetwork();\n\
+    \        if (!network) {\n            ESP_LOGE(\"AudioDebugger\", \"Failed to\
+    \ get network interface\");\n            return;\n        }\n        \n      \
+    \  udp_socket_ = network->CreateUdp(-1);\n        if (!udp_socket_) {\n      \
+    \      ESP_LOGE(\"AudioDebugger\", \"Failed to create UDP socket\");\n       \
+    \     return;\n        }\n        \n        // Connect to the debug server\n \
+    \       udp_socket_->Connect(debug_server_host_, debug_server_port_);\n    }\n\
+    \    \n    // Transmit the byte stream over UDP\n    std::string data(reinterpret_cast<const\
+    \ char*>(byte_data), byte_size);\n    bool success = udp_socket_->Send(data);\n\
+    \    \n    // Log transmission result\n    if (success) {\n        ESP_LOGD(\"\
+    AudioDebugger\", \"Sent %d audio samples (%d bytes) to %s:%d\", \n           \
+    \      static_cast<int>(audio_data.size()), \n                 static_cast<int>(byte_size),\n\
+    \                 debug_server_host_.c_str(), \n                 debug_server_port_);\n\
+    \    } else {\n        ESP_LOGE(\"AudioDebugger\", \"Failed to send audio data\
+    \ over UDP\");\n    }\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  graph-SRP_KG-it-small;: "void AudioDebugger::Feed(const std::vector<int16_t>& data)\
+    \ {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG,\
+    \ \"UDP socket not initialized\");\n        return;\n    }\n    \n    if (data.empty())\
+    \ {\n        ESP_LOGW(TAG, \"Empty audio data received\");\n        return;\n\
+    \    }\n    \n    // Convert vector<int16_t> to bytes for transmission\n    ssize_t\
+    \ bytes_sent = sendto(udp_sockfd_, \n                               data.data(),\
+    \ \n                               data.size() * sizeof(int16_t), \n         \
+    \                      0, \n                               (struct sockaddr*)&udp_server_addr_,\
+    \ \n                               sizeof(udp_server_addr_));\n    \n    if (bytes_sent\
+    \ < 0) {\n        ESP_LOGE(TAG, \"Failed to send audio data over UDP: %d\", errno);\n\
+    \    } else {\n        ESP_LOGD(TAG, \"Sent %zd bytes of audio data over UDP\"\
+    , bytes_sent);\n    }\n#endif\n}"
+  graph-SRP_KG-it;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        ssize_t sent\
+    \ = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t), 0,\n     \
+    \                        (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent < 0) {\n            ESP_LOGW(TAG, \"Failed to send audio data\
+    \ to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n        } else {\n    \
+    \        ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        }\n    }\n#endif\n}"
+  without-small;: "void AudioDebugger::Feed(const std::vector<int16_t>& audioSamples)\n\
+    {\n#if defined(AUDIO_DEBUG_ENABLED)\n    // Check if we have valid data to send\n\
+    \    if (audioSamples.empty()) {\n        return;\n    }\n\n    try {\n      \
+    \  // Create UDP socket\n        int sock = socket(AF_INET, SOCK_DGRAM, 0);\n\
+    \        if (sock < 0) {\n            // Log error - failed to create socket\n\
+    \            return;\n        }\n\n        // Set up server address structure\n\
+    \        struct sockaddr_in serverAddr;\n        memset(&serverAddr, 0, sizeof(serverAddr));\n\
+    \        serverAddr.sin_family = AF_INET;\n        serverAddr.sin_port = htons(m_serverPort);\
+    \  // Assuming m_serverPort is member variable\n        inet_pton(AF_INET, m_serverAddress.c_str(),\
+    \ &serverAddr.sin_addr);  // Assuming m_serverAddress is member variable\n\n \
+    \       // Convert vector of int16_t to bytes for transmission\n        size_t\
+    \ dataSize = audioSamples.size() * sizeof(int16_t);\n        const char* dataPtr\
+    \ = reinterpret_cast<const char*>(audioSamples.data());\n\n        // Send data\
+    \ over UDP\n        ssize_t sentBytes = sendto(sock, dataPtr, dataSize, 0, \n\
+    \                                  reinterpret_cast<struct sockaddr*>(&serverAddr),\
+    \ \n                                  sizeof(serverAddr));\n        \n       \
+    \ // Log result\n        if (sentBytes == static_cast<ssize_t>(dataSize)) {\n\
+    \            // Success - log successful transmission\n            // Assuming\
+    \ there's a logging mechanism available\n            LogDebug(\"AudioDebugger:\
+    \ Successfully sent %zu bytes to %s:%d\", \n                    dataSize, m_serverAddress.c_str(),\
+    \ m_serverPort);\n        } else {\n            // Failed to send complete data\n\
+    \            LogError(\"AudioDebugger: Failed to send complete audio data. Sent\
+    \ %zd of %zu bytes\", \n                    sentBytes, dataSize);\n        }\n\
+    \n        // Close socket\n        close(sock);\n    }\n    catch (const std::exception&\
+    \ e) {\n        // Log exception\n        LogError(\"AudioDebugger: Exception\
+    \ during audio feed: %s\", e.what());\n    }\n#endif\n}"
+  local-small;: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0 && data.size() > 0)\n  \
+    \  {\n        ssize_t sent_bytes = sendto(udp_sockfd_, data.data(), data.size()\
+    \ * sizeof(int16_t), 0,\n                                   (struct sockaddr *)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        \n        if (sent_bytes < 0)\n        {\n\
+    \            ESP_LOGE(TAG, \"Failed to send audio data via UDP: %d\", errno);\n\
+    \        }\n        else\n        {\n            ESP_LOGD(TAG, \"Sent %zd bytes\
+    \ of audio data via UDP\", sent_bytes);\n        }\n    }\n#endif\n}"
+  tools-small;: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0 && data.size() > 0)\n  \
+    \  {\n        ssize_t sent_bytes = sendto(udp_sockfd_, \n                    \
+    \               data.data(), \n                                   data.size()\
+    \ * sizeof(int16_t), \n                                   0, \n              \
+    \                     (struct sockaddr*)&udp_server_addr_, \n                \
+    \                   sizeof(udp_server_addr_));\n        \n        if (sent_bytes\
+    \ < 0)\n        {\n            ESP_LOGE(TAG, \"Failed to send audio data via UDP:\
+    \ %d\", errno);\n        }\n        else\n        {\n            ESP_LOGD(TAG,\
+    \ \"Sent %zd bytes of audio data via UDP\", sent_bytes);\n        }\n    }\n \
+    \   else if (data.empty())\n    {\n        ESP_LOGW(TAG, \"No audio data to send\"\
+    );\n    }\n    else\n    {\n        ESP_LOGW(TAG, \"UDP socket not initialized\
+    \ or invalid\");\n    }\n#endif\n}"
+  without;: "void AudioDebugger::Feed(const std::vector<int16_t>& samples) {\n#ifdef\
+    \ ENABLE_AUDIO_DEBUGGING\n    if (samples.empty()) {\n        LOG_WARNING(\"AudioDebugger:\
+    \ Empty samples vector provided\");\n        return;\n    }\n\n    // Convert\
+    \ int16_t samples to raw bytes\n    const size_t data_size = samples.size() *\
+    \ sizeof(int16_t);\n    const char* raw_data = reinterpret_cast<const char*>(samples.data());\n\
+    \n    // Send data over UDP\n    int bytes_sent = sendto(udp_socket_, raw_data,\
+    \ data_size, 0,\n                           reinterpret_cast<struct sockaddr*>(&server_addr_),\n\
+    \                           sizeof(server_addr_));\n    \n    // Log the result\n\
+    \    if (bytes_sent < 0) {\n        LOG_ERROR(\"AudioDebugger: Failed to send\
+    \ audio data over UDP. Error: %d\", errno);\n    } else if (static_cast<size_t>(bytes_sent)\
+    \ != data_size) {\n        LOG_WARNING(\"AudioDebugger: Incomplete data transmission.\
+    \ Sent %d/%zu bytes\", \n                   bytes_sent, data_size);\n    } else\
+    \ {\n        LOG_DEBUG(\"AudioDebugger: Successfully sent %zu audio samples (%zu\
+    \ bytes)\", \n                 samples.size(), data_size);\n    }\n#else\n   \
+    \ // Audio debugging disabled - empty implementation\n    (void)samples; // Suppress\
+    \ unused parameter warning\n#endif\n}"
+  local;: "void AudioDebugger::Feed(const std::vector<int16_t> &data)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ < 0 || data.empty()) {\n        return;\n    }\n\n    const\
+    \ void* buffer = data.data();\n    size_t length = data.size() * sizeof(int16_t);\n\
+    \n    ssize_t sent_bytes = sendto(\n        udp_sockfd_,\n        buffer,\n  \
+    \      length,\n        0,\n        reinterpret_cast<const struct sockaddr*>(&udp_server_addr_),\n\
+    \        sizeof(udp_server_addr_)\n    );\n\n    if (sent_bytes < 0) {\n     \
+    \   ESP_LOGE(TAG, \"Failed to send audio data: errno %d\", errno);\n    } else\
+    \ if (static_cast<size_t>(sent_bytes) != length) {\n        ESP_LOGW(TAG, \"Incomplete\
+    \ UDP send: sent %d of %zu bytes\", sent_bytes, length);\n    } else {\n     \
+    \   ESP_LOGD(TAG, \"Sent %zu bytes of audio data\", length);\n    }\n#endif //\
+    \ CONFIG_USE_AUDIO_DEBUGGER\n}"
+  tools;: "void AudioDebugger::Feed(const std::vector<int16_t>& data)\n{\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ < 0) {\n        ESP_LOGW(TAG, \"UDP socket not initialized.\"\
+    );\n        return;\n    }\n\n    if (data.empty()) {\n        ESP_LOGD(TAG, \"\
+    No audio data to send.\");\n        return;\n    }\n\n    const ssize_t data_size_bytes\
+    \ = data.size() * sizeof(int16_t);\n    const char* data_ptr = reinterpret_cast<const\
+    \ char*>(data.data());\n\n    ssize_t sent = sendto(udp_sockfd_, data_ptr, data_size_bytes,\
+    \ 0,\n                          (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \n    if (sent < 0) {\n        ESP_LOGE(TAG, \"Failed to send audio data: %s\"\
+    , strerror(errno));\n    } else if (sent != data_size_bytes) {\n        ESP_LOGW(TAG,\
+    \ \"Incomplete send: expected %d bytes, sent %d bytes\", (int)data_size_bytes,\
+    \ (int)sent);\n    } else {\n        ESP_LOGD(TAG, \"Sent %d bytes audio data\
+    \ to %s\", (int)data_size_bytes, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n    }\n#endif\
+    \ // CONFIG_USE_AUDIO_DEBUGGER\n}"
+  eg;: "#include <vector>\n#include <cstdint>\n#include <cstring> // memcpy\n\n#ifdef\
+    \ ENABLE_AUDIO_DEBUG\n\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include\
+    \ <arpa/inet.h>\n#include <unistd.h>\n#include <iostream>\n\n// Example configuration\
+    \ values – replace with real ones from your project\n#define DEBUG_SERVER_IP \"\
+    127.0.0.1\"\n#define DEBUG_SERVER_PORT 9999\n\n#endif // ENABLE_AUDIO_DEBUG\n\n\
+    void AudioDebugger::Feed(const std::vector<int16_t>& samples) {\n#ifdef ENABLE_AUDIO_DEBUG\n\
+    \n    if (samples.empty()) {\n        // Nothing to send\n        return;\n  \
+    \  }\n\n    // Step 1: Convert int16_t samples to byte stream\n    size_t num_bytes\
+    \ = samples.size() * sizeof(int16_t);\n    std::vector<uint8_t> byte_buffer(num_bytes);\n\
+    \    std::memcpy(byte_buffer.data(), samples.data(), num_bytes);\n\n    // Step\
+    \ 2: Create UDP socket\n    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n\
+    \    if (sock < 0) {\n        std::cerr << \"[AudioDebugger] Failed to create\
+    \ UDP socket.\" << std::endl;\n        return;\n    }\n\n    struct sockaddr_in\
+    \ server_addr {};\n    server_addr.sin_family = AF_INET;\n    server_addr.sin_port\
+    \ = htons(DEBUG_SERVER_PORT);\n    inet_pton(AF_INET, DEBUG_SERVER_IP, &server_addr.sin_addr);\n\
+    \n    // Step 3: Send data\n    ssize_t bytes_sent = sendto(sock, byte_buffer.data(),\
+    \ num_bytes, 0,\n                                reinterpret_cast<struct sockaddr*>(&server_addr),\n\
+    \                                sizeof(server_addr));\n\n    // Step 4: Log result\n\
+    \    if (bytes_sent < 0) {\n        std::cerr << \"[AudioDebugger] Error sending\
+    \ audio data over UDP.\" << std::endl;\n    } else if (static_cast<size_t>(bytes_sent)\
+    \ != num_bytes) {\n        std::cerr << \"[AudioDebugger] Incomplete packet sent.\
+    \ Sent \"\n                  << bytes_sent << \"/\" << num_bytes << \" bytes.\"\
+    \ << std::endl;\n    } else {\n        std::cout << \"[AudioDebugger] Successfully\
+    \ sent \"\n                  << bytes_sent << \" bytes of audio data.\" << std::endl;\n\
+    \    }\n\n    close(sock);\n\n#else\n    // Audio debugging not enabled - do nothing\n\
+    #endif\n}"
+  a3;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_,\n   \
+    \                           data.data(),\n                              data.size()\
+    \ * sizeof(int16_t),\n                              0,\n                     \
+    \         (struct sockaddr*)&udp_server_addr_,\n                             \
+    \ sizeof(udp_server_addr_));\n        if (sent < 0) {\n            ESP_LOGW(TAG,\
+    \ \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n\
+    \        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\"\
+    , sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"
+  eg-small;: "void AudioDebugger::Feed(const std::vector<int16_t>& audio_samples)\
+    \ {\n#if defined(AUDIO_DEBUG_ENABLED)\n    // Step 1: Prepare the audio data buffer\
+    \ by converting the int16_t samples into raw bytes\n    std::vector<uint8_t> raw_bytes(audio_samples.size()\
+    \ * sizeof(int16_t));\n    std::memcpy(raw_bytes.data(), audio_samples.data(),\
+    \ raw_bytes.size());\n    \n    // Step 2: Validate that audio debugging is enabled\
+    \ and the UDP socket is ready for sending\n    if (!is_audio_debug_enabled_ ||\
+    \ !udp_socket_) {\n        return;\n    }\n    \n    // Step 3: Send the raw audio\
+    \ bytes over UDP to the configured server address and port\n    ssize_t bytes_sent\
+    \ = udp_socket_->SendTo(\n        raw_bytes.data(),\n        raw_bytes.size(),\n\
+    \        debug_server_address_,\n        debug_server_port_\n    );\n    \n  \
+    \  // Step 4: Log the result of the transmission including success/failure and\
+    \ byte count\n    if (bytes_sent > 0) {\n        LOG(INFO) << \"Audio debugger\
+    \ sent \" << bytes_sent << \" bytes to \" \n                  << debug_server_address_\
+    \ << \":\" << debug_server_port_;\n    } else {\n        LOG(ERROR) << \"Audio\
+    \ debugger failed to send data. Error: \" << strerror(errno);\n    }\n#endif\n\
+    }"
+  a3-small;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_, data.data(),\
+    \ data.size() * sizeof(int16_t), 0,\n                             (struct sockaddr*)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        if (sent < 0) {\n            ESP_LOGW(TAG,\
+    \ \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n\
+    \        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\"\
+    , sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"
+  SRP-small;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_, data.data(),\
+    \ data.size() * sizeof(int16_t), 0,\n                             (struct sockaddr*)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        if (sent < 0) {\n            ESP_LOGW(TAG,\
+    \ \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n\
+    \        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\"\
+    , sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"
+  SRP;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ < 0 || data.empty()) {\n        return;\n    }\n\n    //\
+    \ Send the raw audio data as bytes\n    ssize_t sent_bytes = sendto(udp_sockfd_,\
+    \ \n                               data.data(), \n                           \
+    \    data.size() * sizeof(int16_t), \n                               0,\n    \
+    \                           (struct sockaddr*)&udp_server_addr_, \n          \
+    \                     sizeof(udp_server_addr_));\n    \n    ssize_t expected_bytes\
+    \ = data.size() * sizeof(int16_t);\n    \n    if (sent_bytes == expected_bytes)\
+    \ {\n        ESP_LOGD(TAG, \"Successfully sent %d audio bytes (%zu samples)\"\
+    , \n                 (int)sent_bytes, data.size());\n    } else if (sent_bytes\
+    \ < 0) {\n        ESP_LOGE(TAG, \"Failed to send audio data: %d\", errno);\n \
+    \   } else {\n        ESP_LOGW(TAG, \"Incomplete send: %d/%d bytes sent\", \n\
+    \                 (int)sent_bytes, (int)expected_bytes);\n    }\n#endif\n}"
+  eg-small-168;: "void AudioDebugger::Feed(const std::vector<int16_t>& samples)\n\
+    {\n#if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0)\n    {\n        //\
+    \ Convert int16_t samples to raw bytes\n        size_t byte_count = samples.size()\
+    \ * sizeof(int16_t);\n        const char* data_ptr = reinterpret_cast<const char*>(samples.data());\n\
+    \        \n        // Send the audio data over UDP\n        ssize_t sent = sendto(udp_sockfd_,\
+    \ data_ptr, byte_count, 0,\n                             reinterpret_cast<struct\
+    \ sockaddr*>(&udp_server_addr_),\n                             sizeof(udp_server_addr_));\n\
+    \        \n        if (sent < 0)\n        {\n            ESP_LOGE(TAG, \"Failed\
+    \ to send audio data: %d\", errno);\n        }\n        else\n        {\n    \
+    \        ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        }\n    }\n    else\n    {\n        ESP_LOGW(TAG, \"UDP socket not ready,\
+    \ cannot send audio data\");\n    }\n#endif\n}"
+  eg-168;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ < 0) {\n        ESP_LOGE(TAG, \"UDP socket not initialized\"\
+    );\n        return;\n    }\n\n    if (data.empty()) {\n        ESP_LOGW(TAG, \"\
+    No audio data to send\");\n        return;\n    }\n\n    const char* byte_data\
+    \ = reinterpret_cast<const char*>(data.data());\n    size_t byte_length = data.size()\
+    \ * sizeof(int16_t);\n\n    ssize_t sent_bytes = sendto(udp_sockfd_, byte_data,\
+    \ byte_length, 0,\n                                (struct sockaddr*)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n\n    if (sent_bytes < 0) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to send audio data: %s\", strerror(errno));\n    } else if (static_cast<size_t>(sent_bytes)\
+    \ != byte_length) {\n        ESP_LOGW(TAG, \"Partial data sent: %d/%zu bytes\"\
+    , static_cast<int>(sent_bytes), byte_length);\n    } else {\n        ESP_LOGD(TAG,\
+    \ \"Sent %zu bytes of audio data\", byte_length);\n    }\n#endif // CONFIG_USE_AUDIO_DEBUGGER\n\
+    }"
+  SRP-small-168;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n\
+    #if CONFIG_USE_AUDIO_DEBUGGER\n    if (udp_sockfd_ >= 0) {\n        ssize_t sent\
+    \ = sendto(udp_sockfd_, data.data(), data.size() * sizeof(int16_t), 0,\n     \
+    \                        (struct sockaddr*)&udp_server_addr_, sizeof(udp_server_addr_));\n\
+    \        if (sent < 0) {\n            ESP_LOGW(TAG, \"Failed to send audio data\
+    \ to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n        } else {\n    \
+    \        ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\", sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n\
+    \        }\n    }\n#endif\n}"
+  SRP-168;: "void AudioDebugger::Feed(const std::vector<int16_t>& data) {\n#if CONFIG_USE_AUDIO_DEBUGGER\n\
+    \    if (udp_sockfd_ >= 0) {\n        ssize_t sent = sendto(udp_sockfd_, data.data(),\
+    \ data.size() * sizeof(int16_t), 0,\n                             (struct sockaddr*)&udp_server_addr_,\
+    \ sizeof(udp_server_addr_));\n        if (sent < 0) {\n            ESP_LOGW(TAG,\
+    \ \"Failed to send audio data to %s: %d\", CONFIG_AUDIO_DEBUG_UDP_SERVER, errno);\n\
+    \        } else {\n            ESP_LOGD(TAG, \"Sent %d bytes audio data to %s\"\
+    , sent, CONFIG_AUDIO_DEBUG_UDP_SERVER);\n        }\n    }\n#endif\n}"

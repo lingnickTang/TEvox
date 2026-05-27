@@ -1,0 +1,161 @@
+? complete the function Es8388AudioCodec(void *, i2c_port_t, int, int, gpio_num_t,
+  gpio_num_t, gpio_num_t, gpio_num_t, gpio_num_t, gpio_num_t, uint8_t, bool)()
+: functions:
+  - CreateDuplexChannels
+  - audio_codec_new_i2s_data
+  - assert
+  - audio_codec_new_i2c_ctrl
+  - audio_codec_new_gpio
+  - es8388_codec_new
+  - esp_codec_dev_new
+  - esp_codec_set_disable_when_closed
+  - ESP_LOGI
+  variables:
+  - duplex_
+  - input_reference_
+  - input_channels_
+  - input_sample_rate_
+  - output_sample_rate_
+  - input_gain_
+  - pa_pin_
+  - rx_handle_
+  - tx_handle_
+  - data_if_
+  - i2c_port
+  - es8388_addr
+  - i2c_master_handle
+  - ctrl_if_
+  - gpio_if_
+  - es8388_codec_cfg_t::ctrl_if
+  - es8388_codec_cfg_t::gpio_if
+  - es8388_codec_cfg_t::codec_mode
+  - es8388_codec_cfg_t::master_mode
+  - es8388_codec_cfg_t::pa_pin
+  - es8388_codec_cfg_t::pa_reverted
+  - es8388_codec_cfg_t::hw_gain.pa_voltage
+  - es8388_codec_cfg_t::hw_gain.codec_dac_voltage
+  - codec_if_
+  - esp_codec_dev_cfg_t::dev_type
+  - esp_codec_dev_cfg_t::codec_if
+  - esp_codec_dev_cfg_t::data_if
+  - output_dev_
+  - input_dev_
+  - TAG
+complete the function ~Es8388AudioCodec()():
+  functions:
+  - ESP_ERROR_CHECK
+  - esp_codec_dev_close
+  - esp_codec_dev_delete
+  - audio_codec_delete_codec_if
+  - audio_codec_delete_ctrl_if
+  - audio_codec_delete_gpio_if
+  - audio_codec_delete_data_if
+  variables:
+  - output_dev_
+  - input_dev_
+  - codec_if_
+  - ctrl_if_
+  - gpio_if_
+  - data_if_
+complete the function CreateDuplexChannels(gpio_num_t, gpio_num_t, gpio_num_t, gpio_num_t, gpio_num_t)():
+  functions:
+  - assert
+  - ESP_ERROR_CHECK
+  - i2s_new_channel
+  - i2s_channel_init_std_mode
+  - ESP_LOGI
+  variables:
+  - input_sample_rate_
+  - output_sample_rate_
+  - chan_cfg
+  - tx_handle_
+  - rx_handle_
+  - std_cfg
+  - mclk
+  - bclk
+  - ws
+  - dout
+  - din
+  - TAG
+complete the function SetOutputVolume(int)():
+  functions:
+  - ESP_ERROR_CHECK
+  - esp_codec_dev_set_out_vol
+  - AudioCodec::SetOutputVolume
+  variables:
+  - output_dev_
+  - volume
+complete the function EnableInput(bool)():
+  functions:
+  - std::lock_guard<std::mutex>
+  - ESP_CODEC_DEV_MAKE_CHANNEL_MASK
+  - ESP_ERROR_CHECK
+  - esp_codec_dev_open
+  - ctrl_if_->write_reg
+  - esp_codec_dev_set_in_gain
+  - esp_codec_dev_close
+  - AudioCodec::EnableInput
+  variables:
+  - data_if_mutex_
+  - enable
+  - input_enabled_
+  - esp_codec_dev_sample_info_t fs
+  - bits_per_sample
+  - channel
+  - input_channels_
+  - channel_mask
+  - sample_rate
+  - input_sample_rate_
+  - mclk_multiple
+  - input_reference_
+  - input_dev_
+  - gain
+  - ctrl_if_
+  - input_gain_
+complete the function EnableOutput(bool)():
+  functions:
+  - std::lock_guard<std::mutex>
+  - ESP_ERROR_CHECK
+  - esp_codec_dev_open
+  - esp_codec_dev_set_out_vol
+  - ctrl_if_->write_reg
+  - gpio_set_level
+  - esp_codec_dev_close
+  - AudioCodec::EnableOutput
+  variables:
+  - data_if_mutex_
+  - enable
+  - output_enabled_
+  - esp_codec_dev_sample_info_t fs
+  - bits_per_sample
+  - channel
+  - channel_mask
+  - sample_rate
+  - output_sample_rate_
+  - mclk_multiple
+  - output_dev_
+  - output_volume_
+  - reg_val
+  - input_reference_
+  - regs
+  - reg
+  - pa_pin_
+  - GPIO_NUM_NC
+complete the function Read(int16_t *, int)():
+  functions:
+  - ESP_ERROR_CHECK_WITHOUT_ABORT
+  - esp_codec_dev_read
+  variables:
+  - input_enabled_
+  - input_dev_
+  - dest
+  - samples
+complete the function Write(const int16_t *, int)():
+  functions:
+  - ESP_ERROR_CHECK_WITHOUT_ABORT
+  - esp_codec_dev_write
+  variables:
+  - output_enabled_
+  - output_dev_
+  - data
+  - samples

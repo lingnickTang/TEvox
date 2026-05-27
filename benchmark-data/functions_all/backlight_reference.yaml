@@ -1,0 +1,85 @@
+complete the function Backlight()():
+  functions:
+  - esp_timer_create
+  - ESP_ERROR_CHECK
+  - static_cast<Backlight*>
+  - OnTransitionTimer
+  variables:
+  - timer_args
+  - callback
+  - arg
+  - dispatch_method
+  - name
+  - skip_unhandled_events
+  - transition_timer_
+  - self
+complete the function ~Backlight()():
+  functions:
+  - esp_timer_stop
+  - esp_timer_delete
+  variables:
+  - transition_timer_
+complete the function RestoreBrightness()():
+  functions:
+  - Settings
+  - settings.GetInt
+  - ESP_LOGW
+  - SetBrightness
+  variables:
+  - settings
+  - saved_brightness
+  - TAG
+complete the function SetBrightness(uint8_t, bool)():
+  functions:
+  - Settings::Settings
+  - Settings::SetInt
+  - esp_timer_start_periodic
+  - ESP_LOGI
+  variables:
+  - brightness
+  - permanent
+  - brightness_
+  - target_brightness_
+  - step_
+  - transition_timer_
+  - TAG
+complete the function OnTransitionTimer()():
+  functions:
+  - esp_timer_stop
+  - SetBrightnessImpl
+  variables:
+  - brightness_
+  - target_brightness_
+  - transition_timer_
+  - step_
+complete the function PwmBacklight(gpio_num_t, bool, uint32_t)():
+  functions:
+  - ESP_ERROR_CHECK
+  - ledc_timer_config
+  - ledc_channel_config
+  variables:
+  - pin
+  - output_invert
+  - freq_hz
+  - backlight_timer
+  - speed_mode
+  - duty_resolution
+  - timer_num
+  - clk_cfg
+  - deconfigure
+  - backlight_channel
+  - gpio_num
+  - intr_type
+  - timer_sel
+  - duty
+  - hpoint
+  - flags
+complete the function SetBrightnessImpl(uint8_t)():
+  functions:
+  - ledc_set_duty
+  - ledc_update_duty
+  variables:
+  - brightness
+  - duty_cycle
+  - LEDC_LOW_SPEED_MODE
+  - LEDC_CHANNEL_0

@@ -1,0 +1,558 @@
+{
+  "metadata": {
+    "generated_at": "2026-01-27 10:31:10",
+    "total_files": 10,
+    "total_cases": 1680,
+    "total_valid_cases": 1653,
+    "benchmark_dir": "D:\\Download\\github\\evox-ai\\evox-server\\.rag\\benchmark"
+  },
+  "global_statistics": {
+    "avg_function_reuse_rate": 59.74814616422422,
+    "avg_variable_reuse_rate": 61.334668464190614,
+    "avg_semantic_score": 67.73077079498388,
+    "avg_structure_score": 63.56718023278886,
+    "avg_completeness_score": 62.54067386701259,
+    "avg_overall_score": 64.61287496492845
+  },
+  "statistics_by_test_type": {
+    "local-small": {
+      "count": 1,
+      "avg_function_reuse_rate": 66.74588366755474,
+      "avg_variable_reuse_rate": 70.3162743705548,
+      "avg_semantic_score": 75.83832335329342,
+      "avg_structure_score": 75.0,
+      "avg_completeness_score": 68.44311377245509,
+      "avg_overall_score": 73.0938123752495
+    },
+    "local": {
+      "count": 1,
+      "avg_function_reuse_rate": 72.05575084043483,
+      "avg_variable_reuse_rate": 70.71865710585983,
+      "avg_semantic_score": 71.54761904761905,
+      "avg_structure_score": 69.73214285714286,
+      "avg_completeness_score": 67.02380952380952,
+      "avg_overall_score": 69.43452380952381
+    },
+    "tools-long": {
+      "count": 1,
+      "avg_function_reuse_rate": 67.28486586434802,
+      "avg_variable_reuse_rate": 66.25212257721468,
+      "avg_semantic_score": 75.84848484848484,
+      "avg_structure_score": 70.54545454545455,
+      "avg_completeness_score": 70.54545454545455,
+      "avg_overall_score": 72.31313131313131
+    },
+    "tools-small": {
+      "count": 1,
+      "avg_function_reuse_rate": 58.93147575504231,
+      "avg_variable_reuse_rate": 65.6959053508953,
+      "avg_semantic_score": 73.3433734939759,
+      "avg_structure_score": 70.5,
+      "avg_completeness_score": 65.3012048192771,
+      "avg_overall_score": 69.714859437751
+    },
+    "unknown": {
+      "count": 3,
+      "avg_function_reuse_rate": 40.27339412025738,
+      "avg_variable_reuse_rate": 42.93261786878159,
+      "avg_semantic_score": 51.070898500835646,
+      "avg_structure_score": 45.85173535757938,
+      "avg_completeness_score": 44.4994972124523,
+      "avg_overall_score": 47.14071035695577
+    },
+    "workflow+sd+mi+rf": {
+      "count": 1,
+      "avg_function_reuse_rate": 72.26493510602857,
+      "avg_variable_reuse_rate": 73.09074548756384,
+      "avg_semantic_score": 77.13855421686748,
+      "avg_structure_score": 71.74698795180723,
+      "avg_completeness_score": 75.13855421686748,
+      "avg_overall_score": 74.67469879518073
+    },
+    "workflow+sd+mi": {
+      "count": 1,
+      "avg_function_reuse_rate": 67.66942105143956,
+      "avg_variable_reuse_rate": 67.25082272914284,
+      "avg_semantic_score": 74.30722891566265,
+      "avg_structure_score": 69.7289156626506,
+      "avg_completeness_score": 70.8132530120482,
+      "avg_overall_score": 71.61646586345383
+    },
+    "workflow-small-rf": {
+      "count": 1,
+      "avg_function_reuse_rate": 71.70894699662199,
+      "avg_variable_reuse_rate": 71.2243034143301,
+      "avg_semantic_score": 76.07142857142857,
+      "avg_structure_score": 70.86309523809524,
+      "avg_completeness_score": 74.64285714285714,
+      "avg_overall_score": 73.85912698412697
+    }
+  },
+  "summaries": [
+    {
+      "file_name": "local-small_results_01_26_17_48.json",
+      "test_type": "local-small",
+      "date": "01_26_17_48",
+      "model_name": "qwen3-coder-30b-a3b-instruct",
+      "total_cases": 168,
+      "valid_cases": 167,
+      "quantitative": {
+        "function_reuse_rate": 66.74588366755474,
+        "variable_reuse_rate": 70.3162743705548,
+        "avg_correctly_reused_functions": 3.07185628742515,
+        "avg_incorrectly_constructed_functions": 2.820359281437126,
+        "avg_total_reference_functions": 5.892215568862276,
+        "avg_correctly_reused_variables": 4.880239520958084,
+        "avg_incorrectly_constructed_variables": 3.8802395209580838,
+        "avg_total_reference_variables": 8.760479041916168
+      },
+      "qualitative": {
+        "semantic_score": 75.83832335329342,
+        "structure_score": 75.0,
+        "completeness_score": 68.44311377245509,
+        "overall_average": 73.0938123752495
+      }
+    },
+    {
+      "file_name": "local_results_01_24_20_13.json",
+      "test_type": "local",
+      "date": "01_24_20_13",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 168,
+      "quantitative": {
+        "function_reuse_rate": 72.05575084043483,
+        "variable_reuse_rate": 70.71865710585983,
+        "avg_correctly_reused_functions": 3.4583333333333335,
+        "avg_incorrectly_constructed_functions": 2.1547619047619047,
+        "avg_total_reference_functions": 5.613095238095238,
+        "avg_correctly_reused_variables": 4.946428571428571,
+        "avg_incorrectly_constructed_variables": 3.357142857142857,
+        "avg_total_reference_variables": 8.303571428571429
+      },
+      "qualitative": {
+        "semantic_score": 71.54761904761905,
+        "structure_score": 69.73214285714286,
+        "completeness_score": 67.02380952380952,
+        "overall_average": 69.43452380952381
+      }
+    },
+    {
+      "file_name": "tools-long_results_01_27_04_40.json",
+      "test_type": "tools-long",
+      "date": "01_27_04_40",
+      "model_name": "qwen3-coder-480b-a35b-instruct",
+      "total_cases": 168,
+      "valid_cases": 165,
+      "quantitative": {
+        "function_reuse_rate": 67.28486586434802,
+        "variable_reuse_rate": 66.25212257721468,
+        "avg_correctly_reused_functions": 3.327272727272727,
+        "avg_incorrectly_constructed_functions": 2.3636363636363638,
+        "avg_total_reference_functions": 5.6909090909090905,
+        "avg_correctly_reused_variables": 4.472727272727273,
+        "avg_incorrectly_constructed_variables": 3.56969696969697,
+        "avg_total_reference_variables": 8.042424242424243
+      },
+      "qualitative": {
+        "semantic_score": 75.84848484848484,
+        "structure_score": 70.54545454545455,
+        "completeness_score": 70.54545454545455,
+        "overall_average": 72.31313131313131
+      }
+    },
+    {
+      "file_name": "tools-small_results_01_23_16_32.json",
+      "test_type": "tools-small",
+      "date": "01_23_16_32",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 166,
+      "quantitative": {
+        "function_reuse_rate": 58.93147575504231,
+        "variable_reuse_rate": 65.6959053508953,
+        "avg_correctly_reused_functions": 2.63855421686747,
+        "avg_incorrectly_constructed_functions": 3.246987951807229,
+        "avg_total_reference_functions": 5.885542168674699,
+        "avg_correctly_reused_variables": 4.686746987951807,
+        "avg_incorrectly_constructed_variables": 4.024096385542169,
+        "avg_total_reference_variables": 8.710843373493976
+      },
+      "qualitative": {
+        "semantic_score": 73.3433734939759,
+        "structure_score": 70.5,
+        "completeness_score": 65.3012048192771,
+        "overall_average": 69.714859437751
+      }
+    },
+    {
+      "file_name": "tools_results_01_23_00_18.json",
+      "test_type": "unknown",
+      "date": "unknown",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 160,
+      "quantitative": {
+        "function_reuse_rate": 71.39056684378859,
+        "variable_reuse_rate": 68.00939742471208,
+        "avg_correctly_reused_functions": 3.50625,
+        "avg_incorrectly_constructed_functions": 2.175,
+        "avg_total_reference_functions": 5.68125,
+        "avg_correctly_reused_variables": 4.64375,
+        "avg_incorrectly_constructed_variables": 3.58125,
+        "avg_total_reference_variables": 8.225
+      },
+      "qualitative": {
+        "semantic_score": 73.75,
+        "structure_score": 68.40625,
+        "completeness_score": 69.28125,
+        "overall_average": 70.47916666666667
+      }
+    },
+    {
+      "file_name": "without-small_results_01_23_11_19.json",
+      "test_type": "unknown",
+      "date": "unknown",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 166,
+      "quantitative": {
+        "function_reuse_rate": 32.53815989548392,
+        "variable_reuse_rate": 39.63364110554343,
+        "avg_correctly_reused_functions": 1.7048192771084338,
+        "avg_incorrectly_constructed_functions": 4.77710843373494,
+        "avg_total_reference_functions": 6.481927710843373,
+        "avg_correctly_reused_variables": 3.1927710843373496,
+        "avg_incorrectly_constructed_variables": 6.698795180722891,
+        "avg_total_reference_variables": 9.891566265060241
+      },
+      "qualitative": {
+        "semantic_score": 40.30120481927711,
+        "structure_score": 38.403614457831324,
+        "completeness_score": 31.204819277108435,
+        "overall_average": 36.63654618473896
+      }
+    },
+    {
+      "file_name": "without_results_01_22_15_35.json",
+      "test_type": "unknown",
+      "date": "unknown",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 161,
+      "quantitative": {
+        "function_reuse_rate": 16.89145562149962,
+        "variable_reuse_rate": 21.15481507608927,
+        "avg_correctly_reused_functions": 0.9316770186335404,
+        "avg_incorrectly_constructed_functions": 5.074534161490683,
+        "avg_total_reference_functions": 6.0062111801242235,
+        "avg_correctly_reused_variables": 1.3975155279503106,
+        "avg_incorrectly_constructed_variables": 7.3478260869565215,
+        "avg_total_reference_variables": 8.745341614906833
+      },
+      "qualitative": {
+        "semantic_score": 39.161490683229815,
+        "structure_score": 30.74534161490683,
+        "completeness_score": 33.01242236024845,
+        "overall_average": 34.3064182194617
+      }
+    },
+    {
+      "file_name": "workflow+sd+mi+rf_results_01_24_17_11.json",
+      "test_type": "workflow+sd+mi+rf",
+      "date": "01_24_17_11",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 166,
+      "quantitative": {
+        "function_reuse_rate": 72.26493510602857,
+        "variable_reuse_rate": 73.09074548756384,
+        "avg_correctly_reused_functions": 3.674698795180723,
+        "avg_incorrectly_constructed_functions": 1.8313253012048192,
+        "avg_total_reference_functions": 5.506024096385542,
+        "avg_correctly_reused_variables": 5.030120481927711,
+        "avg_incorrectly_constructed_variables": 2.8132530120481927,
+        "avg_total_reference_variables": 7.843373493975903
+      },
+      "qualitative": {
+        "semantic_score": 77.13855421686748,
+        "structure_score": 71.74698795180723,
+        "completeness_score": 75.13855421686748,
+        "overall_average": 74.67469879518073
+      }
+    },
+    {
+      "file_name": "workflow+sd+mi_results_01_24_02_29.json",
+      "test_type": "workflow+sd+mi",
+      "date": "01_24_02_29",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 166,
+      "quantitative": {
+        "function_reuse_rate": 67.66942105143956,
+        "variable_reuse_rate": 67.25082272914284,
+        "avg_correctly_reused_functions": 3.289156626506024,
+        "avg_incorrectly_constructed_functions": 2.253012048192771,
+        "avg_total_reference_functions": 5.542168674698795,
+        "avg_correctly_reused_variables": 4.283132530120482,
+        "avg_incorrectly_constructed_variables": 3.463855421686747,
+        "avg_total_reference_variables": 7.746987951807229
+      },
+      "qualitative": {
+        "semantic_score": 74.30722891566265,
+        "structure_score": 69.7289156626506,
+        "completeness_score": 70.8132530120482,
+        "overall_average": 71.61646586345383
+      }
+    },
+    {
+      "file_name": "workflow-small-rf_results_01_26_02_07.json",
+      "test_type": "workflow-small-rf",
+      "date": "01_26_02_07",
+      "model_name": "unknown",
+      "total_cases": 168,
+      "valid_cases": 168,
+      "quantitative": {
+        "function_reuse_rate": 71.70894699662199,
+        "variable_reuse_rate": 71.2243034143301,
+        "avg_correctly_reused_functions": 3.7023809523809526,
+        "avg_incorrectly_constructed_functions": 1.9702380952380953,
+        "avg_total_reference_functions": 5.6726190476190474,
+        "avg_correctly_reused_variables": 4.958333333333333,
+        "avg_incorrectly_constructed_variables": 3.119047619047619,
+        "avg_total_reference_variables": 8.077380952380953
+      },
+      "qualitative": {
+        "semantic_score": 76.07142857142857,
+        "structure_score": 70.86309523809524,
+        "completeness_score": 74.64285714285714,
+        "overall_average": 73.85912698412697
+      }
+    }
+  ],
+  "detailed_analyses": {
+    "local-small_results_01_26_17_48": {
+      "metadata": {
+        "test_type": "local-small",
+        "date": "01_26_17_48",
+        "model_name": "qwen3-coder-30b-a3b-instruct"
+      },
+      "total_cases": 168,
+      "valid_cases": 167,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.07185628742515,
+        "correctly_reused_variables": 4.880239520958084,
+        "incorrectly_constructed_functions": 2.820359281437126,
+        "incorrectly_constructed_variables": 3.8802395209580838,
+        "total_reference_functions": 5.892215568862276,
+        "total_reference_variables": 8.760479041916168,
+        "function_reuse_rate": 66.74588366755474,
+        "variable_reuse_rate": 70.3162743705548
+      },
+      "average_qualitative": {
+        "semantic_score": 75.83832335329342,
+        "structure_score": 75.0,
+        "completeness_score": 68.44311377245509
+      }
+    },
+    "local_results_01_24_20_13": {
+      "metadata": {
+        "test_type": "local",
+        "date": "01_24_20_13"
+      },
+      "total_cases": 168,
+      "valid_cases": 168,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.4583333333333335,
+        "correctly_reused_variables": 4.946428571428571,
+        "incorrectly_constructed_functions": 2.1547619047619047,
+        "incorrectly_constructed_variables": 3.357142857142857,
+        "total_reference_functions": 5.613095238095238,
+        "total_reference_variables": 8.303571428571429,
+        "function_reuse_rate": 72.05575084043483,
+        "variable_reuse_rate": 70.71865710585983
+      },
+      "average_qualitative": {
+        "semantic_score": 71.54761904761905,
+        "structure_score": 69.73214285714286,
+        "completeness_score": 67.02380952380952
+      }
+    },
+    "tools-long_results_01_27_04_40": {
+      "metadata": {
+        "test_type": "tools-long",
+        "date": "01_27_04_40",
+        "model_name": "qwen3-coder-480b-a35b-instruct"
+      },
+      "total_cases": 168,
+      "valid_cases": 165,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.327272727272727,
+        "correctly_reused_variables": 4.472727272727273,
+        "incorrectly_constructed_functions": 2.3636363636363638,
+        "incorrectly_constructed_variables": 3.56969696969697,
+        "total_reference_functions": 5.6909090909090905,
+        "total_reference_variables": 8.042424242424243,
+        "function_reuse_rate": 67.28486586434802,
+        "variable_reuse_rate": 66.25212257721468
+      },
+      "average_qualitative": {
+        "semantic_score": 75.84848484848484,
+        "structure_score": 70.54545454545455,
+        "completeness_score": 70.54545454545455
+      }
+    },
+    "tools-small_results_01_23_16_32": {
+      "metadata": {
+        "test_type": "tools-small",
+        "date": "01_23_16_32"
+      },
+      "total_cases": 168,
+      "valid_cases": 166,
+      "average_quantitative": {
+        "correctly_reused_functions": 2.63855421686747,
+        "correctly_reused_variables": 4.686746987951807,
+        "incorrectly_constructed_functions": 3.246987951807229,
+        "incorrectly_constructed_variables": 4.024096385542169,
+        "total_reference_functions": 5.885542168674699,
+        "total_reference_variables": 8.710843373493976,
+        "function_reuse_rate": 58.93147575504231,
+        "variable_reuse_rate": 65.6959053508953
+      },
+      "average_qualitative": {
+        "semantic_score": 73.3433734939759,
+        "structure_score": 70.5,
+        "completeness_score": 65.3012048192771
+      }
+    },
+    "tools_results_01_23_00_18": {
+      "metadata": {},
+      "total_cases": 168,
+      "valid_cases": 160,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.50625,
+        "correctly_reused_variables": 4.64375,
+        "incorrectly_constructed_functions": 2.175,
+        "incorrectly_constructed_variables": 3.58125,
+        "total_reference_functions": 5.68125,
+        "total_reference_variables": 8.225,
+        "function_reuse_rate": 71.39056684378859,
+        "variable_reuse_rate": 68.00939742471208
+      },
+      "average_qualitative": {
+        "semantic_score": 73.75,
+        "structure_score": 68.40625,
+        "completeness_score": 69.28125
+      }
+    },
+    "without-small_results_01_23_11_19": {
+      "metadata": {},
+      "total_cases": 168,
+      "valid_cases": 166,
+      "average_quantitative": {
+        "correctly_reused_functions": 1.7048192771084338,
+        "correctly_reused_variables": 3.1927710843373496,
+        "incorrectly_constructed_functions": 4.77710843373494,
+        "incorrectly_constructed_variables": 6.698795180722891,
+        "total_reference_functions": 6.481927710843373,
+        "total_reference_variables": 9.891566265060241,
+        "function_reuse_rate": 32.53815989548392,
+        "variable_reuse_rate": 39.63364110554343
+      },
+      "average_qualitative": {
+        "semantic_score": 40.30120481927711,
+        "structure_score": 38.403614457831324,
+        "completeness_score": 31.204819277108435
+      }
+    },
+    "without_results_01_22_15_35": {
+      "metadata": {},
+      "total_cases": 168,
+      "valid_cases": 161,
+      "average_quantitative": {
+        "correctly_reused_functions": 0.9316770186335404,
+        "correctly_reused_variables": 1.3975155279503106,
+        "incorrectly_constructed_functions": 5.074534161490683,
+        "incorrectly_constructed_variables": 7.3478260869565215,
+        "total_reference_functions": 6.0062111801242235,
+        "total_reference_variables": 8.745341614906833,
+        "function_reuse_rate": 16.89145562149962,
+        "variable_reuse_rate": 21.15481507608927
+      },
+      "average_qualitative": {
+        "semantic_score": 39.161490683229815,
+        "structure_score": 30.74534161490683,
+        "completeness_score": 33.01242236024845
+      }
+    },
+    "workflow+sd+mi+rf_results_01_24_17_11": {
+      "metadata": {
+        "test_type": "workflow+sd+mi+rf",
+        "date": "01_24_17_11"
+      },
+      "total_cases": 168,
+      "valid_cases": 166,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.674698795180723,
+        "correctly_reused_variables": 5.030120481927711,
+        "incorrectly_constructed_functions": 1.8313253012048192,
+        "incorrectly_constructed_variables": 2.8132530120481927,
+        "total_reference_functions": 5.506024096385542,
+        "total_reference_variables": 7.843373493975903,
+        "function_reuse_rate": 72.26493510602857,
+        "variable_reuse_rate": 73.09074548756384
+      },
+      "average_qualitative": {
+        "semantic_score": 77.13855421686748,
+        "structure_score": 71.74698795180723,
+        "completeness_score": 75.13855421686748
+      }
+    },
+    "workflow+sd+mi_results_01_24_02_29": {
+      "metadata": {
+        "test_type": "workflow+sd+mi",
+        "date": "01_24_02_29"
+      },
+      "total_cases": 168,
+      "valid_cases": 166,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.289156626506024,
+        "correctly_reused_variables": 4.283132530120482,
+        "incorrectly_constructed_functions": 2.253012048192771,
+        "incorrectly_constructed_variables": 3.463855421686747,
+        "total_reference_functions": 5.542168674698795,
+        "total_reference_variables": 7.746987951807229,
+        "function_reuse_rate": 67.66942105143956,
+        "variable_reuse_rate": 67.25082272914284
+      },
+      "average_qualitative": {
+        "semantic_score": 74.30722891566265,
+        "structure_score": 69.7289156626506,
+        "completeness_score": 70.8132530120482
+      }
+    },
+    "workflow-small-rf_results_01_26_02_07": {
+      "metadata": {
+        "test_type": "workflow-small-rf",
+        "date": "01_26_02_07"
+      },
+      "total_cases": 168,
+      "valid_cases": 168,
+      "average_quantitative": {
+        "correctly_reused_functions": 3.7023809523809526,
+        "correctly_reused_variables": 4.958333333333333,
+        "incorrectly_constructed_functions": 1.9702380952380953,
+        "incorrectly_constructed_variables": 3.119047619047619,
+        "total_reference_functions": 5.6726190476190474,
+        "total_reference_variables": 8.077380952380953,
+        "function_reuse_rate": 71.70894699662199,
+        "variable_reuse_rate": 71.2243034143301
+      },
+      "average_qualitative": {
+        "semantic_score": 76.07142857142857,
+        "structure_score": 70.86309523809524,
+        "completeness_score": 74.64285714285714
+      }
+    }
+  }
+}

@@ -1,0 +1,234 @@
+complete the function WifiBoard()():
+  functions:
+  - esp_timer_create
+  - OnWifiConnectTimeout
+  variables:
+  - timer_args
+  - connect_timer_
+  - callback
+  - arg
+  - dispatch_method
+  - name
+  - skip_unhandled_events
+complete the function ~WifiBoard()():
+  functions:
+  - esp_timer_stop
+  - esp_timer_delete
+  variables:
+  - connect_timer_
+complete the function StartNetwork()():
+  functions:
+  - WifiManager::GetInstance()
+  - wifi_manager.Initialize()
+  - wifi_manager.SetEventCallback()
+  - wifi_manager.GetSsid()
+  - OnNetworkEvent()
+  - TryWifiConnect()
+  variables:
+  - wifi_manager
+  - config
+  - config.ssid_prefix
+  - config.language
+  - event
+  - ssid
+complete the function TryWifiConnect()():
+  functions:
+  - SsidManager::GetInstance()
+  - ssid_manager.GetSsidList()
+  - esp_timer_start_once()
+  - WifiManager::GetInstance()
+  - WifiManager::GetInstance().StartStation()
+  - vTaskDelay()
+  - StartWifiConfigMode()
+  variables:
+  - ssid_manager
+  - have_ssid
+  - connect_timer_
+  - CONNECT_TIMEOUT_SEC
+  - TAG
+complete the function OnNetworkEvent(NetworkEvent, const std::string &)():
+  functions:
+  - esp_timer_stop()
+  - Blufi::GetInstance().deinit()
+  - data.c_str()
+  - ESP_LOGI()
+  - ESP_LOGW()
+  - TryWifiConnect()
+  - network_event_callback_()
+  variables:
+  - connect_timer_
+  - in_config_mode_
+  - TAG
+  - network_event_callback_
+  - event
+  - data
+complete the function OnWifiConnectTimeout(void *)():
+  functions:
+  - static_cast<WifiBoard*>
+  - ESP_LOGW
+  - WifiManager::GetInstance
+  - StopStation
+  - StartWifiConfigMode
+  variables:
+  - arg
+  - board
+  - TAG
+complete the function StartWifiConfigMode()():
+  functions:
+  - Application::GetInstance
+  - SetDeviceState
+  - WifiManager::GetInstance
+  - StartConfigAp
+  - Schedule
+  - GetApSsid
+  - GetApWebUrl
+  - Alert
+  - Blufi::GetInstance
+  - init
+  - Board::GetInstance
+  - GetAudioCodec
+  - input_channels
+  - ESP_LOGI
+  - xTaskCreate
+  - audio_wifi_config::ReceiveWifiCredentialsFromAudio
+  - GetDisplay
+  - vTaskDelete
+  variables:
+  - in_config_mode_
+  - kDeviceStateWifiConfiguring
+  - CONFIG_USE_HOTSPOT_WIFI_PROVISIONING
+  - wifi_manager
+  - hint
+  - Lang::Strings::CONNECT_TO_HOTSPOT
+  - Lang::Strings::ACCESS_VIA_BROWSER
+  - Lang::Strings::WIFI_CONFIG_MODE
+  - Lang::Sounds::OGG_WIFICONFIG
+  - CONFIG_USE_ESP_BLUFI_WIFI_PROVISIONING
+  - blufi
+  - CONFIG_USE_ACOUSTIC_WIFI_PROVISIONING
+  - codec
+  - channel
+  - TAG
+  - arg
+  - ch
+  - app
+  - wifi
+  - disp
+complete the function EnterWifiConfigMode()():
+  functions:
+  - ESP_LOGI
+  - GetDisplay
+  - ShowNotification
+  - Application::GetInstance
+  - GetDeviceState
+  - ResetProtocol
+  - xTaskCreate
+  - static_cast
+  - vTaskDelay
+  - pdMS_TO_TICKS
+  - esp_timer_stop
+  - WifiManager::GetInstance
+  - StopStation
+  - StartWifiConfigMode
+  - ESP_LOGE
+  - vTaskDelete
+  variables:
+  - TAG
+  - Lang::Strings::ENTERING_WIFI_CONFIG_MODE
+  - app
+  - state
+  - kDeviceStateSpeaking
+  - kDeviceStateListening
+  - kDeviceStateIdle
+  - board
+  - connect_timer_
+  - kDeviceStateStarting
+complete the function GetNetwork()():
+  functions: []
+  variables:
+  - network
+complete the function GetNetworkStateIcon()():
+  functions:
+  - WifiManager::GetInstance()
+  - wifi.IsConfigMode()
+  - wifi.IsConnected()
+  - wifi.GetRssi()
+  variables:
+  - wifi
+  - rssi
+  - FONT_AWESOME_WIFI
+  - FONT_AWESOME_WIFI_SLASH
+  - FONT_AWESOME_WIFI_FAIR
+  - FONT_AWESOME_WIFI_WEAK
+complete the function GetBoardJson()():
+  functions:
+  - WifiManager::GetInstance()
+  - wifi.IsConfigMode()
+  - wifi.GetSsid()
+  - wifi.GetRssi()
+  - std::to_string()
+  - wifi.GetChannel()
+  - wifi.GetIpAddress()
+  - SystemInfo::GetMacAddress()
+  variables:
+  - wifi
+  - json
+  - BOARD_TYPE
+  - BOARD_NAME
+complete the function SetPowerSaveLevel(PowerSaveLevel)():
+  functions:
+  - WifiManager::GetInstance()
+  - WifiManager::GetInstance().SetPowerSaveLevel()
+  variables:
+  - level
+  - wifi_level
+complete the function GetDeviceStatusJson()():
+  functions:
+  - Board::GetInstance()
+  - cJSON_CreateObject()
+  - board.GetAudioCodec()
+  - cJSON_AddNumberToObject()
+  - cJSON_AddItemToObject()
+  - board.GetBacklight()
+  - board.GetDisplay()
+  - display->height()
+  - display->GetTheme()
+  - cJSON_AddStringToObject()
+  - board.GetBatteryLevel()
+  - cJSON_CreateObject()
+  - cJSON_AddNumberToObject()
+  - cJSON_AddBoolToObject()
+  - cJSON_AddItemToObject()
+  - WifiManager::GetInstance()
+  - cJSON_CreateObject()
+  - cJSON_AddStringToObject()
+  - wifi.GetSsid()
+  - wifi.GetRssi()
+  - board.GetTemperature()
+  - cJSON_CreateObject()
+  - cJSON_AddNumberToObject()
+  - cJSON_AddItemToObject()
+  - cJSON_PrintUnformatted()
+  - cJSON_free()
+  - cJSON_Delete()
+  variables:
+  - board
+  - root
+  - audio_speaker
+  - codec
+  - screen
+  - backlight
+  - display
+  - theme
+  - level
+  - charging
+  - discharging
+  - battery
+  - wifi
+  - network
+  - rssi
+  - signal
+  - temp
+  - chip
+  - str
+  - result

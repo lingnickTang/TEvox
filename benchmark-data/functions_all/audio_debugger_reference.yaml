@@ -1,0 +1,47 @@
+complete the function AudioDebugger()():
+  functions:
+  - socket
+  - std::string::find
+  - std::string::substr
+  - std::stoi
+  - memset
+  - htons
+  - inet_pton
+  - ESP_LOGI
+  - ESP_LOGW
+  - close
+  variables:
+  - udp_sockfd_
+  - server_addr
+  - colon_pos
+  - ip
+  - port
+  - udp_server_addr_
+  - sin_family
+  - sin_port
+  - sin_addr
+  - TAG
+  - CONFIG_AUDIO_DEBUG_UDP_SERVER
+  - errno
+complete the function ~AudioDebugger()():
+  functions:
+  - close
+  - ESP_LOGI
+  variables:
+  - udp_sockfd_
+  - TAG
+complete the function Feed(const std::vector<int16_t>&)():
+  functions:
+  - sendto
+  - ESP_LOGW
+  - ESP_LOGD
+  - data.data
+  - data.size
+  variables:
+  - udp_sockfd_
+  - udp_server_addr_
+  - TAG
+  - CONFIG_AUDIO_DEBUG_UDP_SERVER
+  - errno
+  - sent
+  - data

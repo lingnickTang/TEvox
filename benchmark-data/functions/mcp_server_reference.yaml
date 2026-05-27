@@ -1,0 +1,7 @@
+complete the function ~McpServer()():
+  functions:
+  - delete
+  - tools_.clear()
+  variables:
+  - tools_
+  - tool

@@ -1,0 +1,260 @@
+complete the function MqttProtocol()():
+  functions:
+  - xEventGroupCreate
+  - esp_timer_create
+  - Application::GetInstance
+  - app.GetDeviceState
+  - ESP_LOGI
+  - protocol->StartMqttClient
+  - app.Schedule
+  variables:
+  - event_group_handle_
+  - reconnect_timer_args
+  - callback
+  - arg
+  - protocol
+  - app
+  - kDeviceStateIdle
+  - TAG
+  - alive
+  - reconnect_timer_
+complete the function ~MqttProtocol()():
+  functions:
+  - ESP_LOGI
+  - esp_timer_stop
+  - esp_timer_delete
+  - vEventGroupDelete
+  variables:
+  - TAG
+  - alive_
+  - reconnect_timer_
+  - udp_
+  - mqtt_
+  - event_group_handle_
+complete the function StartMqttClient(bool)():
+  functions:
+  - ESP_LOGW
+  - mqtt_.reset
+  - settings.GetString
+  - settings.GetInt
+  - ESP_LOGI
+  - SetError
+  - Board::GetInstance
+  - GetNetwork
+  - network->CreateMqtt
+  - mqtt_->SetKeepAlive
+  - mqtt_->OnDisconnected
+  - on_disconnected_
+  - esp_timer_start_once
+  - mqtt_->OnConnected
+  - on_connected_
+  - esp_timer_stop
+  - mqtt_->OnMessage
+  - cJSON_Parse
+  - ESP_LOGE
+  - cJSON_GetObjectItem
+  - cJSON_IsString
+  - strcmp
+  - ParseServerHello
+  - cJSON_Delete
+  - Application::GetInstance
+  - Schedule
+  - CloseAudioChannel
+  - endpoint.find
+  - std::stoi
+  - endpoint.substr
+  - mqtt_->Connect
+  - mqtt_->GetLastError
+  - std::chrono::steady_clock::now
+  variables:
+  - mqtt_
+  - TAG
+  - settings
+  - endpoint
+  - client_id
+  - username
+  - password
+  - keepalive_interval
+  - publish_topic_
+  - report_error
+  - network
+  - reconnect_timer_
+  - MQTT_RECONNECT_INTERVAL_MS
+  - on_disconnected_
+  - on_connected_
+  - topic
+  - payload
+  - root
+  - type
+  - session_id
+  - session_id_
+  - alive_
+  - on_incoming_json_
+  - last_incoming_time_
+  - broker_address
+  - broker_port
+  - pos
+complete the function SendText(const std::string &)():
+  functions:
+  - publish_topic_.empty()
+  - mqtt_->Publish()
+  - ESP_LOGE()
+  - text.c_str()
+  - SetError()
+  - Lang::Strings::SERVER_ERROR
+  variables:
+  - publish_topic_
+  - mqtt_
+  - TAG
+  - text
+complete the function SendAudio(std::unique_ptr<AudioStreamPacket>)():
+  functions:
+  - std::lock_guard<std::mutex>
+  - htons
+  - htonl
+  - memcpy
+  - mbedtls_aes_crypt_ctr
+  - ESP_LOGE
+  - udp_->Send
+  variables:
+  - channel_mutex_
+  - udp_
+  - aes_nonce_
+  - packet
+  - nonce
+  - encrypted
+  - nc_off
+  - stream_block
+  - aes_ctx_
+  - local_sequence_
+  - TAG
+complete the function CloseAudioChannel()():
+  functions:
+  - std::lock_guard<std::mutex>
+  - udp_.reset()
+  - SendText()
+  - on_audio_channel_closed_()
+  variables:
+  - channel_mutex_
+  - udp_
+  - message
+  - session_id_
+  - on_audio_channel_closed_
+complete the function OpenAudioChannel()():
+  functions:
+  - mqtt_->IsConnected
+  - StartMqttClient
+  - xEventGroupClearBits
+  - GetHelloMessage
+  - SendText
+  - xEventGroupWaitBits
+  - SetError
+  - Board::GetInstance
+  - network->CreateUdp
+  - udp_->OnMessage
+  - ntohl
+  - std::make_unique
+  - mbedtls_aes_crypt_ctr
+  - udp_->Connect
+  - std::chrono::steady_clock::now
+  - ESP_LOGI
+  - ESP_LOGE
+  - ESP_LOGW
+  variables:
+  - mqtt_
+  - error_occurred_
+  - session_id_
+  - event_group_handle_
+  - MQTT_PROTOCOL_SERVER_HELLO_EVENT
+  - message
+  - bits
+  - TAG
+  - Lang::Strings::SERVER_TIMEOUT
+  - channel_mutex_
+  - network
+  - udp_
+  - data
+  - aes_nonce_
+  - remote_sequence_
+  - server_sample_rate_
+  - server_frame_duration_
+  - decrypted_size
+  - nc_off
+  - stream_block
+  - nonce
+  - encrypted
+  - packet
+  - aes_ctx_
+  - ret
+  - on_incoming_audio_
+  - sequence
+  - last_incoming_time_
+  - udp_server_
+  - udp_port_
+  - on_audio_channel_opened_
+complete the function GetHelloMessage()():
+  functions:
+  - cJSON_CreateObject
+  - cJSON_AddStringToObject
+  - cJSON_AddNumberToObject
+  - cJSON_AddBoolToObject
+  - cJSON_AddItemToObject
+  - cJSON_PrintUnformatted
+  - cJSON_free
+  - cJSON_Delete
+  variables:
+  - root
+  - features
+  - audio_params
+  - json_str
+  - message
+  - CONFIG_USE_SERVER_AEC
+  - OPUS_FRAME_DURATION_MS
+complete the function ParseServerHello(const cJSON *)():
+  functions:
+  - cJSON_GetObjectItem
+  - strcmp
+  - ESP_LOGE
+  - cJSON_IsString
+  - ESP_LOGI
+  - cJSON_IsObject
+  - cJSON_IsNumber
+  - DecodeHexString
+  - mbedtls_aes_init
+  - mbedtls_aes_setkey_enc
+  - xEventGroupSetBits
+  variables:
+  - transport
+  - session_id
+  - session_id_
+  - audio_params
+  - sample_rate
+  - server_sample_rate_
+  - frame_duration
+  - server_frame_duration_
+  - udp
+  - udp_server_
+  - udp_port_
+  - key
+  - nonce
+  - aes_nonce_
+  - aes_ctx_
+  - local_sequence_
+  - remote_sequence_
+  - event_group_handle_
+  - MQTT_PROTOCOL_SERVER_HELLO_EVENT
+complete the function CharToHex(char)():
+  functions: []
+  variables:
+  - c
+complete the function DecodeHexString(const std::string &)():
+  functions:
+  - CharToHex
+  - std::string::size
+  - std::string::reserve
+  - std::string::push_back
+  variables:
+  - hex_string
+  - decoded
+  - i
+  - byte

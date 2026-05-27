@@ -1,0 +1,2239 @@
+file_path: main/protocols/protocol.cc
+benchmark:
+- query: complete the function SetError(const std::string &)()
+  ground_truth: "void Protocol::SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  workflow: ''
+  cursor: ''
+  without: "void SetError(const std::string& errorMessage) {\n    // Store the error\
+    \ message in a member variable\n    m_errorMessage = errorMessage;\n    \n   \
+    \ // Set error flag to indicate an error state\n    m_hasError = true;\n    \n\
+    \    // Optional: Log the error or perform other error handling\n    // This could\
+    \ include writing to a log file, printing to console,\n    // or triggering error\
+    \ callbacks depending on the class requirements\n    \n    // If there's an error\
+    \ callback mechanism, invoke it here\n    // if (m_errorCallback) {\n    //  \
+    \   m_errorCallback(errorMessage);\n    // }\n}"
+  tools: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    ESP_LOGE(TAG, \"Error occurred: %s\", message.c_str());\n    if\
+    \ (on_network_error_) {\n        on_network_error_(message);\n    }\n}"
+  without-small: "cpp\nvoid SetError(const std::string &error) {\n    m_errorMessage\
+    \ = error;\n    m_hasError = true;\n}"
+  tools-small: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    if (on_network_error_) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  workflow+sd+mi: "void SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  workflow+sd+mi+rf: "void Protocol::SetError(const std::string &message)\n{\n   \
+    \ error_occurred_ = true;\n    if (on_network_error_ != nullptr)\n    {\n    \
+    \    on_network_error_(message);\n    }\n}"
+  local: "void Protocol::SetError(const std::string &message)\n{\n}\n```\n\nCurrently,\
+    \ this function has an empty implementation. Based on common design patterns for\
+    \ error handling in network or communication protocols, the purpose of such a\
+    \ function would typically be to:\n\n1. Store or log the error message.\n2. Possibly\
+    \ notify any registered callbacks about the error event (e.g., via `on_network_error_`).\n\
+    3. Potentially trigger disconnection or other recovery mechanisms depending on\
+    \ severity.\n\nWe also notice from earlier parts of the file that there's a member\
+    \ variable `on_network_error_`, which can be used to propagate errors to higher\
+    \ layers.\n\nGiven these observations, a reasonable and complete implementation\
+    \ of `SetError()` should at least:\n- Log the incoming error message using ESP-IDF\
+    \ logging (`ESP_LOGE`).\n- Invoke the stored `on_network_error_` callback if it’s\
+    \ set.\n\n---\n\n### Completed Implementation\n\nHere is the completed version\
+    \ of the `SetError` function with full logic inside its body:\n\n```cpp\nvoid\
+    \ Protocol::SetError(const std::string &message)\n{\n    ESP_LOGE(TAG, \"Protocol\
+    \ error: %s\", message.c_str());\n    if (on_network_error_) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  workflow-small-rf: "void Protocol::SetError(const std::string &message)\n{\n   \
+    \ error_occurred_ = true;\n    ESP_LOGE(TAG, \"Protocol error: %s\", message.c_str());\n\
+    \    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  local-small: "void Protocol::SetError(const std::string &message)\n{\n    error_message_\
+    \ = message;\n    if (on_network_error_) {\n        on_network_error_(message);\n\
+    \    }\n    ESP_LOGE(TAG, \"Protocol error: %s\", message.c_str());\n}"
+  tools-long: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    ESP_LOGE(TAG, \"Protocol error: %s\", message.c_str());\n    if\
+    \ (on_network_error_) {\n        on_network_error_(message);\n    }\n}"
+  graph-5-5: "void Protocol::SetError(const std::string& message) {\n    // Log the\
+    \ error with appropriate tag\n    ESP_LOGE(\"Protocol\", \"Network error occurred:\
+    \ %s\", message.c_str());\n    \n    // Set the error occurred flag\n    error_occurred_\
+    \ = true;\n    \n    // Check if error callback is registered and call it\n  \
+    \  if (on_network_error_) {\n        on_network_error_(message);\n    }\n}"
+  graph-small-5-5: "void NetworkEventManager::SetError(const std::string &error_message)\
+    \ {\n    // Set the error occurred flag to true\n    error_occurred_ = true;\n\
+    \    \n    // Store the error message for potential use\n    last_error_message_\
+    \ = error_message;\n    \n    // Notify any registered network error handler if\
+    \ it exists\n    if (on_network_error_) {\n        on_network_error_(error_message);\n\
+    \    }\n}"
+  Desc+without: "void SetError(const std::string &errorMessage) {\n    // Record the\
+    \ error occurrence - using static variable to maintain state\n    static bool\
+    \ errorOccurred = false;\n    errorOccurred = true;\n    \n    // Store the error\
+    \ message for potential retrieval\n    static std::string lastErrorMessage;\n\
+    \    lastErrorMessage = errorMessage;\n    \n    // Define function pointer type\
+    \ for error handler\n    typedef void (*ErrorHandler)(const std::string&);\n \
+    \   \n    // External function to get the registered error handler\n    // This\
+    \ assumes there's a mechanism to register handlers elsewhere\n    extern ErrorHandler\
+    \ GetRegisteredErrorHandler();\n    \n    // Get the currently registered error\
+    \ handler\n    ErrorHandler handler = GetRegisteredErrorHandler();\n    \n   \
+    \ // If handler is registered, notify it with the error message\n    if (handler\
+    \ != nullptr) {\n        handler(errorMessage);\n    }\n}"
+  Desc+local: "void Protocol::SetError(const std::string &message)\n{\n    if (on_network_error_)\
+    \ {\n        on_network_error_(message);\n    }\n}"
+  Desc+graph-5-5: "void Protocol::SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  Desc+tools: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    if (on_network_error_) {\n        on_network_error_(message);\n\
+    \    }\n    ESP_LOGE(TAG, \"Network error: %s\", message.c_str());\n}"
+  Desc+graph-KG-5-5: "void SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  Desc+workflow: "void Protocol::SetError(const std::string &message)\n{\n    ESP_LOGE(TAG,\
+    \ \"Network error: %s\", message.c_str());\n    if (on_network_error_) {\n   \
+    \     on_network_error_(message);\n    }\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void Protocol::SetError(const std::string &message)\n\
+    {\n    error_occurred_ = true;\n    if (on_network_error_ != nullptr) {\n    \
+    \    on_network_error_(message);\n    }\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void Protocol::SetError(const std::string& message) {\n\
+    \    error_occurred_ = true;\n    if (on_network_error_) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Protocol::SetError(const std::string&\
+    \ message) {\n    error_occurred_ = true;\n    if (on_network_error_) {\n    \
+    \    on_network_error_(message);\n    }\n    ESP_LOGE(TAG, \"Network error: %s\"\
+    , message.c_str());\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Protocol::SetError(const std::string&\
+    \ message) {\n    error_occurred_ = true;\n    if (on_network_error_) {\n    \
+    \    on_network_error_(message);\n    }\n    ESP_LOGE(TAG, \"Network error: %s\"\
+    , message.c_str());\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "#include <mutex>\n#include <string>\n#include\
+    \ <functional>\n\n// Assuming these are members of a Protocol class\nclass Protocol\
+    \ {\nprivate:\n    std::string last_error_message_;\n    std::function<void(const\
+    \ std::string&)> error_handler_;\n    mutable std::mutex error_mutex_;\n\npublic:\n\
+    \    void OnNetworkError(std::function<void(const std::string& message)> callback)\
+    \ {\n        std::lock_guard<std::mutex> lock(error_mutex_);\n        error_handler_\
+    \ = std::move(callback);\n    }\n\n    void SetError(const std::string& message)\
+    \ {\n        std::lock_guard<std::mutex> lock(error_mutex_);\n        last_error_message_\
+    \ = message;\n\n        if (error_handler_) {\n            error_handler_(last_error_message_);\n\
+    \        }\n    }\n};"
+  graph-SRP_KG-it-small;: "void Protocol::SetError(const std::string& message) {\n\
+    \    error_occurred_ = true;\n    if (on_network_error_ != nullptr) {\n      \
+    \  on_network_error_(message);\n    }\n}"
+  graph-SRP_KG-it;: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  without-small;: "#include <string>\n#include <vector>\n#include <functional>\n#include\
+    \ <mutex>\n\n// Global error handler registry\nstatic std::vector<std::function<void(const\
+    \ std::string&)>> g_errorHandlers;\nstatic std::mutex g_errorHandlerMutex;\n\n\
+    void SetError(const std::string& errorMessage)\n{\n    // Lock the mutex to ensure\
+    \ thread safety\n    std::lock_guard<std::mutex> lock(g_errorHandlerMutex);\n\
+    \    \n    // Check if there are any registered error handlers\n    if (!g_errorHandlers.empty())\
+    \ {\n        // Notify all registered error handlers\n        for (const auto&\
+    \ handler : g_errorHandlers) {\n            if (handler) {  // Check if handler\
+    \ is valid\n                handler(errorMessage);\n            }\n        }\n\
+    \    }\n    \n    // Optionally log the error or perform other actions here\n\
+    \    // For example: write to error log, update error counters, etc.\n}"
+  local-small;: "void Protocol::SetError(const std::string &message)\n{\n    if (on_network_error_)\
+    \ {\n        on_network_error_(message);\n    }\n}"
+  tools-small;: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    ESP_LOGE(TAG, \"Network error: %s\", message.c_str());\n    if\
+    \ (on_network_error_) {\n        on_network_error_(message);\n    }\n}"
+  without;: "void SetError(const std::string &errorMessage) {\n    // Record the error\
+    \ occurrence - using static variable to maintain state\n    static bool errorOccurred\
+    \ = false;\n    errorOccurred = true;\n    \n    // Store the error message for\
+    \ potential retrieval\n    static std::string lastErrorMessage;\n    lastErrorMessage\
+    \ = errorMessage;\n    \n    // Define function pointer type for error handler\n\
+    \    typedef void (*ErrorHandler)(const std::string&);\n    \n    // External\
+    \ function to get the registered error handler\n    // This assumes there's a\
+    \ mechanism to register handlers elsewhere\n    extern ErrorHandler GetRegisteredErrorHandler();\n\
+    \    \n    // Get the currently registered error handler\n    ErrorHandler handler\
+    \ = GetRegisteredErrorHandler();\n    \n    // If handler is registered, notify\
+    \ it with the error message\n    if (handler != nullptr) {\n        handler(errorMessage);\n\
+    \    }\n}"
+  local;: "void Protocol::SetError(const std::string &message)\n{\n    if (on_network_error_)\
+    \ {\n        on_network_error_(message);\n    }\n}"
+  tools;: "void Protocol::SetError(const std::string &message)\n{\n    error_occurred_\
+    \ = true;\n    if (on_network_error_) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  eg;: "#include <mutex>\n#include <functional>\n#include <string>\n\n// Assuming\
+    \ this function belongs to a class called Protocol\nclass Protocol {\npublic:\n\
+    \    // Type alias for error handler callback\n    using ErrorHandler = std::function<void(const\
+    \ std::string&)>;\n\n    // Sets the error handler callback\n    void SetErrorHandler(ErrorHandler\
+    \ handler) {\n        std::lock_guard<std::mutex> lock(mutex_);\n        error_handler_\
+    \ = std::move(handler);\n    }\n\n    // Sets the error message, marks error state,\
+    \ and notifies handler\n    void SetError(const std::string& error_message) {\n\
+    \        std::lock_guard<std::mutex> lock(mutex_);\n        error_message_ = error_message;\n\
+    \        has_error_ = true;\n\n        if (error_handler_) {\n            error_handler_(error_message_);\n\
+    \        }\n    }\n\nprivate:\n    std::string error_message_;              //\
+    \ Stores last error message\n    bool has_error_ = false;                 // Indicates\
+    \ whether an error occurred\n    ErrorHandler error_handler_;             // Registered\
+    \ error notification callback\n    mutable std::mutex mutex_;               //\
+    \ Mutex for synchronizing access\n};"
+  a3;: "void Protocol::SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  eg-small;: "void Protocol::SetError(const std::string& error_message) {\n    //\
+    \ Thread-safe implementation using static mutex\n    static std::mutex error_mutex;\n\
+    \    std::lock_guard<std::mutex> lock(error_mutex);\n    \n    // Use a static\
+    \ flag to ensure error handler is only called once\n    static bool error_already_handled\
+    \ = false;\n    if (error_already_handled) {\n        return; // Prevent duplicate\
+    \ notifications\n    }\n    \n    // Store the error message\n    static std::string\
+    \ last_error_message;\n    last_error_message = error_message;\n    \n    // Notify\
+    \ the registered error handler if one exists\n    if (error_handler_ != nullptr)\
+    \ {\n        error_handler_(last_error_message);\n        error_already_handled\
+    \ = true;\n    }\n}"
+  a3-small;: "void Protocol::SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  SRP-small;: "void Protocol::SetError(const std::string& message) {\n    if (on_network_error_)\
+    \ {\n        on_network_error_(message);\n    }\n}"
+  SRP;: "void Protocol::SetError(const std::string& message) {\n    ESP_LOGE(TAG,\
+    \ \"Network error occurred: %s\", message.c_str());\n    if (on_network_error_)\
+    \ {\n        on_network_error_(message);\n    }\n}"
+  eg-small-168;: "void Protocol::SetError(const std::string& message) {\n    if (on_network_error_)\
+    \ {\n        on_network_error_(message);\n    }\n}"
+  eg-168;: "void Protocol::SetError(const std::string& message) {\n    // Log the\
+    \ error for debugging/tracing\n    ESP_LOGE(TAG, \"Network error occurred: %s\"\
+    , message.c_str());\n\n    // Notify the registered error handler if one is set\n\
+    \    if (on_network_error_) {\n        on_network_error_(message);\n    }\n}"
+  SRP-small-168;: "void Protocol::SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+  SRP-168;: "void Protocol::SetError(const std::string& message) {\n    error_occurred_\
+    \ = true;\n    if (on_network_error_ != nullptr) {\n        on_network_error_(message);\n\
+    \    }\n}"
+- query: complete the function SendAbortSpeaking(AbortReason)()
+  ground_truth: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"abort\\\"\";\n    if (reason == kAbortReasonWakeWordDetected) {\n        message\
+    \ += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n    }\n    message += \"\
+    }\";\n    SendText(message);\n}"
+  workflow: ''
+  cursor: ''
+  without: "void SendAbortSpeaking(AbortReason reason) {\n    // Log the abort event\
+    \ with the reason\n    LOG_DEBUG(\"Aborting speaking operation. Reason: %d\",\
+    \ static_cast<int>(reason));\n    \n    // Check if there's an active speaking\
+    \ session\n    if (!IsSpeaking()) {\n        LOG_DEBUG(\"No active speaking session\
+    \ to abort\");\n        return;\n    }\n    \n    // Stop the current speech output\n\
+    \    StopSpeechOutput();\n    \n    // Notify any listeners/subscribers about\
+    \ the abort\n    NotifySpeakingAborted(reason);\n    \n    // Clean up voice resources\n\
+    \    ReleaseVoiceResources();\n    \n    // Update internal state\n    SetSpeakingState(SpeakingState::IDLE);\n\
+    \    \n    // Send abort command to voice processing module\n    VoiceCommand\
+    \ cmd;\n    cmd.type = VoiceCommandType::ABORT_SPEAKING;\n    cmd.abortReason\
+    \ = reason;\n    SendVoiceCommand(cmd);\n    \n    // Reset any pending speech\
+    \ requests\n    ClearPendingSpeechQueue();\n    \n    // Update metrics/statistics\n\
+    \    RecordSpeakingAbort(reason);\n}"
+  tools: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    const char*\
+    \ reason_str = \"\";\n    switch (reason) {\n        case kAbortReasonNone:\n\
+    \            reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wakeword_detected\";\n            break;\n       \
+    \ default:\n            reason_str = \"unknown\";\n            break;\n    }\n\
+    \n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ +\n\
+    \                          \"\\\\\",\\\\\"type\\\\\":\\\\\"speak\\\\\",\\\\\"\
+    state\\\\\":\\\\\"abort\\\\\",\\\\\"reason\\\\\":\\\\\"\" + reason_str + \"\\\\\
+    \"}\";\n    SendText(message);\n}"
+  without-small: "bool SendAbortSpeaking(AbortReason reason)\n{\n    // Validate input\
+    \ parameter\n    if (reason < 0 || reason >= ABORT_REASON_COUNT)\n    {\n    \
+    \    return false;\n    }\n    \n    // Check if there's an active speech session\n\
+    \    if (!IsSpeechActive())\n    {\n        return true; // No active speech to\
+    \ abort\n    }\n    \n    // Prepare the abort command\n    SpeechCommand command;\n\
+    \    command.type = COMMAND_ABORT_SPEAKING;\n    command.abortReason = reason;\n\
+    \    \n    // Send the command to the speech engine\n    bool result = SendCommandToSpeechEngine(command);\n\
+    \    \n    if (result)\n    {\n        // Update internal state\n        SetSpeechState(SPEECH_STATE_IDLE);\n\
+    \        ClearPendingSpeechQueue();\n        \n        // Notify any listeners\
+    \ about the abort\n        NotifySpeechAborted(reason);\n    }\n    \n    return\
+    \ result;\n}"
+  tools-small: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ reason_str;\n    switch (reason)\n    {\n        case kAbortReasonNone:\n  \
+    \          reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  default:\n            reason_str = \"unknown\";\n            break;\n    }\n\
+    \    \n    std::string json = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ +\n                       \"\\\\\",\"\\\\type\\\\\":\\\\\"speak\\\\\",\"\\\\\
+    state\\\\\":\\\\\"abort\\\\\",\"\\\\reason\\\\\":\\\\\"\"\n                  \
+    \     + reason_str + \"\\\\\"}\";\n    SendText(json);\n}"
+  workflow+sd+mi: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_ +\
+    \ \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort_speaking\\\"\";\n\n    switch\
+    \ (reason) {\n        case kAbortReasonWakeWordDetected:\n            message\
+    \ += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n            break;\n   \
+    \     case kAbortReasonNone:\n        default:\n            message += \",\\\"\
+    reason\\\":\\\"none\\\"\";\n            break;\n    }\n\n    message += \"}\"\
+    ;\n    SendText(message);\n}"
+  workflow+sd+mi+rf: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n  \
+    \  std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" +\
+    \ session_id_ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort_speaking\\\
+    \"\";\n\n    switch (reason) {\n        case kAbortReasonWakeWordDetected:\n \
+    \           message += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n     \
+    \       break;\n        case kAbortReasonNone:\n        default:\n           \
+    \ message += \",\\\"reason\\\":\\\"none\\\"\";\n            break;\n    }\n\n\
+    \    message += \"}\";\n    SendText(message);\n}"
+  local: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"abort\\\"\";\n    if (reason == kAbortReasonWakeWordDetected)\n    {\n     \
+    \   message += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n    }\n    message\
+    \ += \"}\";\n    SendText(message);\n}"
+  workflow-small-rf: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n  \
+    \  std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\
+    \"type\\\":\\\"abort\\\"\";\n    \n    if (reason == kAbortReasonWakeWordDetected)\
+    \ {\n        message += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n    }\
+    \ else if (reason == kAbortReasonUserInterrupted) {\n        message += \",\\\"\
+    reason\\\":\\\"user_interrupted\\\"\";\n    } else if (reason == kAbortReasonTimeout)\
+    \ {\n        message += \",\\\"reason\\\":\\\"timeout\\\"\";\n    } else if (reason\
+    \ == kAbortReasonNetworkError) {\n        message += \",\\\"reason\\\":\\\"network_error\\\
+    \"\";\n    } else if (reason == kAbortReasonSystemError) {\n        message +=\
+    \ \",\\\"reason\\\":\\\"system_error\\\"\";\n    }\n    \n    message += \"}\"\
+    ;\n    SendText(message);\n}"
+  local-small: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"abort\\\",\\\"state\\\":\\\"speaking\\\"\";\n    \n    switch (reason) {\n \
+    \       case kAbortReasonUserCancelled:\n            message += \",\\\"reason\\\
+    \":\\\"user_cancelled\\\"\";\n            break;\n        case kAbortReasonTimeout:\n\
+    \            message += \",\\\"reason\\\":\\\"timeout\\\"\";\n            break;\n\
+    \        case kAbortReasonError:\n            message += \",\\\"reason\\\":\\\"\
+    error\\\"\";\n            break;\n        default:\n            message += \"\
+    ,\\\"reason\\\":\\\"unknown\\\"\";\n            break;\n    }\n    \n    message\
+    \ += \"}\";\n    SendText(message);\n}"
+  tools-long: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n                  \
+    \       \"\\\",\\\"type\\\":\\\"abort\\\"\";\n    \n    switch (reason) {\n  \
+    \      case kAbortReasonNone:\n            message += \",\\\"reason\\\":\\\"none\\\
+    \"\";\n            break;\n        case kAbortReasonWakeWordDetected:\n      \
+    \      message += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n          \
+    \  break;\n        default:\n            message += \",\\\"reason\\\":\\\"unknown\\\
+    \"\";\n            break;\n    }\n    \n    message += \"}\";\n    SendText(message);\n\
+    }"
+  graph-5-5: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    Json::Value\
+    \ message;\n    message[\"session_id\"] = session_id_;\n    message[\"type\"]\
+    \ = \"abort_speaking\";\n    \n    // Convert AbortReason to string representation\n\
+    \    switch (reason) {\n        case AbortReason::USER_INTERRUPT:\n          \
+    \  message[\"reason\"] = \"user_interrupt\";\n            break;\n        case\
+    \ AbortReason::TIMEOUT:\n            message[\"reason\"] = \"timeout\";\n    \
+    \        break;\n        case AbortReason::ERROR:\n            message[\"reason\"\
+    ] = \"error\";\n            break;\n        case AbortReason::SYSTEM_SHUTDOWN:\n\
+    \            message[\"reason\"] = \"system_shutdown\";\n            break;\n\
+    \        default:\n            message[\"reason\"] = \"unknown\";\n          \
+    \  break;\n    }\n    \n    // Log the event\n    LOG(INFO) << \"Sending abort\
+    \ speaking message with reason: \" << message[\"reason\"].asString();\n    \n\
+    \    // Send the message using the existing SendText method\n    SendText(message);\n\
+    }"
+  graph-small-5-5: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    //\
+    \ Create JSON object for abort speaking event\n    json message;\n    message[\"\
+    type\"] = \"abort_speaking\";\n    message[\"session_id\"] = session_id_;\n  \
+    \  \n    // Convert AbortReason enum to string representation\n    switch (reason)\
+    \ {\n        case AbortReason::USER_REQUESTED:\n            message[\"reason\"\
+    ] = \"user_requested\";\n            break;\n        case AbortReason::TIMEOUT:\n\
+    \            message[\"reason\"] = \"timeout\";\n            break;\n        case\
+    \ AbortReason::ERROR:\n            message[\"reason\"] = \"error\";\n        \
+    \    break;\n        case AbortReason::NETWORK_ERROR:\n            message[\"\
+    reason\"] = \"network_error\";\n            break;\n        default:\n       \
+    \     message[\"reason\"] = \"unknown\";\n            break;\n    }\n    \n  \
+    \  // Send the JSON message through the protocol\n    SendText(message.dump());\n\
+    }"
+  Desc+without: "void SendAbortSpeaking(AbortReason reason) {\n    // Get current\
+    \ session ID\n    std::string sessionId = GetCurrentSessionId();\n    \n    //\
+    \ Create JSON message\n    Json::Value message;\n    message[\"type\"] = \"abort_speaking\"\
+    ;\n    message[\"session_id\"] = sessionId;\n    message[\"reason\"] = static_cast<int>(reason);\n\
+    \    message[\"timestamp\"] = GetCurrentTimestamp();\n    \n    // Convert to\
+    \ string\n    Json::StreamWriterBuilder builder;\n    std::string jsonMessage\
+    \ = Json::writeString(builder, message);\n    \n    // Send message through communication\
+    \ channel\n    CommunicationChannel* commChannel = GetCommunicationChannel();\n\
+    \    if (commChannel != nullptr) {\n        bool success = commChannel->SendMessage(jsonMessage);\n\
+    \        \n        // Log the result\n        if (success) {\n            LogDebug(\"\
+    Abort speaking message sent successfully. Session: \" + sessionId);\n        }\
+    \ else {\n            LogError(\"Failed to send abort speaking message. Session:\
+    \ \" + sessionId);\n        }\n    } else {\n        LogError(\"Communication\
+    \ channel not available for sending abort message\");\n    }\n}"
+  Desc+local: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"abort\\\"\";\n    \n    switch (reason) {\n        case kAbortReasonWakeWordDetected:\n\
+    \            message += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n    \
+    \        break;\n        case kAbortReasonUserInterrupted:\n            message\
+    \ += \",\\\"reason\\\":\\\"user_interrupted\\\"\";\n            break;\n     \
+    \   case kAbortReasonNetworkError:\n            message += \",\\\"reason\\\":\\\
+    \"network_error\\\"\";\n            break;\n        case kAbortReasonTimeout:\n\
+    \            message += \",\\\"reason\\\":\\\"timeout\\\"\";\n            break;\n\
+    \        default:\n            message += \",\\\"reason\\\":\\\"unknown\\\"\"\
+    ;\n            break;\n    }\n    \n    message += \"}\";\n    SendText(message);\n\
+    }"
+  Desc+graph-5-5: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    //\
+    \ Map AbortReason enum to string representation\n    std::string reason_str;\n\
+    \    switch (reason) {\n        case kAbortReasonNone:\n            reason_str\
+    \ = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  default:\n            reason_str = \"unknown\";\n            break;\n    }\n\
+    \n    // Construct JSON message following established pattern\n    std::string\
+    \ json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n                      \
+    \ \"\\\",\\\"type\\\":\\\"abort\\\",\\\"reason\\\":\\\"\" + reason_str + \"\\\"\
+    }\";\n\n    // Transmit the message using existing infrastructure\n    if (!SendText(json))\
+    \ {\n        SetError(\"Failed to send abort speaking message\");\n    }\n}"
+  Desc+tools: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    // Helper\
+    \ function to convert AbortReason enum to string\n    auto GetAbortReasonString\
+    \ = [](AbortReason r) -> std::string {\n        switch (r) {\n            case\
+    \ kAbortReasonNone:\n                return \"none\";\n            case kAbortReasonWakeWordDetected:\n\
+    \                return \"wakeword_detected\";\n            default:\n       \
+    \         return \"unknown\";\n        }\n    };\n\n    std::string reason_str\
+    \ = GetAbortReasonString(reason);\n\n    // Construct the JSON message following\
+    \ the known format\n    std::string message = \"{\"\n                        \
+    \  \"\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\"\n                   \
+    \       \"\\\"type\\\":\\\"speak\\\",\"\n                          \"\\\"state\\\
+    \":\\\"abort\\\",\"\n                          \"\\\"reason\\\":\\\"\" + reason_str\
+    \ + \"\\\"\"\n                          \"}\";\n\n    // Send the constructed\
+    \ message\n    SendText(message);\n}"
+  Desc+graph-KG-5-5: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n   \
+    \ std::string reason_str;\n    switch (reason) {\n        case kAbortReasonNone:\n\
+    \            reason_str = \"none\";\n            break;\n        case kAbortReasonUserInterrupt:\n\
+    \            reason_str = \"user_interrupt\";\n            break;\n        case\
+    \ kAbortReasonSystemError:\n            reason_str = \"system_error\";\n     \
+    \       break;\n        case kAbortReasonTimeout:\n            reason_str = \"\
+    timeout\";\n            break;\n        default:\n            reason_str = \"\
+    unknown\";\n            break;\n    }\n\n    std::string json = \"{\\\"session_id\\\
+    \":\\\"\" + session_id_ +\n                       \"\\\",\\\"type\\\":\\\"speak\\\
+    \",\\\"state\\\":\\\"abort\\\",\\\"reason\\\":\\\"\" + reason_str + \"\\\"}\"\
+    ;\n    SendText(json);\n}"
+  Desc+workflow: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ reason_str;\n    switch (reason) {\n        case kAbortReasonNone:\n       \
+    \     reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  default:\n            reason_str = \"unknown\";\n            break;\n    }\n\
+    \n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ +\n\
+    \                          \"\\\\\",\\\\\"type\\\\\":\\\\\"abort\\\\\",\\\\\"\
+    reason\\\\\":\\\\\"\" + reason_str + \"\\\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void Protocol::SendAbortSpeaking(AbortReason reason)\
+    \ {\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n  \
+    \                     \"\\\",\\\"type\\\":\\\"speak\\\",\\\"state\\\":\\\"abort\\\
+    \"\";\n    \n    if (reason == kAbortReasonWakeWordDetected) {\n        json +=\
+    \ \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n    }\n    \n    json += \"\
+    }\";\n    SendText(json);\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void Protocol::SendAbortSpeaking(AbortReason reason)\
+    \ {\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \n                          \"\\\\\",\\\\\"type\\\\\":\\\\\"abort\\\\\",\\\
+    \\\"reason\\\\\":\\\\\"\" + \n                          GetAbortReasonString(reason)\
+    \ + \"\\\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Protocol::SendAbortSpeaking(AbortReason\
+    \ reason) {\n    std::string reason_str;\n    switch (reason) {\n        case\
+    \ kAbortReasonNone:\n            reason_str = \"none\";\n            break;\n\
+    \        case kAbortReasonWakeWordDetected:\n            reason_str = \"wake_word_detected\"\
+    ;\n            break;\n        default:\n            reason_str = \"unknown\"\
+    ;\n            break;\n    }\n    \n    std::string json = \"{\\\\\"session_id\\\
+    \\\":\\\\\"\" + session_id_ + \n                      \"\\\\\",\" + \n       \
+    \               \"\\\\\"type\\\\\":\\\\\"abort\\\\\",\" + \n                 \
+    \     \"\\\\\"reason\\\\\":\\\\\" + reason_str + \"\\\\\"}\";\n    \n    SendText(json);\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Protocol::SendAbortSpeaking(AbortReason\
+    \ reason) {\n    std::string reason_str;\n    switch (reason) {\n        case\
+    \ kAbortReasonNone:\n            reason_str = \"none\";\n            break;\n\
+    \        case kAbortReasonWakeWordDetected:\n            reason_str = \"wake_word_detected\"\
+    ;\n            break;\n        default:\n            reason_str = \"unknown\"\
+    ;\n            break;\n    }\n    \n    std::string json = \"{\\\\\"session_id\\\
+    \\\":\\\\\"\" + session_id_ + \n                      \"\\\\\",\" + \n       \
+    \               \"\\\\\"type\\\\\":\\\\\"abort\\\\\",\" + \n                 \
+    \     \"\\\\\"reason\\\\\":\\\\\" + reason_str + \"\\\\\"}\";\n    \n    SendText(json);\n\
+    }"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void Protocol::SendAbortSpeaking(AbortReason\
+    \ reason) {\n    // Construct JSON message with session ID and abort reason\n\
+    \    std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\"\
+    \ + session_id_ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort_speaking\\\
+    \",\";\n    message += \"\\\"reason\\\":\" + std::to_string(static_cast<int>(reason));\n\
+    \    message += \"}\";\n    \n    // Transmit the message over the communication\
+    \ channel\n    if (!SendText(message)) {\n        ESP_LOGE(TAG, \"Failed to send\
+    \ abort speaking message\");\n        // Handle transmission error - could set\
+    \ error state or trigger retry mechanism\n        SetError(\"Failed to send abort\
+    \ speaking message\");\n    } else {\n        ESP_LOGI(TAG, \"Successfully sent\
+    \ abort speaking message with reason: %d\", static_cast<int>(reason));\n    }\n\
+    }"
+  graph-SRP_KG-it-small;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n\
+    \    std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\"\
+    \ + session_id_ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort\\\",\";\n\
+    \    message += \"\\\"reason\\\":\\\"\" + std::to_string(static_cast<int>(reason))\
+    \ + \"\\\"\";\n    message += \"}\";\n    SendText(message);\n}"
+  graph-SRP_KG-it;: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n   \
+    \ std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort\\\"\";\n    \n    if (reason\
+    \ == kAbortReasonWakeWordDetected) {\n        message += \",\\\"reason\\\":\\\"\
+    wake_word_detected\\\"\";\n    } else if (reason == kAbortReasonUserInterrupt)\
+    \ {\n        message += \",\\\"reason\\\":\\\"user_interrupt\\\"\";\n    } else\
+    \ if (reason == kAbortReasonError) {\n        message += \",\\\"reason\\\":\\\"\
+    error\\\"\";\n    } else {\n        message += \",\\\"reason\\\":\\\"none\\\"\"\
+    ;\n    }\n    \n    message += \"}\";\n    SendText(message);\n}"
+  without-small;: "void SendAbortSpeaking(AbortReason reason)\n{\n    // Construct\
+    \ JSON message with session ID and abort reason\n    char jsonBuffer[256];\n \
+    \   \n    // Get current session ID (assuming it's stored in a global variable\
+    \ or function)\n    const char* sessionId = GetCurrentSessionId();\n    \n   \
+    \ // Format JSON message\n    snprintf(jsonBuffer, sizeof(jsonBuffer), \n    \
+    \         \"{\\\"type\\\":\\\"abort\\\",\\\"sessionId\\\":\\\"%s\\\",\\\"reason\\\
+    \":\\\"%s\\\"}\",\n             sessionId,\n             GetAbortReasonString(reason));\n\
+    \    \n    // Transmit message over communication channel\n    int result = TransmitMessage(jsonBuffer);\n\
+    \    \n    // Handle transmission result\n    if (result != 0)\n    {\n      \
+    \  // Log error or handle transmission failure\n        HandleTransmissionError(result);\n\
+    \    }\n}\n\n// Helper function to get session ID (implementation depends on system\
+    \ architecture)\nconst char* GetCurrentSessionId(void)\n{\n    // This would typically\
+    \ return the active session ID from system state\n    // For now returning a placeholder\n\
+    \    static const char* sessionId = \"session_12345\";\n    return sessionId;\n\
+    }\n\n// Helper function to convert abort reason enum to string\nconst char* GetAbortReasonString(AbortReason\
+    \ reason)\n{\n    switch(reason)\n    {\n        case ABORT_WAKEWORD_DETECTED:\n\
+    \            return \"wakeword_detected\";\n        case ABORT_USER_INTERRUPT:\n\
+    \            return \"user_interrupt\";\n        case ABORT_TIMEOUT:\n       \
+    \     return \"timeout\";\n        case ABORT_ERROR:\n            return \"error\"\
+    ;\n        default:\n            return \"unknown\";\n    }\n}\n\n// Helper function\
+    \ for message transmission (implementation depends on communication protocol)\n\
+    int TransmitMessage(const char* message)\n{\n    // This would contain actual\
+    \ communication logic\n    // For example: UART, SPI, TCP, etc.\n    // Return\
+    \ 0 on success, non-zero on error\n    \n    // Placeholder implementation\n \
+    \   // In real system this would interface with actual communication hardware/protocol\n\
+    \    return 0; // Success\n}\n\n// Helper function for error handling\nvoid HandleTransmissionError(int\
+    \ errorCode)\n{\n    // Log error or take appropriate action\n    // Could trigger\
+    \ retry mechanism or system alert\n}"
+  local-small;: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ reason_str;\n    switch (reason)\n    {\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  case kAbortReasonTimeout:\n            reason_str = \"timeout\";\n        \
+    \    break;\n        case kAbortReasonManual:\n            reason_str = \"manual\"\
+    ;\n            break;\n        default:\n            reason_str = \"unknown\"\
+    ;\n            break;\n    }\n    \n    std::string json = \"{\\\"session_id\\\
+    \":\\\"\" + session_id_ +\n                       \"\\\",\\\"type\\\":\\\"abort\\\
+    \",\\\"state\\\":\\\"speaking\\\",\\\"reason\\\":\\\"\" + reason_str + \"\\\"\
+    }\";\n    SendText(json);\n}"
+  tools-small;: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ json = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \n               \
+    \        \"\\\\\",\\\\\"type\\\\\":\\\\\"speaking\\\\\",\\\\\"state\\\\\":\\\\\
+    \"abort\\\\\"\";\n    \n    switch (reason) {\n        case kAbortReasonWakeWordDetected:\n\
+    \            json += \",\\\\\"reason\\\\\":\\\\\"wake_word_detected\\\\\"\";\n\
+    \            break;\n        case kAbortReasonNone:\n        default:\n      \
+    \      json += \",\\\\\"reason\\\\\":\\\\\"none\\\\\"\";\n            break;\n\
+    \    }\n    \n    json += \"}\";\n    SendText(json);\n}"
+  without;: "void SendAbortSpeaking(AbortReason reason) {\n    // Get current session\
+    \ ID\n    std::string sessionId = GetCurrentSessionId();\n    \n    // Create\
+    \ JSON message\n    Json::Value message;\n    message[\"type\"] = \"abort_speaking\"\
+    ;\n    message[\"session_id\"] = sessionId;\n    message[\"reason\"] = static_cast<int>(reason);\n\
+    \    message[\"timestamp\"] = GetCurrentTimestamp();\n    \n    // Convert to\
+    \ string\n    Json::StreamWriterBuilder builder;\n    std::string jsonMessage\
+    \ = Json::writeString(builder, message);\n    \n    // Send message through communication\
+    \ channel\n    CommunicationChannel* commChannel = GetCommunicationChannel();\n\
+    \    if (commChannel != nullptr) {\n        bool success = commChannel->SendMessage(jsonMessage);\n\
+    \        \n        // Log the result\n        if (success) {\n            LogDebug(\"\
+    Abort speaking message sent successfully. Session: \" + sessionId);\n        }\
+    \ else {\n            LogError(\"Failed to send abort speaking message. Session:\
+    \ \" + sessionId);\n        }\n    } else {\n        LogError(\"Communication\
+    \ channel not available for sending abort message\");\n    }\n}"
+  local;: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"speak\\\",\\\"state\\\":\\\"abort\\\"\";\n    if (reason == kAbortReasonWakeWordDetected)\n\
+    \    {\n        message += \",\\\"reason\\\":\\\"wake_word_detected\\\"\";\n \
+    \   }\n    message += \"}\";\n    SendText(message);\n}"
+  tools;: "void Protocol::SendAbortSpeaking(AbortReason reason)\n{\n    std::string\
+    \ reason_str;\n    switch (reason) {\n        case kAbortReasonNone:\n       \
+    \     reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wakeword_detected\";\n            break;\n       \
+    \ default:\n            reason_str = \"unknown\";\n            break;\n    }\n\
+    \n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n      \
+    \                 \"\\\",\\\"type\\\":\\\"abort\\\",\\\"reason\\\":\\\"\" + reason_str\
+    \ + \"\\\"}\";\n    SendText(json);\n}"
+  eg;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    // Step 1: Construct\
+    \ JSON message\n    cJSON* root = cJSON_CreateObject();\n    if (!root) {\n  \
+    \      SetError(\"Failed to create JSON object for abort speaking\");\n      \
+    \  return;\n    }\n\n    // Add session ID\n    cJSON_AddStringToObject(root,\
+    \ \"sessionId\", session_id_.c_str());\n\n    // Add abort reason as integer value\n\
+    \    cJSON_AddNumberToObject(root, \"abortReason\", static_cast<int>(reason));\n\
+    \n    // Step 2: Serialize JSON to string\n    char* json_str = cJSON_PrintUnformatted(root);\n\
+    \    if (!json_str) {\n        cJSON_Delete(root);\n        SetError(\"Failed\
+    \ to serialize JSON for abort speaking\");\n        return;\n    }\n\n    std::string\
+    \ payload(json_str);\n    free(json_str);  // cJSON_PrintUnformatted allocates\
+    \ with malloc\n    cJSON_Delete(root);\n\n    // Step 3 & 4: Transmit message\
+    \ and handle result\n    if (!SendText(payload)) {\n        SetError(\"Failed\
+    \ to send abort speaking message\");\n    }\n}"
+  a3;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string reason_str\
+    \ = \"none\";\n    if (reason == kAbortReasonWakeWordDetected) {\n        reason_str\
+    \ = \"wake_word_detected\";\n    }\n    \n    std::string json = \"{\\\"session_id\\\
+    \":\\\"\" + session_id_ + \n                      \"\\\",\\\"type\\\":\\\"abort\\\
+    \",\\\"reason\\\":\\\"\" + reason_str + \"\\\"}\";\n    SendText(json);\n}"
+  eg-small;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    // Create\
+    \ JSON object for abort message\n    cJSON* json_root = cJSON_CreateObject();\n\
+    \    if (!json_root) {\n        SetError(\"Failed to create JSON object for abort\
+    \ message\");\n        return;\n    }\n    \n    // Add session ID to the JSON\
+    \ object\n    cJSON* session_id_item = cJSON_CreateString(session_id_.c_str());\n\
+    \    if (session_id_item) {\n        cJSON_AddItemToObject(json_root, \"session_id\"\
+    , session_id_item);\n    } else {\n        cJSON_Delete(json_root);\n        SetError(\"\
+    Failed to add session ID to JSON object\");\n        return;\n    }\n    \n  \
+    \  // Add abort reason to the JSON object\n    cJSON* reason_item = cJSON_CreateNumber(static_cast<int>(reason));\n\
+    \    if (reason_item) {\n        cJSON_AddItemToObject(json_root, \"reason\",\
+    \ reason_item);\n    } else {\n        cJSON_Delete(json_root);\n        SetError(\"\
+    Failed to add reason to JSON object\");\n        return;\n    }\n    \n    //\
+    \ Convert JSON to string\n    char* json_string = cJSON_PrintUnformatted(json_root);\n\
+    \    if (!json_string) {\n        cJSON_Delete(json_root);\n        SetError(\"\
+    Failed to serialize JSON to string\");\n        return;\n    }\n    \n    // Send\
+    \ the JSON string through the communication channel\n    SendText(json_string);\n\
+    \    \n    // Clean up memory\n    free(json_string);\n    cJSON_Delete(json_root);\n\
+    }"
+  a3-small;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string\
+    \ reason_str;\n    switch (reason) {\n        case kAbortReasonNone:\n       \
+    \     reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  default:\n            reason_str = \"unknown\";\n            break;\n    }\n\
+    \    \n    std::string json = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \n                      \"\\\\\",\\\\\"type\\\\\":\\\\\"abort\\\\\",\\\\\"\
+    reason\\\\\":\\\\\"\"\n                      + reason_str + \"\\\\\"}\";\n   \
+    \ SendText(json);\n}"
+  SRP-small;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string\
+    \ message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_ +\
+    \ \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort\\\",\";\n    message +=\
+    \ \"\\\"reason\\\":\\\"\";\n    \n    switch (reason) {\n        case kAbortReasonNone:\n\
+    \            message += \"none\\\"\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            message += \"wake_word_detected\\\"\";\n            break;\n    \
+    \    case kAbortReasonUserInterrupt:\n            message += \"user_interrupt\\\
+    \"\";\n            break;\n        case kAbortReasonError:\n            message\
+    \ += \"error\\\"\";\n            break;\n        default:\n            message\
+    \ += \"unknown\\\"\";\n            break;\n    }\n    \n    message += \"}\";\n\
+    \    SendText(message);\n}"
+  SRP;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string message\
+    \ = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\";\n    message += \"\\\"type\\\":\\\"abort_speaking\\\",\";\n    message +=\
+    \ \"\\\"reason\\\":\";\n    \n    switch (reason) {\n        case kAbortReasonNone:\n\
+    \            message += \"\\\"none\\\"\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            message += \"\\\"wake_word_detected\\\"\";\n            break;\n\
+    \        default:\n            message += \"\\\"unknown\\\"\";\n            break;\n\
+    \    }\n    \n    message += \"}\";\n    SendText(message);\n}"
+  eg-small-168;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    // Construct\
+    \ JSON message with session ID and abort reason\n    std::string json = \"{\"\n\
+    \                       \"\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\"\n\
+    \                       \"\\\"type\\\":\\\"speak\\\",\"\n                    \
+    \   \"\\\"state\\\":\\\"abort\\\",\"\n                       \"\\\"reason\\\"\
+    :\\\"\";\n    \n    // Map AbortReason enum to string representation\n    switch\
+    \ (reason) {\n        case kAbortReasonNone:\n            json += \"none\";\n\
+    \            break;\n        case kAbortReasonWakeWordDetected:\n            json\
+    \ += \"wake_word_detected\";\n            break;\n        default:\n         \
+    \   json += \"unknown\";\n            break;\n    }\n    \n    json += \"\\\"\
+    }\";\n    \n    // Send the JSON message over the communication channel\n    SendText(json);\n\
+    }"
+  eg-168;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string\
+    \ reason_str;\n    switch (reason) {\n        case kAbortReasonNone:\n       \
+    \     reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  default:\n            SetError(\"Unknown abort reason\");\n            return;\n\
+    \    }\n\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n\
+    \                       \"\\\",\\\"type\\\":\\\"abort\\\",\\\"reason\\\":\\\"\"\
+    \ + reason_str + \"\\\"}\";\n\n    if (!SendText(json)) {\n        SetError(\"\
+    Failed to send abort speaking message\");\n    }\n}"
+  SRP-small-168;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string\
+    \ reason_str;\n    switch (reason) {\n        case kAbortReasonNone:\n       \
+    \     reason_str = \"none\";\n            break;\n        case kAbortReasonWakeWordDetected:\n\
+    \            reason_str = \"wake_word_detected\";\n            break;\n      \
+    \  case kAbortReasonUserInitiated:\n            reason_str = \"user_initiated\"\
+    ;\n            break;\n        case kAbortReasonError:\n            reason_str\
+    \ = \"error\";\n            break;\n        default:\n            reason_str =\
+    \ \"unknown\";\n            break;\n    }\n    \n    std::string json = \"{\\\\\
+    \"session_id\\\\\":\\\\\"\" + session_id_ + \n                      \"\\\\\",\\\
+    \\\"type\\\\\":\\\\\"abort\\\\\",\\\\\"reason\\\\\":\\\\\"\"\n               \
+    \       + reason_str + \"\\\\\"}\";\n    SendText(json);\n}"
+  SRP-168;: "void Protocol::SendAbortSpeaking(AbortReason reason) {\n    std::string\
+    \ message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_ +\
+    \ \"\\\",\";\n    message += \"\\\"type\\\":\\\"abort_speaking\\\",\";\n    message\
+    \ += \"\\\"reason\\\":\" + std::to_string(static_cast<int>(reason));\n    message\
+    \ += \"}\";\n    SendText(message);\n}"
+- query: complete the function SendWakeWordDetected(const std::string &)()
+  ground_truth: "void Protocol::SendWakeWordDetected(const std::string& wake_word)\
+    \ {\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n  \
+    \                    \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\
+    \",\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  workflow: ''
+  cursor: ''
+  without: "void SendWakeWordDetected(const std::string& wakeWord) {\n    // Log the\
+    \ wake word detection event\n    // In a real implementation, this might use a\
+    \ proper logging framework\n    std::cout << \"Wake word detected: \" << wakeWord\
+    \ << std::endl;\n    \n    // Send notification to the main application or cloud\
+    \ service\n    // This could involve:\n    // - Sending over a network socket\n\
+    \    // - Posting to a message queue\n    // - Triggering a callback function\n\
+    \    // - Updating application state\n    \n    // Example implementation using\
+    \ a hypothetical messaging system\n    // MessageBus::GetInstance().Publish(\"\
+    WAKE_WORD_DETECTED\", wakeWord);\n    \n    // Notify any registered listeners\n\
+    \    // WakeWordEventManager::NotifyWakeWordDetected(wakeWord);\n    \n    //\
+    \ Update system state to indicate listening mode\n    // VoiceAssistant::SetState(ListeningState::ACTIVE);\n\
+    \    \n    // For now, we'll just log and simulate the send operation\n    if\
+    \ (!wakeWord.empty()) {\n        // Simulate successful sending\n        // In\
+    \ real implementation, handle actual sending logic here\n        std::cout <<\
+    \ \"Notification sent successfully\" << std::endl;\n    } else {\n        // Handle\
+    \ empty wake word case\n        std::cerr << \"Warning: Empty wake word detected\"\
+    \ << std::endl;\n    }\n}"
+  tools: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n{\n \
+    \   std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" + wake_word\
+    \ + \"\\\"}\";\n    SendText(message);\n}"
+  without-small: "#include <string>\n#include <iostream>\n\n// Function to send wake\
+    \ word detected event\nvoid SendWakeWordDetected(const std::string& wakeWord)\
+    \ {\n    // In a real implementation, this might:\n    // 1. Send data over network/IPC\n\
+    \    // 2. Trigger callbacks/event handlers\n    // 3. Log the event\n    // 4.\
+    \ Notify other components\n    \n    // For demonstration purposes, we'll output\
+    \ to console\n    std::cout << \"Wake word detected: \" << wakeWord << std::endl;\n\
+    \    \n    // In a production system, you might have:\n    // - Network communication\
+    \ to send to cloud services\n    // - Callback mechanism to notify registered\
+    \ listeners\n    // - Logging to persistent storage\n    // - State machine updates\n\
+    \    \n    // Example of potential additional functionality:\n    // if (!wakeWord.empty())\
+    \ {\n    //     // Trigger wake word processing\n    //     ProcessWakeWord(wakeWord);\n\
+    \    // }\n}"
+  tools-small: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\\\\\"session_id\\\\\\\":\\\\\\\"\" + session_id_\
+    \ + \"\\\\\\\",\\\\\\\"type\\\\\\\":\\\\\\\"wake_word\\\\\\\",\\\\\\\"wake_word\\\
+    \\\\\":\\\\\\\"\" + wake_word + \"\\\\\\\"}\";\n    SendText(message);\n}"
+  workflow+sd+mi: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" + wake_word\
+    \ + \"\\\"}\";\n    SendText(message);\n}"
+  workflow+sd+mi+rf: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ +\n                          \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\
+    \\\"state\\\\\":\\\\\"detect\\\\\",\\\\\"text\\\\\":\\\\\"\" + wake_word + \"\\\
+    \\\"}\";\n    SendText(message);\n}"
+  local: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n{\n \
+    \   std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n        \
+    \               \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\"\
+    ,\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  workflow-small-rf: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" + wake_word\
+    \ + \"\\\"}\";\n    SendText(message);\n}\n```\n\nWait, let me recheck the original.\
+    \ The original was:\n```cpp\nstd::string message = \"{\\\\\"session_id\\\\\":\\\
+    \\\"\" + session_id_ + \"\\\\\",\\\\\"type\\\\\":\\\\\"wake_word_detected\\\\\"\
+    ,\\\\\"wake_word\\\\\":\\\\\"\" + wake_word + \"\\\\\"}\";\n```\n\nThis has escaped\
+    \ quotes because it's inside a string literal. But in the actual implementation\
+    \ in the file, it looks correct. Let me check if there are any real issues.\n\n\
+    Actually, looking at line 64 in the file content, the function is already implemented\
+    \ correctly:\n```cpp\nstd::string message = \"{\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\\\"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" +\
+    \ wake_word + \"\\\"}\";\n```\n\nThe issue in the generated code seems to be with\
+    \ excessive escaping. The generated code has `\\\\\"` sequences which would result\
+    \ in literal backslash-quote sequences in the JSON rather than just quote characters.\n\
+    \n```cpp\nvoid Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" + wake_word\
+    \ + \"\\\"}\";\n    SendText(message);\n}"
+  local-small: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n     \
+    \                  \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\
+    \",\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  tools-long: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" + wake_word\
+    \ + \"\\\"}\";\n    SendText(message);\n}"
+  graph-5-5: "void Protocol::SendWakeWordDetected(const std::string &wake_word) {\n\
+    \    Json::Value root;\n    root[\"session_id\"] = session_id_;\n    root[\"type\"\
+    ] = \"listen\";\n    root[\"state\"] = \"detect\";\n    root[\"text\"] = wake_word;\n\
+    \    \n    Json::StreamWriterBuilder builder;\n    builder[\"indentation\"] =\
+    \ \"\";\n    std::string json_message = Json::writeString(builder, root);\n  \
+    \  \n    SendText(json_message);\n}"
+  graph-small-5-5: "void SendWakeWordDetected(const std::string &wake_word) {\n  \
+    \  // Construct the JSON message\n    json message;\n    message[\"session_id\"\
+    ] = session_id_;\n    message[\"type\"] = \"listen\";\n    message[\"state\"]\
+    \ = \"detect\";\n    message[\"text\"] = wake_word;\n    \n    // Send the JSON\
+    \ message using the existing SendText method\n    SendText(message.dump());\n}"
+  Desc+without: "void SendWakeWordDetected(const std::string& wakeWord) {\n    //\
+    \ Create JSON message with wake word detection information\n    json message;\n\
+    \    message[\"eventType\"] = \"wakeWordDetected\";\n    message[\"sessionId\"\
+    ] = GetCurrentSessionId();  // Assuming this function exists\n    message[\"interactionType\"\
+    ] = \"voice\";\n    message[\"state\"] = GetSystemState();  // Assuming this function\
+    \ exists\n    message[\"wakeWord\"] = wakeWord;\n    message[\"timestamp\"] =\
+    \ GetCurrentTimestamp();  // Assuming this function exists\n    \n    // Convert\
+    \ JSON to string format\n    std::string jsonString = message.dump();\n    \n\
+    \    // Send message using established session context\n    // Assuming we have\
+    \ a session manager or communication interface\n    if (sessionContext_ && sessionContext_->IsConnected())\
+    \ {\n        sessionContext_->SendMessage(jsonString);\n    } else {\n       \
+    \ // Log error or handle disconnected state\n        LogError(\"Cannot send wake\
+    \ word notification: No active session\");\n    }\n}"
+  Desc+local: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \"\";\n    message += \",\\\"type\\\":\\\"wakeword\\\",\\\"state\\\":\\\"detected\\\
+    \"\";\n    message += \",\\\"wake_word\\\":\\\"\" + wake_word + \"\\\"}\";\n \
+    \   SendText(message);\n}"
+  Desc+graph-5-5: "void Protocol::SendWakeWordDetected(const std::string& wake_word)\
+    \ {\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n  \
+    \                    \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\
+    \",\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  Desc+tools: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"wakeword\\\",\\\"state\\\":\\\"detected\\\",\\\"word\\\":\\\
+    \"\" + wake_word + \"\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-KG-5-5: "void Protocol::SendWakeWordDetected(const std::string& wake_word)\
+    \ {\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n  \
+    \                    \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\
+    \",\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  Desc+workflow: "void SendWakeWordDetected(const std::string &wake_word)\n{\n   \
+    \ std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\
+    \"type\\\":\\\"wake_word_detected\\\",\\\"wake_word\\\":\\\"\" + wake_word + \"\
+    \\\"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void Protocol::SendWakeWordDetected(const std::string\
+    \ &wake_word)\n{\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\",\\\"text\\\
+    \":\\\"\" + wake_word + \"\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void Protocol::SendWakeWordDetected(const std::string&\
+    \ wake_word) {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\\\"type\\\":\\\"wake_word\\\",\\\"state\\\":\\\"detected\\\",\\\"\
+    wake_word\\\":\\\"\"\n        + wake_word + \"\\\"}\";\n    SendText(message);\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Protocol::SendWakeWordDetected(const\
+    \ std::string& wake_word) {\n    std::string message = \"{\\\\\"session_id\\\\\
+    \":\\\\\"\" + session_id_ + \"\\\\\"\";\n    message += \",\\\\\"type\\\\\":\\\
+    \\\"wake_word\\\\\",\\\\\"state\\\\\":\\\\\"detected\\\\\"\";\n    message +=\
+    \ \",\\\\\"wake_word\\\\\":\\\\\" + wake_word + \"\\\\\"\";\n    message += \"\
+    }\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Protocol::SendWakeWordDetected(const\
+    \ std::string& wake_word) {\n    std::string message = \"{\\\\\"session_id\\\\\
+    \":\\\\\"\" + session_id_ + \"\\\\\"\";\n    message += \",\\\\\"type\\\\\":\\\
+    \\\"wake_word\\\\\",\\\\\"state\\\\\":\\\\\"detected\\\\\"\";\n    message +=\
+    \ \",\\\\\"wake_word\\\\\":\\\\\" + wake_word + \"\\\\\"\";\n    message += \"\
+    }\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "bool Protocol::SendWakeWordDetected(const\
+    \ std::string& wake_word) {\n    // Validate that we have an active session\n\
+    \    if (session_id_.empty()) {\n        ESP_LOGE(TAG, \"Cannot send wake word\
+    \ detected: no active session\");\n        return false;\n    }\n\n    // Create\
+    \ JSON payload\n    cJSON* json_root = cJSON_CreateObject();\n    if (!json_root)\
+    \ {\n        ESP_LOGE(TAG, \"Failed to create JSON object for wake word notification\"\
+    );\n        return false;\n    }\n\n    // Add required fields to the JSON payload\n\
+    \    cJSON_AddStringToObject(json_root, \"event\", \"wake_word_detected\");\n\
+    \    cJSON_AddStringToObject(json_root, \"session_id\", session_id_.c_str());\n\
+    \    cJSON_AddStringToObject(json_root, \"interaction_type\", \"voice\");\n  \
+    \  cJSON_AddStringToObject(json_root, \"state\", \"listening\");\n    cJSON_AddStringToObject(json_root,\
+    \ \"wake_word\", wake_word.c_str());\n    \n    // Add timestamp\n    cJSON_AddNumberToObject(json_root,\
+    \ \"timestamp\", static_cast<double>(esp_timer_get_time() / 1000));\n\n    //\
+    \ Convert JSON to string\n    char* json_string = cJSON_PrintUnformatted(json_root);\n\
+    \    if (!json_string) {\n        cJSON_Delete(json_root);\n        ESP_LOGE(TAG,\
+    \ \"Failed to serialize JSON for wake word notification\");\n        return false;\n\
+    \    }\n\n    // Wrap in envelope if needed\n    std::string payload = json_string;\n\
+    \    free(json_string);\n    cJSON_Delete(json_root);\n\n    // Send the message\
+    \ through the protocol\n    bool result = SendText(payload);\n    \n    if (result)\
+    \ {\n        ESP_LOGI(TAG, \"Successfully sent wake word detected notification\
+    \ for: %s\", wake_word.c_str());\n    } else {\n        ESP_LOGE(TAG, \"Failed\
+    \ to send wake word detected notification for: %s\", wake_word.c_str());\n   \
+    \ }\n\n    return result;\n}"
+  graph-SRP_KG-it-small;: "void Protocol::SendWakeWordDetected(const std::string&\
+    \ wake_word) {\n    std::string message = \"{\";\n    message += \"\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"wake_word\\\
+    \",\";\n    message += \"\\\"wake_word\\\":\\\"\" + wake_word + \"\\\"\";\n  \
+    \  message += \"}\";\n    SendText(message);\n}"
+  graph-SRP_KG-it;: "void Protocol::SendWakeWordDetected(const std::string& wake_word)\n\
+    {\n    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n     \
+    \                  \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\
+    \",\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  without-small;: "#include <string>\n#include <json/json.h> // Assuming nlohmann/json\
+    \ or similar library\n#include <iostream>\n\n// Assuming these are available in\
+    \ the global scope or can be accessed\nextern std::string g_sessionId;  // Global\
+    \ session ID\nextern std::string g_interactionType; // Global interaction type\n\
+    extern std::string g_state; // Global state\n\nvoid SendWakeWordDetected(const\
+    \ std::string &wakeWord) {\n    try {\n        // Create JSON object for the notification\n\
+    \        Json::Value notification;\n        \n        // Add session ID from established\
+    \ session context\n        notification[\"sessionId\"] = g_sessionId;\n      \
+    \  \n        // Add interaction type\n        notification[\"interactionType\"\
+    ] = g_interactionType;\n        \n        // Add current state\n        notification[\"\
+    state\"] = g_state;\n        \n        // Add the detected wake word\n       \
+    \ notification[\"wakeWord\"] = wakeWord;\n        \n        // Add timestamp (optional\
+    \ but recommended)\n        // notification[\"timestamp\"] = getCurrentTimestamp();\n\
+    \        \n        // Convert JSON object to string\n        Json::StreamWriterBuilder\
+    \ builder;\n        builder[\"indentation\"] = \"\"; // No indentation for compact\
+    \ format\n        std::string jsonString = Json::writeString(builder, notification);\n\
+    \        \n        // Send the JSON message to server or relevant subsystem\n\
+    \        // This would typically involve calling a network/send function\n   \
+    \     // For example: sendToServer(jsonString);\n        \n        // Placeholder\
+    \ for actual communication - replace with real implementation\n        std::cout\
+    \ << \"Sending wake word detection notification: \" << jsonString << std::endl;\n\
+    \        \n        // In a real implementation, you might have something like:\n\
+    \        // if (networkConnection != nullptr) {\n        //     networkConnection->sendMessage(jsonString);\n\
+    \        // }\n        \n    } catch (const std::exception& e) {\n        // Handle\
+    \ any JSON serialization or communication errors\n        std::cerr << \"Error\
+    \ sending wake word detection notification: \" << e.what() << std::endl;\n   \
+    \     // Log error or handle appropriately based on system requirements\n    }\n\
+    }"
+  local-small;: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"wake_word\\\",\\\"state\\\":\\\"detected\\\",\\\"wake_word\\\
+    \":\\\"\" + wake_word + \"\\\"}\";\n    SendText(message);\n}"
+  tools-small;: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n\
+    {\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"wake_word\\\\\",\\\\\"state\\\\\":\\\\\"detected\\\
+    \\\",\\\\\"wake_word\\\\\":\\\\\"\" + wake_word + \"\\\\\"}\";\n    SendText(message);\n\
+    }"
+  without;: "void SendWakeWordDetected(const std::string& wakeWord) {\n    // Create\
+    \ JSON message with wake word detection information\n    json message;\n    message[\"\
+    eventType\"] = \"wakeWordDetected\";\n    message[\"sessionId\"] = GetCurrentSessionId();\
+    \  // Assuming this function exists\n    message[\"interactionType\"] = \"voice\"\
+    ;\n    message[\"state\"] = GetSystemState();  // Assuming this function exists\n\
+    \    message[\"wakeWord\"] = wakeWord;\n    message[\"timestamp\"] = GetCurrentTimestamp();\
+    \  // Assuming this function exists\n    \n    // Convert JSON to string format\n\
+    \    std::string jsonString = message.dump();\n    \n    // Send message using\
+    \ established session context\n    // Assuming we have a session manager or communication\
+    \ interface\n    if (sessionContext_ && sessionContext_->IsConnected()) {\n  \
+    \      sessionContext_->SendMessage(jsonString);\n    } else {\n        // Log\
+    \ error or handle disconnected state\n        LogError(\"Cannot send wake word\
+    \ notification: No active session\");\n    }\n}"
+  local;: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n{\n\
+    \    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    \";\n    message += \",\\\"type\\\":\\\"wakeword\\\",\\\"state\\\":\\\"detected\\\
+    \"\";\n    message += \",\\\"wake_word\\\":\\\"\" + wake_word + \"\\\"}\";\n \
+    \   SendText(message);\n}"
+  tools;: "void Protocol::SendWakeWordDetected(const std::string &wake_word)\n{\n\
+    \    std::string message = \"{\"\n                          \"\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\"\n                          \"\\\"type\\\"\
+    :\\\"wake_word\\\",\"\n                          \"\\\"state\\\":\\\"detected\\\
+    \",\"\n                          \"\\\"wake_word\\\":\\\"\" + wake_word + \"\\\
+    \"\"\n                          \"}\";\n    SendText(message);\n}"
+  eg;: "#include <string>\n#include <json/json.h> // Assuming usage of JsonCpp library\n\
+    #include \"session_context.h\" // Hypothetical header for accessing session data\n\
+    #include \"protocol_sender.h\" // Hypothetical header for sending messages\n#include\
+    \ \"logger.h\"          // Hypothetical logging utilities\n\n// Function definition\n\
+    void SendWakeWordDetected(const std::string& wake_word) {\n    // Step 1: Retrieve\
+    \ active session context\n    auto session = GetCurrentSession();\n    if (!session.IsValid())\
+    \ {\n        LOG_ERROR(\"No valid session found. Cannot send wake word detected\
+    \ event.\");\n        return;\n    }\n\n    // Step 2: Construct JSON payload\n\
+    \    Json::Value json_payload;\n    json_payload[\"session_id\"] = session.GetId();\n\
+    \    json_payload[\"interaction_type\"] = \"voice\";\n    json_payload[\"state\"\
+    ] = \"detected\";\n    json_payload[\"wake_word\"] = wake_word;\n\n    Json::StreamWriterBuilder\
+    \ builder;\n    builder[\"indentation\"] = \"\"; // Compact formatting\n    std::string\
+    \ json_string = Json::writeString(builder, json_payload);\n\n    // Step 3: Transmit\
+    \ the message via protocol sender\n    ProtocolSender sender(session.GetConnectionHandle());\n\
+    \    bool success = sender.send(json_string);\n\n    // Step 4: Handle result\
+    \ and log outcome\n    if (success) {\n        LOG_DEBUG(\"Successfully sent wake\
+    \ word detected event: %s\", json_string.c_str());\n    } else {\n        LOG_ERROR(\"\
+    Failed to send wake word detected event: %s\", json_string.c_str());\n    }\n}"
+  a3;: "void Protocol::SendWakeWordDetected(const std::string& wake_word) {\n    std::string\
+    \ json = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n                      \
+    \ \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\",\\\"text\\\"\
+    :\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+  eg-small;: "void SendWakeWordDetected(const std::string& wake_word) {\n    // Step\
+    \ 1: Retrieve the current session context to populate session-related fields\n\
+    \    auto session_context = GetActiveSessionContext();\n    \n    // Step 2: Prepare\
+    \ the JSON message containing session ID, interaction type, state, and detected\
+    \ wake word\n    nlohmann::json message;\n    message[\"session_id\"] = session_context.session_id;\n\
+    \    message[\"interaction_type\"] = \"wake_word_detection\";\n    message[\"\
+    state\"] = \"detected\";\n    message[\"wake_word\"] = wake_word;\n    message[\"\
+    timestamp\"] = std::chrono::duration_cast<std::chrono::milliseconds>(\n      \
+    \  std::chrono::system_clock::now().time_since_epoch()).count();\n    \n    //\
+    \ Step 3: Format the JSON message according to the protocol specification\n  \
+    \  std::string json_string = message.dump();\n    \n    // Step 4: Send the formatted\
+    \ JSON message through the established communication channel\n    SendProtocolMessage(json_string);\n\
+    }"
+  a3-small;: "void Protocol::SendWakeWordDetected(const std::string& wake_word) {\n\
+    \    std::string json = \"{\\\\\"session_id\\\\\":\\\\\" + session_id_ + \n  \
+    \                    \"\\\\\",\"\\\\type\\\\\":\\\\\"listen\\\\\",\"\\\\state\\\
+    \\\":\\\\\"detect\\\\\",\"\\\\text\\\\\":\\\\\" + wake_word + \"\\\\\"}\";\n \
+    \   SendText(json);\n}"
+  SRP-small;: "void Protocol::SendWakeWordDetected(const std::string& wake_word) {\n\
+    \    std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\"\
+    \ + session_id_ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"wake_word_detected\\\
+    \",\";\n    message += \"\\\"state\\\":\\\"start\\\",\";\n    message += \"\\\"\
+    wake_word\\\":\\\"\" + wake_word + \"\\\"\";\n    message += \"}\";\n    SendText(message);\n\
+    }"
+  SRP;: "void Protocol::SendWakeWordDetected(const std::string& wake_word) {\n   \
+    \ std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\";\n    message += \"\\\"type\\\":\\\"wakeword\\\",\";\n    message\
+    \ += \"\\\"state\\\":\\\"detected\\\",\";\n    message += \"\\\"wake_word\\\"\
+    :\\\"\" + wake_word + \"\\\"\";\n    message += \"}\";\n    SendText(message);\n\
+    }"
+  eg-small-168;: "void Protocol::SendWakeWordDetected(const std::string& wake_word)\
+    \ {\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\"\";\n    message += \",\\\\\"type\\\\\":\\\\\"wake_word\\\\\"\";\n\
+    \    message += \",\\\\\"state\\\\\":\\\\\"detected\\\\\"\";\n    message += \"\
+    ,\\\\\"wake_word\\\\\":\\\\\"\" + wake_word + \"\\\\\"\";\n    message += \"}\"\
+    ;\n    SendText(message);\n}"
+  eg-168;: "void Protocol::SendWakeWordDetected(const std::string& wake_word) {\n\
+    \    std::string message = \"{\"\n                          \"\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\"\n                          \"\\\"type\\\"\
+    :\\\"wakeword\\\",\"\n                          \"\\\"state\\\":\\\"detected\\\
+    \",\"\n                          \"\\\"wake_word\\\":\\\"\" + wake_word + \"\\\
+    \"\"\n                          \"}\";\n    SendText(message);\n}"
+  SRP-small-168;: "void Protocol::SendWakeWordDetected(const std::string& wake_word)\
+    \ {\n    std::string json = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ +\
+    \ \n                      \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"\
+    state\\\\\":\\\\\"detect\\\\\",\\\\\"text\\\\\":\\\\\"\" + wake_word + \"\\\\\"\
+    }\";\n    SendText(json);\n}"
+  SRP-168;: "void Protocol::SendWakeWordDetected(const std::string& wake_word) {\n\
+    \    std::string json = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n      \
+    \                \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"detect\\\
+    \",\\\"text\\\":\\\"\" + wake_word + \"\\\"}\";\n    SendText(json);\n}"
+- query: complete the function SendStartListening(ListeningMode)()
+  ground_truth: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\";\n    message\
+    \ += \",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\"\";\n    if (mode\
+    \ == kListeningModeRealtime) {\n        message += \",\\\"mode\\\":\\\"realtime\\\
+    \"\";\n    } else if (mode == kListeningModeAutoStop) {\n        message += \"\
+    ,\\\"mode\\\":\\\"auto\\\"\";\n    } else {\n        message += \",\\\"mode\\\"\
+    :\\\"manual\\\"\";\n    }\n    message += \"}\";\n    SendText(message);\n}"
+  workflow: ''
+  cursor: ''
+  without: "void SendStartListening(ListeningMode mode) {\n    // Set advertising\
+    \ parameters based on the listening mode\n    SetAdvertisingParameters(mode);\n\
+    \    \n    // Start the advertising process\n    StartAdvertising();\n}"
+  tools: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeAutoStop:\n     \
+    \       mode_str = \"auto_stop\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual_stop\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        default:\n\
+    \            mode_str = \"unknown\";\n            break;\n    }\n\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n                   \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" + mode_str + \"\\\"}\";\n    SendText(message);\n}"
+  without-small: "#include <iostream>\n#include <string>\n#include <vector>\n\n//\
+    \ Assuming ListeningMode is an enum or similar type\nenum class ListeningMode\
+    \ {\n    VOICE_COMMAND,\n    BACKGROUND_NOISE,\n    SPEECH_RECOGNITION,\n    AUDIO_RECORDING\n\
+    };\n\n// Mock classes for the context\nclass AudioController {\npublic:\n    bool\
+    \ sendCommand(const std::string& command, const std::string& mode) {\n       \
+    \ // Simulate sending command to audio hardware\n        std::cout << \"Sending\
+    \ command: \" << command << \" with mode: \" << mode << std::endl;\n        return\
+    \ true; // Assume success for this example\n    }\n};\n\nclass VoiceCommunicationSystem\
+    \ {\nprivate:\n    AudioController audioController;\n    \npublic:\n    bool SendStartListening(ListeningMode\
+    \ mode) {\n        try {\n            // Convert enum to string representation\
+    \ for command\n            std::string modeString;\n            switch(mode) {\n\
+    \                case ListeningMode::VOICE_COMMAND:\n                    modeString\
+    \ = \"VOICE_COMMAND\";\n                    break;\n                case ListeningMode::BACKGROUND_NOISE:\n\
+    \                    modeString = \"BACKGROUND_NOISE\";\n                    break;\n\
+    \                case ListeningMode::SPEECH_RECOGNITION:\n                   \
+    \ modeString = \"SPEECH_RECOGNITION\";\n                    break;\n         \
+    \       case ListeningMode::AUDIO_RECORDING:\n                    modeString =\
+    \ \"AUDIO_RECORDING\";\n                    break;\n                default:\n\
+    \                    modeString = \"UNKNOWN\";\n                    break;\n \
+    \           }\n            \n            // Send the start listening command\n\
+    \            bool result = audioController.sendCommand(\"START_LISTENING\", modeString);\n\
+    \            \n            if (result) {\n                std::cout << \"Successfully\
+    \ started listening in \" << modeString << \" mode\" << std::endl;\n         \
+    \   } else {\n                std::cerr << \"Failed to start listening in \" <<\
+    \ modeString << \" mode\" << std::endl;\n            }\n            \n       \
+    \     return result;\n        }\n        catch (const std::exception& e) {\n \
+    \           std::cerr << \"Exception occurred in SendStartListening: \" << e.what()\
+    \ << std::endl;\n            return false;\n        }\n    }\n};\n\n// Main function\
+    \ to demonstrate usage\nint main() {\n    VoiceCommunicationSystem system;\n \
+    \   \n    // Test different listening modes\n    system.SendStartListening(ListeningMode::VOICE_COMMAND);\n\
+    \    system.SendStartListening(ListeningMode::SPEECH_RECOGNITION);\n    \n   \
+    \ return 0;\n}"
+  tools-small: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \n            \
+    \             \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\
+    \\\"start\\\\\"\";\n    \n    // Add listening mode to the JSON\n    switch (mode)\n\
+    \    {\n        case kListeningModeAutoStop:\n            message += \",\\\\\"\
+    mode\\\\\":\\\\\"auto_stop\\\\\"\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            message += \",\\\\\"mode\\\\\":\\\\\"manual_stop\\\\\"\";\n     \
+    \       break;\n        case kListeningModeRealtime:\n            message += \"\
+    ,\\\\\"mode\\\\\":\\\\\"realtime\\\\\"\";\n            break;\n    }\n    \n \
+    \   message += \"}\";\n    SendText(message);\n}"
+  workflow+sd+mi: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ message = \"{\"\n                          \"\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\"\n                          \"\\\"type\\\":\\\"listen\\\",\"\n  \
+    \                        \"\\\"state\\\":\\\"start\\\"\";\n\n    switch (mode)\
+    \ {\n        case kListeningModeAutoStop:\n            message += \",\\\"mode\\\
+    \":\\\"auto_stop\\\"\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            message += \",\\\"mode\\\":\\\"manual_stop\\\"\";\n            break;\n\
+    \        case kListeningModeRealtime:\n            message += \",\\\"mode\\\"\
+    :\\\"realtime\\\"\";\n            break;\n    }\n\n    message += \"}\";\n   \
+    \ SendText(message);\n}"
+  workflow+sd+mi+rf: "void Protocol::SendStartListening(ListeningMode mode)\n{\n \
+    \   std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\"\n                          \"\\\"type\\\":\\\"listen\\\",\"\n            \
+    \              \"\\\"state\\\":\\\"start\\\"\";\n    \n    if (mode == kListeningModeRealtime)\n\
+    \    {\n        message += \",\\\"mode\\\":\\\"realtime\\\"\";\n    }\n    else\
+    \ if (mode == kListeningModeAutoStop)\n    {\n        message += \",\\\"mode\\\
+    \":\\\"auto\\\"\";\n    }\n    else\n    {\n        message += \",\\\"mode\\\"\
+    :\\\"manual\\\"\";\n    }\n    \n    message += \"}\";\n    SendText(message);\n\
+    }"
+  local: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str = \"passive\";\n    if (mode == kActive)\n    {\n        mode_str =\
+    \ \"active\";\n    }\n    // Add more cases if there are other ListeningMode enum\
+    \ values\n\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_\
+    \ +\n                          \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\"\
+    :\\\"start\\\",\\\"mode\\\":\\\"\" + mode_str + \"\\\"}\";\n    SendText(message);\n\
+    }"
+  workflow-small-rf: "void Protocol::SendStartListening(ListeningMode mode)\n{\n \
+    \   std::string message = \"{\"\n                          \"\\\"session_id\\\"\
+    :\\\"\" + session_id_ + \"\\\",\"\n                          \"\\\"type\\\":\\\
+    \"listen\\\",\"\n                          \"\\\"state\\\":\\\"start\\\"\";\n\n\
+    \    switch (mode) {\n        case kListeningModeAutoStop:\n            message\
+    \ += \",\\\"mode\\\":\\\"auto_stop\\\"\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            message += \",\\\"mode\\\":\\\"manual_stop\\\"\";\n            break;\n\
+    \        case kListeningModeRealtime:\n            message += \",\\\"mode\\\"\
+    :\\\"realtime\\\"\";\n            break;\n    }\n\n    message += \"}\";\n   \
+    \ SendText(message);\n}"
+  local-small: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeNormal:\n       \
+    \     mode_str = \"normal\";\n            break;\n        case kListeningModeHotword:\n\
+    \            mode_str = \"hotword\";\n            break;\n        case kListeningModeContinuous:\n\
+    \            mode_str = \"continuous\";\n            break;\n        default:\n\
+    \            mode_str = \"normal\";\n            break;\n    }\n    \n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n                  \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" + mode_str + \"\\\"}\";\n    SendText(message);\n}"
+  tools-long: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ modeStr;\n    switch (mode) {\n        case kListeningModeAutoStop:\n      \
+    \      modeStr = \"auto_stop\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            modeStr = \"manual_stop\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            modeStr = \"realtime\";\n            break;\n        default:\n \
+    \           // Handle unexpected mode if necessary; could assert or return early\n\
+    \            return;\n    }\n\n    std::string message = \"{\\\"session_id\\\"\
+    :\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"\
+    start\\\",\\\"mode\\\":\\\"\" + modeStr + \"\\\"}\";\n    SendText(message);\n\
+    }"
+  graph-5-5: "void Protocol::SendStartListening(ListeningMode mode) {\n    // Convert\
+    \ ListeningMode to string representation\n    const char* mode_str;\n    switch\
+    \ (mode) {\n        case kListeningModeRealtime:\n            mode_str = \"realtime\"\
+    ;\n            break;\n        case kListeningModeAutoStop:\n            mode_str\
+    \ = \"auto\";\n            break;\n        default:\n            mode_str = \"\
+    manual\";\n            break;\n    }\n    \n    // Construct JSON message\n  \
+    \  std::string message = \"{\"\n        \"\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\"\n        \"\\\"type\\\":\\\"listen\\\",\"\n        \"\\\"state\\\
+    \":\\\"start\\\",\"\n        \"\\\"mode\\\":\\\"\" + std::string(mode_str) + \"\
+    \\\"\"\n    \"}\";\n    \n    // Send the message\n    SendText(message);\n}"
+  graph-small-5-5: "void Protocol::SendStartListening(ListeningMode mode) {\n    //\
+    \ Get the session ID from the protocol instance\n    const std::string& session_id\
+    \ = GetSessionId();\n    \n    // Convert ListeningMode enum to string representation\n\
+    \    std::string mode_str;\n    switch (mode) {\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual_stop\";\n            break;\n        case kListeningModeAutoStop:\n\
+    \            mode_str = \"auto_stop\";\n            break;\n        case kListeningModeContinuous:\n\
+    \            mode_str = \"continuous\";\n            break;\n        default:\n\
+    \            mode_str = \"unknown\";\n            break;\n    }\n    \n    //\
+    \ Construct the JSON message following the same pattern as other protocol functions\n\
+    \    std::string json_message = \"{\\\"session_id\\\":\\\"\" + session_id + \n\
+    \                              \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\"\
+    :\\\"start\\\",\\\"mode\\\":\\\"\" + \n                              mode_str\
+    \ + \"\\\"}\";\n    \n    // Send the JSON message over the network\n    SendText(json_message);\n\
+    }"
+  Desc+without: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    //\
+    \ Create JSON object with required fields\n    json message;\n    message[\"session_id\"\
+    ] = this->sessionId;\n    message[\"type\"] = \"listen\";\n    message[\"state\"\
+    ] = \"start\";\n    \n    // Convert ListeningMode enum to string representation\n\
+    \    switch (mode) {\n        case ListeningMode::REALTIME:\n            message[\"\
+    mode\"] = \"realtime\";\n            break;\n        case ListeningMode::AUTO:\n\
+    \            message[\"mode\"] = \"auto\";\n            break;\n        case ListeningMode::MANUAL:\n\
+    \            message[\"mode\"] = \"manual\";\n            break;\n        default:\n\
+    \            message[\"mode\"] = \"unknown\";\n            break;\n    }\n   \
+    \ \n    // Serialize JSON to string and send\n    std::string jsonString = message.dump();\n\
+    \    SendText(jsonString);\n}"
+  Desc+local: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str;\n    switch (mode)\n    {\n        case ListeningMode::kRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        case ListeningMode::kAuto:\n\
+    \            mode_str = \"auto\";\n            break;\n        case ListeningMode::kManual:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"unknown\";\n            break;\n    }\n\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n                   \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" + mode_str + \"\\\"}\";\n\n    SendText(message);\n}"
+  Desc+graph-5-5: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\":\\\"\" + ModeToString(mode)\
+    \ + \"\\\"}\";\n    SendText(message);\n}"
+  Desc+tools: "void SendStartListening(ListeningMode mode) {\n    std::string mode_str;\n\
+    \n    // Convert ListeningMode enum to string\n    switch (mode) {\n        case\
+    \ kListeningModeAutoStop:\n            mode_str = \"auto\";\n            break;\n\
+    \        case kListeningModeManualStop:\n            mode_str = \"manual\";\n\
+    \            break;\n        case kListeningModeRealtime:\n            mode_str\
+    \ = \"realtime\";\n            break;\n        default:\n            // Handle\
+    \ unexpected enum values gracefully if needed\n            mode_str = \"auto\"\
+    ; // Default fallback\n            break;\n    }\n\n    // Construct the JSON\
+    \ message\n    std::string message = \"{\"\n                          \"\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\"\n                          \"\\\"type\\\"\
+    :\\\"listen\\\",\"\n                          \"\\\"state\\\":\\\"start\\\",\"\
+    \n                          \"\\\"mode\\\":\\\"\" + mode_str + \"\\\"\"\n    \
+    \                      \"}\";\n\n    // Send the constructed message\n    SendText(message);\n\
+    }"
+  Desc+graph-KG-5-5: "void Protocol::SendStartListening(ListeningMode mode) {\n  \
+    \  std::string message = \"{\\\"sessionId\\\": \\\"\" + session_id_ + \"\\\",\
+    \ \\\"type\\\": \\\"listen\\\", \\\"state\\\": \\\"start\\\", \\\"mode\\\": \\\
+    \"\" + ModeToString(mode) + \"\\\"}\";\n    SendText(message);\n}"
+  Desc+workflow: "void SendStartListening(ListeningMode mode) {\n    std::string mode_str;\n\
+    \    switch (mode) {\n        case kModeAuto:\n            mode_str = \"auto\"\
+    ;\n            break;\n        case kModeManual:\n            mode_str = \"manual\"\
+    ;\n            break;\n        case kModeRealtime:\n            mode_str = \"\
+    realtime\";\n            break;\n        default:\n            mode_str = \"unknown\"\
+    ; // Fallback for undefined modes\n            break;\n    }\n\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n                   \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" +\n                          mode_str + \"\\\"}\";\n\n    SendText(message);\n\
+    }"
+  Desc+graph-SRP_KG-5-5-rf: "void Protocol::SendStartListening(ListeningMode mode)\n\
+    {\n    // Convert ListeningMode enum to string representation\n    const char*\
+    \ modeStr = nullptr;\n    switch (mode) {\n        case kListeningModeAutoStop:\n\
+    \            modeStr = \"auto_stop\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            modeStr = \"manual_stop\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            modeStr = \"realtime\";\n            break;\n        default:\n \
+    \           modeStr = \"auto_stop\";\n            break;\n    }\n\n    // Create\
+    \ JSON message using string concatenation (consistent with other methods)\n  \
+    \  std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n     \
+    \                    \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\
+    \",\\\"mode\\\":\\\"\" + \n                         std::string(modeStr) + \"\\\
+    \"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void SendStartListening(ListeningMode mode) {\n    std::string\
+    \ message = \"{\\\\\\\"session_id\\\\\\\":\\\\\\\"\" + session_id_ + \"\\\\\\\"\
+    ,\\\\\\\"type\\\\\\\":\\\\\\\"listen\\\\\\\",\\\\\\\"state\\\\\\\":\\\\\\\"start\\\
+    \\\\\",\\\\\\\"mode\\\\\\\":\\\\\\\"\"\n        + (mode == kListeningModeRealtime\
+    \ ? \"realtime\" :\n           mode == kListeningModeManualStop ? \"manual\" :\
+    \ \"auto\")\n        + \"\\\\\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Protocol::SendStartListening(ListeningMode\
+    \ mode)\n{\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"start\\\
+    \\\"\";\n    if (mode == kListeningModeRealtime)\n    {\n        message += \"\
+    ,\\\\\"mode\\\\\":\\\\\"realtime\\\\\"\";\n    }\n    else if (mode == kListeningModeAutoStop)\n\
+    \    {\n        message += \",\\\\\"mode\\\\\":\\\\\"auto\\\\\"\";\n    }\n  \
+    \  else\n    {\n        message += \",\\\\\"mode\\\\\":\\\\\"manual\\\\\"\";\n\
+    \    }\n    message += \"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Protocol::SendStartListening(ListeningMode\
+    \ mode)\n{\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"start\\\
+    \\\"\";\n    if (mode == kListeningModeRealtime)\n    {\n        message += \"\
+    ,\\\\\"mode\\\\\":\\\\\"realtime\\\\\"\";\n    }\n    else if (mode == kListeningModeAutoStop)\n\
+    \    {\n        message += \",\\\\\"mode\\\\\":\\\\\"auto\\\\\"\";\n    }\n  \
+    \  else\n    {\n        message += \",\\\\\"mode\\\\\":\\\\\"manual\\\\\"\";\n\
+    \    }\n    message += \"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void Protocol::SendStartListening(ListeningMode\
+    \ mode) {\n    // Construct JSON message with session ID, type, state, and listening\
+    \ mode\n    cJSON* root = cJSON_CreateObject();\n    if (!root) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to create JSON object for start listening message\");\n        return;\n\
+    \    }\n    \n    cJSON_AddStringToObject(root, \"session_id\", session_id_.c_str());\n\
+    \    cJSON_AddStringToObject(root, \"type\", \"listen\");\n    cJSON_AddStringToObject(root,\
+    \ \"state\", \"start\");\n    \n    // Convert ListeningMode enum to string representation\n\
+    \    const char* mode_str;\n    switch (mode) {\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        case kListeningModeAuto:\n\
+    \            mode_str = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"unknown\";\n            break;\n    }\n    cJSON_AddStringToObject(root,\
+    \ \"mode\", mode_str);\n    \n    // Serialize the JSON object into a text string\
+    \ format\n    char* json_string = cJSON_PrintUnformatted(root);\n    if (!json_string)\
+    \ {\n        ESP_LOGE(TAG, \"Failed to serialize JSON for start listening message\"\
+    );\n        cJSON_Delete(root);\n        return;\n    }\n    \n    std::string\
+    \ message(json_string);\n    cJSON_free(json_string);\n    cJSON_Delete(root);\n\
+    \    \n    // Invoke SendText method to transmit the serialized message\n    bool\
+    \ success = SendText(message);\n    \n    // Handle potential transmission errors\
+    \ and log results\n    if (success) {\n        ESP_LOGI(TAG, \"Successfully sent\
+    \ start listening message with mode: %s\", mode_str);\n    } else {\n        ESP_LOGE(TAG,\
+    \ \"Failed to send start listening message with mode: %s\", mode_str);\n    }\n\
+    }"
+  graph-SRP_KG-it-small;: "void Protocol::SendStartListening(ListeningMode mode) {\n\
+    \    std::string mode_str;\n    switch (mode) {\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        case kListeningModeAuto:\n\
+    \            mode_str = \"auto\";\n            break;\n        case kListeningModeManual:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"manual\"; // default fallback\n            break;\n  \
+    \  }\n    \n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"start\\\
+    \\\",\\\\\"mode\\\\\":\\\\\"\"\n                        + mode_str + \"\\\\\"\
+    }\";\n    SendText(message);\n}"
+  graph-SRP_KG-it;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n  \
+    \  std::string modeString;\n    switch (mode) {\n        case kListeningModeRealtime:\n\
+    \            modeString = \"realtime\";\n            break;\n        case kListeningModeAuto:\n\
+    \            modeString = \"auto\";\n            break;\n        case kListeningModeManual:\n\
+    \            modeString = \"manual\";\n            break;\n        default:\n\
+    \            modeString = \"manual\";\n            break;\n    }\n    \n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\":\\\"\" + modeString + \"\
+    \\\"}\";\n    SendText(message);\n}"
+  without-small;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    //\
+    \ Create JSON message structure\n    Json::Value message;\n    message[\"session_id\"\
+    ] = GetSessionId();  // Assuming GetSessionId() retrieves current session ID\n\
+    \    message[\"type\"] = \"listen\";\n    message[\"state\"] = \"start\";\n  \
+    \  message[\"mode\"] = mode.ToString();      // Convert enum/enum-like value to\
+    \ string\n    \n    // Convert JSON object to string\n    Json::StreamWriterBuilder\
+    \ builder;\n    std::string jsonString = Json::writeString(builder, message);\n\
+    \    \n    // Send the message through the communication channel\n    SendText(jsonString);\n\
+    }"
+  local-small;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str;\n    switch (mode)\n    {\n        case ListeningMode::kRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        case ListeningMode::kAuto:\n\
+    \            mode_str = \"auto\";\n            break;\n        case ListeningMode::kManual:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"unknown\";\n            break;\n    }\n    \n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n                  \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" + mode_str + \"\\\"}\";\n    SendText(message);\n}"
+  tools-small;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeAutoStop:\n     \
+    \       mode_str = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n    }\n    \n    std::string\
+    \ message = \"{\\\\\\\"session_id\\\\\\\":\\\\\\\"\" + session_id_ + \"\\\\\\\"\
+    ,\\\\\\\"type\\\\\\\":\\\\\\\"listen\\\\\\\",\\\\\\\"state\\\\\\\":\\\\\\\"start\\\
+    \\\\\",\\\\\\\"mode\\\\\\\":\\\\\\\"\" + mode_str + \"\\\\\\\"}\";\n    SendText(message);\n\
+    }"
+  without;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    // Create\
+    \ JSON object with required fields\n    json message;\n    message[\"session_id\"\
+    ] = this->sessionId;\n    message[\"type\"] = \"listen\";\n    message[\"state\"\
+    ] = \"start\";\n    \n    // Convert ListeningMode enum to string representation\n\
+    \    switch (mode) {\n        case ListeningMode::REALTIME:\n            message[\"\
+    mode\"] = \"realtime\";\n            break;\n        case ListeningMode::AUTO:\n\
+    \            message[\"mode\"] = \"auto\";\n            break;\n        case ListeningMode::MANUAL:\n\
+    \            message[\"mode\"] = \"manual\";\n            break;\n        default:\n\
+    \            message[\"mode\"] = \"unknown\";\n            break;\n    }\n   \
+    \ \n    // Serialize JSON to string and send\n    std::string jsonString = message.dump();\n\
+    \    SendText(jsonString);\n}"
+  local;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"listen\\\",\\\"state\\\":\\\"start\\\"\";\n    \n    if (mode == kListeningModeRealtime)\n\
+    \    {\n        message += \",\\\"mode\\\":\\\"realtime\\\"\";\n    }\n    else\
+    \ if (mode == kListeningModeAutoStop)\n    {\n        message += \",\\\"mode\\\
+    \":\\\"auto\\\"\";\n    }\n    else\n    {\n        message += \",\\\"mode\\\"\
+    :\\\"manual\\\"\";\n    }\n\n    message += \"}\";\n    SendText(message);\n}"
+  tools;: "void Protocol::SendStartListening(ListeningMode mode)\n{\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeAutoStop:\n     \
+    \       mode_str = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        default:\n\
+    \            mode_str = \"unknown\";\n            break;\n    }\n\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ +\n                   \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" +\n                          mode_str + \"\\\"}\";\n    SendText(message);\n\
+    }"
+  eg;: "void Protocol::SendStartListening(ListeningMode mode) {\n    // Step 1: Map\
+    \ ListeningMode enum to string\n    const char* mode_str;\n    switch (mode) {\n\
+    \        case kListeningModeAutoStop:\n            mode_str = \"auto\";\n    \
+    \        break;\n        case kListeningModeManualStop:\n            mode_str\
+    \ = \"manual\";\n            break;\n        case kListeningModeRealtime:\n  \
+    \          mode_str = \"realtime\";\n            break;\n        default:\n  \
+    \          SetError(\"Invalid ListeningMode\");\n            return;\n    }\n\n\
+    \    // Step 2: Construct JSON object\n    cJSON* json_root = cJSON_CreateObject();\n\
+    \    if (!json_root) {\n        SetError(\"Failed to create JSON object\");\n\
+    \        return;\n    }\n\n    cJSON_AddStringToObject(json_root, \"session_id\"\
+    , session_id_.c_str());\n    cJSON_AddStringToObject(json_root, \"type\", \"listen\"\
+    );\n    cJSON_AddStringToObject(json_root, \"state\", \"start\");\n    cJSON_AddStringToObject(json_root,\
+    \ \"mode\", mode_str);\n\n    // Step 3: Serialize to string\n    char* json_text\
+    \ = cJSON_PrintUnformatted(json_root);\n    if (!json_text) {\n        cJSON_Delete(json_root);\n\
+    \        SetError(\"Failed to serialize JSON\");\n        return;\n    }\n\n \
+    \   // Step 4: Transmit using SendText\n    bool success = SendText(std::string(json_text));\n\
+    \n    // Step 5: Clean up resources\n    cJSON_Delete(json_root);\n    free(json_text);\n\
+    \n    // Step 6: Handle transmission error\n    if (!success) {\n        SetError(\"\
+    Failed to send start listening message\");\n    }\n}"
+  a3;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string mode_str;\n\
+    \    switch (mode) {\n        case kListeningModeRealtime:\n            mode_str\
+    \ = \"realtime\";\n            break;\n        case kListeningModeAuto:\n    \
+    \        mode_str = \"auto\";\n            break;\n        case kListeningModeManual:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"manual\";\n            break;\n    }\n    \n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\":\\\"\" + mode_str + \"\\\
+    \"}\";\n    SendText(message);\n}"
+  eg-small;: "void Protocol::SendStartListening(ListeningMode mode) {\n    // Create\
+    \ JSON object for the message\n    cJSON* root = cJSON_CreateObject();\n    if\
+    \ (!root) {\n        return;\n    }\n    \n    // Add session ID\n    cJSON_AddStringToObject(root,\
+    \ \"session_id\", session_id_.c_str());\n    \n    // Add type\n    cJSON_AddStringToObject(root,\
+    \ \"type\", \"listen\");\n    \n    // Add state\n    cJSON_AddStringToObject(root,\
+    \ \"state\", \"start\");\n    \n    // Add listening mode based on enum value\n\
+    \    const char* mode_str = nullptr;\n    switch (mode) {\n        case kListeningModeAutoStop:\n\
+    \            mode_str = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        default:\n\
+    \            mode_str = \"unknown\";\n            break;\n    }\n    cJSON_AddStringToObject(root,\
+    \ \"mode\", mode_str);\n    \n    // Convert JSON object to string\n    char*\
+    \ json_string = cJSON_Print(root);\n    if (json_string) {\n        // Send the\
+    \ JSON string via SendText\n        SendText(json_string);\n        // Free the\
+    \ allocated string\n        free(json_string);\n    }\n    \n    // Clean up the\
+    \ JSON object\n    cJSON_Delete(root);\n}"
+  a3-small;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ mode_string;\n    switch (mode) {\n        case kListeningModeAutoStop:\n  \
+    \          mode_string = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_string = \"manual\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            mode_string = \"realtime\";\n            break;\n        default:\n\
+    \            mode_string = \"manual\";  // default fallback\n            break;\n\
+    \    }\n    \n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"start\\\
+    \\\",\\\\\"mode\\\\\":\\\\\"\"\n                        + mode_string + \"\\\\\
+    \"}\";\n    SendText(message);\n}"
+  SRP-small;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeRealtime:\n     \
+    \       mode_str = \"realtime\";\n            break;\n        case kListeningModeAuto:\n\
+    \            mode_str = \"auto\";\n            break;\n        case kListeningModeManual:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"manual\"; // default fallback\n            break;\n  \
+    \  }\n    \n    std::string message = \"{\\\\\\\"session_id\\\\\\\":\\\\\\\"\"\
+    \ + session_id_ + \"\\\\\\\",\\\\\\\"type\\\\\\\":\\\\\\\"listen\\\\\\\",\\\\\\\
+    \"state\\\\\\\":\\\\\\\"start\\\\\\\",\\\\\\\"mode\\\\\\\":\\\\\\\"\" + mode_str\
+    \ + “\\\\\\\"}\";\n    SendText(message);\n}"
+  SRP;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeRealtime:\n     \
+    \       mode_str = \"realtime\";\n            break;\n        case kListeningModeAuto:\n\
+    \            mode_str = \"auto\";\n            break;\n        case kListeningModeManual:\n\
+    \            mode_str = \"manual\";\n            break;\n        default:\n  \
+    \          mode_str = \"manual\";\n            break;\n    }\n    \n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \n                  \
+    \       \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\
+    \":\\\"\" + \n                         mode_str + \"\\\"}\";\n    SendText(message);\n\
+    }"
+  eg-small-168;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\",\\\\\"\
+    type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"start\\\\\"\";\n    \n \
+    \   switch (mode) {\n        case kListeningModeAutoStop:\n            message\
+    \ += \",\\\\\"mode\\\\\":\\\\\"auto\\\\\"\";\n            break;\n        case\
+    \ kListeningModeManualStop:\n            message += \",\\\\\"mode\\\\\":\\\\\"\
+    manual\\\\\"\";\n            break;\n        case kListeningModeRealtime:\n  \
+    \          message += \",\\\\\"mode\\\\\":\\\\\"realtime\\\\\"\";\n          \
+    \  break;\n    }\n    \n    message += \"}\";\n    SendText(message);\n}"
+  eg-168;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ mode_str;\n    switch (mode) {\n        case kListeningModeAutoStop:\n     \
+    \       mode_str = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_str = \"manual\";\n            break;\n        case kListeningModeRealtime:\n\
+    \            mode_str = \"realtime\";\n            break;\n        default:\n\
+    \            mode_str = \"auto\"; // fallback, should not happen\n           \
+    \ break;\n    }\n\n    std::string message = \"{\"\n                         \
+    \ \"\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\"\n                    \
+    \      \"\\\"type\\\":\\\"listen\\\",\"\n                          \"\\\"state\\\
+    \":\\\"start\\\",\"\n                          \"\\\"mode\\\":\\\"\" + mode_str\
+    \ + \"\\\"\"\n                          \"}\";\n    SendText(message);\n}"
+  SRP-small-168;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ mode_string;\n    switch (mode) {\n        case kListeningModeRealtime:\n  \
+    \          mode_string = \"realtime\";\n            break;\n        case kListeningModeAuto:\n\
+    \            mode_string = \"auto\";\n            break;\n        case kListeningModeManualStop:\n\
+    \            mode_string = \"manual\";\n            break;\n        default:\n\
+    \            mode_string = \"manual\"; // default fallback\n            break;\n\
+    \    }\n    \n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\"\n \
+    \                       + session_id_ \n                        + \"\\\\\",\"\\\
+    \\type\\\\\":\\\\\"listen\\\\\",\"\\\\state\\\\\":\\\\\"start\\\\\",\"\\\\mode\\\
+    \\\":\\\\\"\"\n                        + mode_string \n                      \
+    \  + \"\\\\\"}\";\n    SendText(message);\n}"
+  SRP-168;: "void Protocol::SendStartListening(ListeningMode mode) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"listen\\\",\\\"state\\\":\\\"start\\\",\\\"mode\\\":\\\"\" + ToString(mode)\
+    \ + \"\\\"}\";\n    SendText(message);\n}"
+- query: complete the function SendStopListening()()
+  ground_truth: "void Protocol::SendStopListening() {\n    std::string message = \"\
+    {\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\"\
+    ,\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  workflow: ''
+  cursor: ''
+  without: "bool SendStopListening()\n{\n    // Send stop listening command\n    //\
+    \ This could involve sending a specific message/command to stop the listening\
+    \ process\n    \n    try {\n        // Example implementation - send stop command\
+    \ through communication channel\n        // Replace with actual communication\
+    \ mechanism based on your system\n        \n        // If using sockets:\n   \
+    \     // const char* stopCmd = \"STOP_LISTENING\";\n        // int result = send(socket_fd,\
+    \ stopCmd, strlen(stopCmd), 0);\n        // return (result != -1);\n        \n\
+    \        // If using some message queue or event system:\n        // return sendMessage(STOP_LISTENING_MESSAGE);\n\
+    \        \n        // Placeholder implementation - assuming success\n        //\
+    \ Replace this with actual stop listening logic\n        return true;\n    }\n\
+    \    catch (...) {\n        // Handle any exceptions that might occur during the\
+    \ stop process\n        return false;\n    }\n    \n    // Return false if the\
+    \ stop listening operation failed\n    return false;\n}"
+  tools: "void Protocol::SendStopListening()\n{\n    std::string message = \"{\\\"\
+    session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"\
+    state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  without-small: "#include <iostream>\n#include <string>\n#include <cstring>\n\n//\
+    \ Assuming some basic network/socket structures for this example\nclass NetworkManager\
+    \ {\nprivate:\n    bool isListening;\n    int socketDescriptor;\n    \npublic:\n\
+    \    NetworkManager() : isListening(false), socketDescriptor(-1) {}\n    \n  \
+    \  // Function to send stop listening command\n    bool SendStopListening() {\n\
+    \        try {\n            // Check if we're actually listening\n           \
+    \ if (!isListening) {\n                std::cerr << \"Error: Not currently listening\"\
+    \ << std::endl;\n                return false;\n            }\n            \n\
+    \            // Create stop listening message\n            std::string stopMessage\
+    \ = \"STOP_LISTENING\";\n            \n            // Simulate sending the message\
+    \ over network/socket\n            // In a real implementation, this would be\
+    \ actual socket communication\n            ssize_t bytesSent = send(socketDescriptor,\
+    \ stopMessage.c_str(), \n                                   stopMessage.length(),\
+    \ 0);\n            \n            if (bytesSent < 0) {\n                std::cerr\
+    \ << \"Error: Failed to send stop listening message\" << std::endl;\n        \
+    \        return false;\n            }\n            \n            // Update internal\
+    \ state\n            isListening = false;\n            \n            // Optional:\
+    \ Close socket if needed\n            // close(socketDescriptor);\n          \
+    \  \n            std::cout << \"Stop listening command sent successfully\" <<\
+    \ std::endl;\n            return true;\n            \n        } catch (const std::exception&\
+    \ e) {\n            std::cerr << \"Exception in SendStopListening: \" << e.what()\
+    \ << std::endl;\n            return false;\n        }\n        \n        return\
+    \ false; // This line should never be reached\n    }\n    \n    // Helper functions\
+    \ for demonstration\n    void SetSocket(int sock) { socketDescriptor = sock; }\n\
+    \    void SetListening(bool listening) { isListening = listening; }\n};\n\n//\
+    \ Alternative simpler implementation if this is meant to be standalone\nbool SendStopListening()\
+    \ {\n    try {\n        // This could be a static variable or global state tracking\n\
+    \        static bool isCurrentlyListening = false;\n        \n        // Check\
+    \ current listening state\n        if (!isCurrentlyListening) {\n            std::cerr\
+    \ << \"Warning: No active listening session to stop\" << std::endl;\n        \
+    \    return false;\n        }\n        \n        // Simulate sending stop command\n\
+    \        // In reality, this might involve:\n        // - Sending a specific protocol\
+    \ message\n        // - Setting a flag to indicate stop\n        // - Closing\
+    \ connections/sockets\n        \n        // For demonstration purposes, we'll\
+    \ simulate success\n        isCurrentlyListening = false;\n        \n        std::cout\
+    \ << \"Stop listening command processed successfully\" << std::endl;\n       \
+    \ return true;\n        \n    } catch (...) {\n        std::cerr << \"Error occurred\
+    \ while processing stop listening command\" << std::endl;\n        return false;\n\
+    \    }\n}\n\n// If you want a more robust version with proper error handling\n\
+    bool SendStopListening() {\n    // Validate preconditions\n    if (/* some condition\
+    \ checking if listening is active */) {\n        // Implementation details here\n\
+    \        // This would typically involve:\n        // 1. Sending a stop signal\
+    \ to the listening component\n        // 2. Cleaning up resources\n        //\
+    \ 3. Updating state tracking\n        // 4. Returning appropriate status\n   \
+    \     \n        // Placeholder implementation\n        return true;\n    } else\
+    \ {\n        return false;\n    }\n}\n```\n\nHowever, since you specifically asked\
+    \ for just the function body in the cpp mark, here's the core implementation:\n\
+    \n```cpp\nbool SendStopListening() {\n    try {\n        // Check if we're currently\
+    \ listening\n        static bool isListening = false;\n        \n        if (!isListening)\
+    \ {\n            return false;\n        }\n        \n        // Send stop listening\
+    \ signal/command\n        // This is where you'd implement the actual communication\n\
+    \        // For example: send stop command over network, signal thread, etc.\n\
+    \        \n        // Mark as not listening anymore\n        isListening = false;\n\
+    \        \n        return true;\n    } catch (...) {\n        return false;\n\
+    \    }\n}"
+  tools-small: "void Protocol::SendStopListening()\n{\n    std::string message = \"\
+    {\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\"\";\n    message += \"\
+    ,\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"\";\n \
+    \   message += \"}\";\n    SendText(message);\n}"
+  workflow+sd+mi: "void Protocol::SendStopListening()\n{\n    std::string message\
+    \ = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\
+    \",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  workflow+sd+mi+rf: "void Protocol::SendStopListening()\n{\n    std::string message\
+    \ = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\
+    \",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  local: "void Protocol::SendStopListening()\n{\n    std::string message = \"{\\\"\
+    session_id\\\":\\\"\" + session_id_ +\n                          \"\\\",\\\"type\\\
+    \":\\\"listen\\\",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  workflow-small-rf: "void Protocol::SendStopListening()\n{\n    std::string message\
+    \ = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\
+    \",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  local-small: "void Protocol::SendStopListening()\n{\n    std::string message = \"\
+    {\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\";\n    message += \",\\\"type\\\
+    \":\\\"listen\\\",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  tools-long: "void Protocol::SendStopListening()\n{\n    std::string message = \"\
+    {\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\"\
+    ,\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  graph-5-5: "void Protocol::SendStopListening() {\n    // Check if the protocol instance\
+    \ is valid and connected\n    if (!IsConnected()) {\n        return;\n    }\n\
+    \    \n    // Construct the JSON message\n    std::string message = \"{\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"\
+    stop\\\"}\";\n    \n    // Send the message using the existing SendText method\n\
+    \    SendText(message);\n}"
+  graph-small-5-5: "void Protocol::SendStopListening() {\n    // Create JSON message\
+    \ similar to SendStartListening and SendWakeWordDetected\n    // Format: {\"type\"\
+    :\"listen\", \"state\":\"stop\", \"session_id\":\"...\" }\n    \n    Json::Value\
+    \ root;\n    root[\"type\"] = \"listen\";\n    root[\"state\"] = \"stop\";\n \
+    \   \n    // Add session ID if available\n    if (!session_id_.empty()) {\n  \
+    \      root[\"session_id\"] = session_id_;\n    }\n    \n    // Convert JSON to\
+    \ string and send\n    Json::StreamWriterBuilder builder;\n    std::string json_message\
+    \ = Json::writeString(builder, root);\n    \n    // Send the message using the\
+    \ base interface\n    SendText(json_message);\n}"
+  Desc+without: "void SendStopListening()\n{\n    // Create JSON message structure\n\
+    \    std::string jsonString = \"{\";\n    jsonString += \"\\\"sessionId\\\":\\\
+    \"\" + sessionId + \"\\\",\";\n    jsonString += \"\\\"type\\\":\\\"listen\\\"\
+    ,\";\n    jsonString += \"\\\"state\\\":\\\"stop\\\"\";\n    jsonString += \"\
+    }\";\n    \n    // Transmit the JSON message through the communication channel\n\
+    \    if (communicationChannel != nullptr) {\n        communicationChannel->send(jsonString);\n\
+    \    }\n}"
+  Desc+local: "void Protocol::SendStopListening()\n{\n    std::string message = \"\
+    {\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\"\
+    ,\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-5-5: "void Protocol::SendStopListening() {\n    std::string message =\
+    \ \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\
+    \",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  Desc+tools: "void Protocol::SendStopListening()\n{\n    std::string message = \"\
+    {\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\"\
+    ,\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-KG-5-5: "void Protocol::SendStopListening() {\n    std::string message\
+    \ = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\
+    \",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  Desc+workflow: "void SendStopListening() {\n    std::string message = \"{\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"state\\\":\\\"\
+    stop\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void Protocol::SendStopListening() {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"listen\\\",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void Protocol::SendStopListening() {\n    std::string\
+    \ message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\",\\\\\"\
+    type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"}\";\n    SendText(message);\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Protocol::SendStopListening() {\n\
+    \    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ +\
+    \ \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\
+    \"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Protocol::SendStopListening()\
+    \ {\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\
+    \\\"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void Protocol::SendStopListening() {\n \
+    \   // Construct JSON message with session ID, type 'listen', and state 'stop'\n\
+    \    std::string message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\"\
+    \ + session_id() + \"\\\",\";\n    message += \"\\\"type\\\":\\\"listen\\\",\"\
+    ;\n    message += \"\\\"state\\\":\\\"stop\\\"\";\n    message += \"}\";\n   \
+    \ \n    // Transmit the serialized message via the communication channel\n   \
+    \ SendText(message);\n}"
+  graph-SRP_KG-it-small;: "void Protocol::SendStopListening() {\n    std::string message\
+    \ = \"{\\\\\"session_id\\\\\":\\\\\" + session_id_ + \\\\\",\\\\\"type\\\\\":\\\
+    \\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"}\";\n    SendText(message);\n\
+    }"
+  graph-SRP_KG-it;: "void Protocol::SendStopListening()\n{\n    std::string message\
+    \ = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\
+    \",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  without-small;: "#include <string>\n#include <cstring>\n\n// Global variables assumed\
+    \ to exist\nextern std::string g_sessionId;\nextern void* g_commChannel;\n\nbool\
+    \ SendStopListening()\n{\n    // Create JSON message manually (simplified approach)\n\
+    \    std::string jsonMessage = \"{\";\n    jsonMessage += \"\\\"type\\\":\\\"\
+    listen\\\",\";\n    jsonMessage += \"\\\"state\\\":\\\"stop\\\",\";\n    jsonMessage\
+    \ += \"\\\"sessionId\\\":\\\"\" + g_sessionId + \"\\\"\";\n    jsonMessage +=\
+    \ \"}\";\n    \n    // Add null terminator\n    jsonMessage += \"\\0\";\n    \n\
+    \    // Transmit via communication channel\n    if (g_commChannel != nullptr)\
+    \ {\n        // Simulate sending data - replace with actual communication function\n\
+    \        // Example: UART_Send(g_commChannel, jsonMessage.c_str(), jsonMessage.length());\n\
+    \        // For now, we'll just return success\n        return true;\n    }\n\
+    \    \n    return false;\n}"
+  local-small;: "void Protocol::SendStopListening()\n{\n    std::string message =\
+    \ \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\";\n    message += \",\\\
+    \"type\\\":\\\"listen\\\",\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n\
+    }"
+  tools-small;: "void Protocol::SendStopListening()\n{\n    std::string message =\
+    \ \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\",\\\\\"type\\\\\"\
+    :\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"}\";\n    SendText(message);\n\
+    }"
+  without;: "void SendStopListening()\n{\n    // Create JSON message structure\n \
+    \   std::string jsonString = \"{\";\n    jsonString += \"\\\"sessionId\\\":\\\"\
+    \" + sessionId + \"\\\",\";\n    jsonString += \"\\\"type\\\":\\\"listen\\\",\"\
+    ;\n    jsonString += \"\\\"state\\\":\\\"stop\\\"\";\n    jsonString += \"}\"\
+    ;\n    \n    // Transmit the JSON message through the communication channel\n\
+    \    if (communicationChannel != nullptr) {\n        communicationChannel->send(jsonString);\n\
+    \    }\n}"
+  local;: "void Protocol::SendStopListening()\n{\n    std::string message = \"{\\\"\
+    session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"\
+    state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  tools;: "void Protocol::SendStopListening()\n{\n    std::string message = \"{\\\"\
+    session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"\
+    state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  eg;: "void Protocol::SendStopListening() {\n    // Create JSON root object\n   \
+    \ cJSON* root = cJSON_CreateObject();\n    \n    // Add session ID field\n   \
+    \ cJSON_AddStringToObject(root, \"sessionId\", session_id_.c_str());\n    \n \
+    \   // Add type field\n    cJSON_AddStringToObject(root, \"type\", \"listen\"\
+    );\n    \n    // Add state field\n    cJSON_AddStringToObject(root, \"state\"\
+    , \"stop\");\n    \n    // Serialize JSON to string\n    char* json_str = cJSON_PrintUnformatted(root);\n\
+    \    \n    if (json_str != nullptr) {\n        // Send the JSON string over the\
+    \ communication channel\n        SendText(std::string(json_str));\n        \n\
+    \        // Free allocated memory by cJSON_PrintUnformatted\n        cJSON_free(json_str);\n\
+    \    }\n    \n    // Clean up the cJSON object\n    cJSON_Delete(root);\n}"
+  a3;: "void Protocol::SendStopListening() {\n    std::string message = \"{\\\\\"\
+    session_id\\\\\":\\\\\"\" + session_id_ + \n                         \"\\\\\"\
+    ,\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"}\";\n\
+    \    SendText(message);\n}"
+  eg-small;: "void Protocol::SendStopListening() {\n    // Create JSON object for\
+    \ stop listening message\n    cJSON* root = cJSON_CreateObject();\n    if (!root)\
+    \ {\n        SetError(\"Failed to create JSON object for stop listening message\"\
+    );\n        return;\n    }\n    \n    // Add session ID\n    cJSON* session_id_item\
+    \ = cJSON_CreateString(session_id_.c_str());\n    if (session_id_item) {\n   \
+    \     cJSON_AddItemToObject(root, \"session_id\", session_id_item);\n    }\n \
+    \   \n    // Add message type\n    cJSON* type_item = cJSON_CreateString(\"listen\"\
+    );\n    if (type_item) {\n        cJSON_AddItemToObject(root, \"type\", type_item);\n\
+    \    }\n    \n    // Add state\n    cJSON* state_item = cJSON_CreateString(\"\
+    stop\");\n    if (state_item) {\n        cJSON_AddItemToObject(root, \"state\"\
+    , state_item);\n    }\n    \n    // Convert JSON to string\n    char* json_string\
+    \ = cJSON_PrintUnformatted(root);\n    if (!json_string) {\n        cJSON_Delete(root);\n\
+    \        SetError(\"Failed to serialize JSON for stop listening message\");\n\
+    \        return;\n    }\n    \n    // Send the JSON message\n    SendText(json_string);\n\
+    \    \n    // Clean up\n    free(json_string);\n    cJSON_Delete(root);\n}"
+  a3-small;: "void Protocol::SendStopListening() {\n    std::string message = \"{\\\
+    \\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\",\\\\\"type\\\\\":\\\\\"\
+    listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"}\";\n    SendText(message);\n}"
+  SRP-small;: "void Protocol::SendStopListening() {\n    std::string message = \"\
+    {\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\"\";\n    message += \"\
+    ,\\\\\"type\\\\\":\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"\";\n \
+    \   message += \"}\";\n    SendText(message);\n}"
+  SRP;: "void Protocol::SendStopListening() {\n    std::string message = \"{\";\n\
+    \    message += \"\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\";\n    message\
+    \ += \"\\\"type\\\":\\\"listen\\\",\";\n    message += \"\\\"state\\\":\\\"stop\\\
+    \"\";\n    message += \"}\";\n    SendText(message);\n}"
+  eg-small-168;: "void Protocol::SendStopListening() {\n    std::string message =\
+    \ \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\\\\\",\\\\\"type\\\\\"\
+    :\\\\\"listen\\\\\",\\\\\"state\\\\\":\\\\\"stop\\\\\"}\";\n    SendText(message);\n\
+    }"
+  eg-168;: "void Protocol::SendStopListening() {\n    std::string message = \"{\\\"\
+    session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"\
+    state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  SRP-small-168;: "void Protocol::SendStopListening() {\n    std::string message =\
+    \ \"{\\\\\\\"session_id\\\\\\\":\\\\\\\"\" + session_id_ + \"\\\\\\\",\\\\\\\"\
+    type\\\\\\\":\\\\\\\"listen\\\\\\\",\\\\\\\"state\\\\\\\":\\\\\\\"stop\\\\\\\"\
+    }\";\n    SendText(message);\n}"
+  SRP-168;: "void Protocol::SendStopListening() {\n    std::string message = \"{\\\
+    \"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"\
+    state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+- query: complete the function SendMcpMessage(const std::string &)()
+  ground_truth: "void Protocol::SendMcpMessage(const std::string& payload) {\n   \
+    \ std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\
+    \"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  workflow: ''
+  cursor: ''
+  without: "void SendMcpMessage(const std::string &message) {\n    // Check if message\
+    \ is empty\n    if (message.empty()) {\n        // Handle empty message case\n\
+    \        return;\n    }\n    \n    try {\n        // Simulate sending MCP message\n\
+    \        // This would typically involve:\n        // 1. Establishing connection\
+    \ to MCP server/channel\n        // 2. Formatting the message according to MCP\
+    \ protocol\n        // 3. Sending the message through appropriate communication\
+    \ channel\n        \n        // Example implementation placeholders:\n       \
+    \ // - Serialize message if needed\n        // - Add MCP headers/protocol formatting\n\
+    \        // - Send via network socket, serial port, or other communication method\n\
+    \        \n        // For demonstration, we'll just print the message being sent\n\
+    \        // In real implementation, this would be replaced with actual sending\
+    \ logic\n        std::cout << \"Sending MCP message: \" << message << std::endl;\n\
+    \        \n        // Actual sending logic would go here, such as:\n        //\
+    \ mcp_socket.send(message.data(), message.length());\n        // or\n        //\
+    \ writeToSerialPort(message);\n        \n    } catch (const std::exception& e)\
+    \ {\n        // Handle any exceptions during message sending\n        std::cerr\
+    \ << \"Error sending MCP message: \" << e.what() << std::endl;\n    } catch (...)\
+    \ {\n        // Handle any other unexpected errors\n        std::cerr << \"Unknown\
+    \ error occurred while sending MCP message\" << std::endl;\n    }\n}"
+  tools: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  without-small: "#include <string>\n#include <iostream>\n#include <cstring>\n\n//\
+    \ Assuming some basic MCP message structure and constants\n#define MCP_MESSAGE_HEADER_SIZE\
+    \ 8\n#define MCP_MAX_MESSAGE_LENGTH 1024\n\nbool SendMcpMessage(const std::string&\
+    \ message) {\n    // Validate input message\n    if (message.empty() || message.length()\
+    \ > MCP_MAX_MESSAGE_LENGTH) {\n        return false;\n    }\n    \n    try {\n\
+    \        // Create MCP message header (simplified example)\n        // In a real\
+    \ implementation, this would include:\n        // - Message type identifier\n\
+    \        // - Message length\n        // - Protocol version\n        // - Checksum\
+    \ or integrity fields\n        \n        // For demonstration, we'll just send\
+    \ the raw message\n        // In practice, you might have something like:\n  \
+    \      /*\n        std::string mcp_header = \"\\x00\\x01\"; // Example header\n\
+    \        std::string full_message = mcp_header + message;\n        */\n      \
+    \  \n        // Simulate sending the message through some communication channel\n\
+    \        // This could be TCP socket, serial port, etc.\n        std::cout <<\
+    \ \"Sending MCP message: \" << message << std::endl;\n        \n        // Here\
+    \ you would typically:\n        // 1. Format the message according to MCP protocol\n\
+    \        // 2. Establish connection to MCP server/client\n        // 3. Send the\
+    \ formatted message\n        // 4. Handle any response or error conditions\n \
+    \       \n        // Placeholder for actual transmission logic\n        // int\
+    \ bytes_sent = send(socket_fd, message.c_str(), message.length(), 0);\n      \
+    \  \n        // Return success status\n        return true;\n        \n    } catch\
+    \ (const std::exception& e) {\n        // Handle any exceptions during message\
+    \ sending\n        std::cerr << \"Error sending MCP message: \" << e.what() <<\
+    \ std::endl;\n        return false;\n    }\n}"
+  tools-small: "void Protocol::SendMcpMessage(const std::string& message)\n{\n   \
+    \ std::string json = \"{\\\\\"session_id\\\\\":\\\\\"\"\n                    \
+    \ + session_id_ \n                     + \"\\\\\",\\\\\"type\\\\\":\\\\\"mcp\\\
+    \\\",\\\\\"message\\\\\":\\\\\"\"\n                     + message \n         \
+    \            + \"\\\\\"}\";\n    SendText(json);\n}"
+  workflow+sd+mi: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n\
+    \    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"type\\\":\\\"mcp\\\"\";\n    message += \",\\\"payload\\\":\" + payload;\n\
+    \    message += \"}\";\n    SendText(message);\n}"
+  workflow+sd+mi+rf: "void Protocol::SendMcpMessage(const std::string &payload)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  local: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n}\n```\n\n\
+    To complete it properly, we should assume:\n- There's a base method `SendText(const\
+    \ std::string&)` which handles actual transmission.\n- The input `payload` contains\
+    \ a JSON string representing the full message to send.\n- This function may also\
+    \ need to update internal state such as `last_incoming_time_` if applicable, though\
+    \ not strictly required unless part of timeout logic.\n\n---\n\n### Implementation\
+    \ Plan\n\nWe will implement `SendMcpMessage` by simply forwarding the given `payload`\
+    \ to the existing `SendText()` method. We might also log the action using `ESP_LOG`.\n\
+    \nHere’s the completed version:\n\n---\n\n### Final Code\n\n```cpp\nvoid Protocol::SendMcpMessage(const\
+    \ std::string &payload)\n{\n    ESP_LOGI(TAG, \"Sending MCP message: %s\", payload.c_str());\n\
+    \    SendText(payload);\n}"
+  workflow-small-rf: "void Protocol::SendMcpMessage(const std::string &payload)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"mcp\\\"\";\n    message += \",\\\"payload\\\":\" + payload;\n\
+    \    message += \"}\";\n    SendText(message);\n}"
+  local-small: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n   \
+    \ std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\
+    \"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  tools-long: "virtual void SendMcpMessage(const std::string& payload);\n   ```\n\n\
+    2. **Purpose**:  \n   This function is responsible for sending an MCP (Microcontroller\
+    \ Control Protocol) message, which is already formatted as a JSON string. It acts\
+    \ as a pass-through to the underlying transport mechanism implemented by `SendText()`.\n\
+    \n3. **Behavior Inferred from Context**:\n   - The input `payload` is a complete\
+    \ JSON string that does not require further processing or wrapping.\n   - Other\
+    \ similar functions such as `SendWakeWordDetected`, `ReplyResult`, etc., all directly\
+    \ construct and send JSON strings via `SendText()`.\n   - The `Protocol` class\
+    \ has access to the `SendText()` method, which handles actual transmission (likely\
+    \ over UART, TCP, etc.).\n\n4. **Implementation Strategy**:\n   - Accept the `payload`\
+    \ parameter as a const reference to avoid unnecessary copying.\n   - Forward the\
+    \ `payload` directly to the `SendText()` method.\n   - No additional framing,\
+    \ validation, or modification of the payload is required within this layer.\n\n\
+    5. **Consistency Check**:\n   - Matches usage in `Application::SendMcpMessage(...)`,\
+    \ which delegates to `protocol_->SendMcpMessage(...)`.\n   - Aligns with `McpServer`'s\
+    \ use of pre-built JSON payloads passed into this function.\n\n6. **Thread Safety\
+    \ / Queuing Considerations**:\n   - Not part of the scope of this specific function;\
+    \ assumed to be handled either at a higher level or within `SendText()` itself.\n\
+    \n---\n\n### Final Implementation\n\nHere is the complete implementation of the\
+    \ `SendMcpMessage` function:\n\n```cpp\nvoid Protocol::SendMcpMessage(const std::string\
+    \ &payload)\n{\n    SendText(payload);\n}"
+  graph-5-5: "void SendMcpMessage(const std::string& payload) {\n    // Create JSON\
+    \ object with required fields\n    std::string message = \"{\\\"session_id\\\"\
+    :\\\"\" + GetSessionId() + \"\\\",\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\\\"\
+    \" + EscapeJsonString(payload) + \"\\\"}\";\n    \n    // Delegate to SendText\
+    \ for actual transmission\n    SendText(message);\n}\n\n// Helper function to\
+    \ escape JSON special characters in the payload\nstd::string EscapeJsonString(const\
+    \ std::string& input) {\n    std::string result;\n    result.reserve(input.length());\n\
+    \    \n    for (char c : input) {\n        switch (c) {\n            case '\\\"\
+    ': result += \"\\\\\\\"\"; break;\n            case '\\\\': result += \"\\\\\\\
+    \\\"; break;\n            case '\\b': result += \"\\\\b\"; break;\n          \
+    \  case '\\f': result += \"\\\\f\"; break;\n            case '\\n': result +=\
+    \ \"\\\\n\"; break;\n            case '\\r': result += \"\\\\r\"; break;\n   \
+    \         case '\\t': result += \"\\\\t\"; break;\n            default:\n    \
+    \            if (c < 0x20) {\n                    // Convert control characters\
+    \ to \\u00XX format\n                    char hex[7];\n                    snprintf(hex,\
+    \ sizeof(hex), \"\\\\u%04x\", c);\n                    result += hex;\n      \
+    \          } else {\n                    result += c;\n                }\n   \
+    \             break;\n        }\n    }\n    \n    return result;\n}\n\n// Assuming\
+    \ there's a method to get the current session ID\nstd::string GetSessionId() {\n\
+    \    // This would typically retrieve the session ID from class member variables\n\
+    \    // or a session manager\n    return session_id_; // placeholder for actual\
+    \ implementation\n}"
+  graph-small-5-5: "bool Protocol::SendMcpMessage(const std::string& message) {\n\
+    \    // Construct MCP message payload with proper JSON structure\n    // Include\
+    \ session_id_ to maintain context and message type\n    std::string payload =\
+    \ \"{\"\n        \"\\\"type\\\":\\\"mcp_message\\\",\"\n        \"\\\"session_id\\\
+    \":\\\"\" + session_id_ + \"\\\",\"\n        \"\\\"payload\\\":\" + message +\
+    \ \"}\";\n    \n    // Send the constructed message via WebSocket\n    return\
+    \ SendText(payload);\n}"
+  Desc+without: "void SendMcpMessage(const std::string& payload) {\n    // Assuming\
+    \ session_id is available as a member variable or global\n    static std::string\
+    \ session_id = \"default_session\";\n    \n    // Create JSON message structure\n\
+    \    std::string json_message = \"{\";\n    json_message += \"\\\"sessionId\\\"\
+    :\\\"\" + session_id + \"\\\",\";\n    json_message += \"\\\"payload\\\":\\\"\"\
+    \ + payload + \"\\\"\";\n    json_message += \"}\";\n    \n    // Send the constructed\
+    \ message\n    // Assuming there's a low-level send function available\n    //\
+    \ This could be replaced with actual socket/serial/port communication\n    SendMessage(json_message);\n\
+    }\n\n// Note: If this is part of a class, the function signature would be:\n//\
+    \ void ClassName::SendMcpMessage(const std::string& payload) {\n//     std::string\
+    \ json_message = \"{\";\n//     json_message += \"\\\"sessionId\\\":\\\"\" + this->session_id\
+    \ + \"\\\",\";\n//     json_message += \"\\\"payload\\\":\\\"\" + payload + \"\
+    \\\"\";\n//     json_message += \"}\";\n//     \n//     this->SendMessage(json_message);\n\
+    // }"
+  Desc+local: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"payload\\\"\
+    :\" + payload + \"}\";\n    SendText(message);\n}"
+  Desc+graph-5-5: "void Protocol::SendMcpMessage(const std::string& payload) {\n \
+    \   std::string message = \"{\"\n                          \"\\\"session_id\\\"\
+    :\\\"\" + session_id_ + \"\\\",\"\n                          \"\\\"type\\\":\\\
+    \"mcp\\\",\"\n                          \"\\\"payload\\\":\" + payload + \"}\"\
+    ;\n    SendText(message);\n}"
+  Desc+tools: "void SendMcpMessage(const std::string& payload) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\\\"\" + payload + \"\\\"}\";\n    SendText(message);\n\
+    }"
+  Desc+graph-KG-5-5: "void Protocol::SendMcpMessage(const std::string& payload) {\n\
+    \    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  Desc+workflow: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n \
+    \   std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void Protocol::SendMcpMessage(const std::string &payload)\n\
+    {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\
+    \",\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3: "void SendMcpMessage(const std::string &payload) {\n \
+    \   std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Protocol::SendMcpMessage(const std::string&\
+    \ payload) {\n    std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_\
+    \ + \"\\\\\",\\\\\"type\\\\\":\\\\\"mcp\\\\\",\\\\\"payload\\\\\":\" + payload\
+    \ + \"}\";\n    SendText(message);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Protocol::SendMcpMessage(const\
+    \ std::string& payload) {\n    std::string message = \"{\\\\\"session_id\\\\\"\
+    :\\\\\"\" + session_id_ + \"\\\\\",\\\\\"type\\\\\":\\\\\"mcp\\\\\",\\\\\"payload\\\
+    \\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void SendMcpMessage(const std::string& payload)\
+    \ {\n    // Construct JSON message with session ID and payload\n    cJSON* json_root\
+    \ = cJSON_CreateObject();\n    if (json_root == nullptr) {\n        // Handle\
+    \ JSON creation error\n        return;\n    }\n    \n    // Add session ID to\
+    \ the JSON object\n    cJSON_AddStringToObject(json_root, \"session_id\", session_id_.c_str());\n\
+    \    \n    // Add the payload to the JSON object\n    cJSON_AddStringToObject(json_root,\
+    \ \"payload\", payload.c_str());\n    \n    // Serialize the JSON object into\
+    \ a text string\n    char* json_string = cJSON_PrintUnformatted(json_root);\n\
+    \    if (json_string == nullptr) {\n        // Handle serialization error\n  \
+    \      cJSON_Delete(json_root);\n        return;\n    }\n    \n    // Send serialized\
+    \ message over communication channel\n    try {\n        std::string message(json_string);\n\
+    \        SendText(message);\n    } catch (...) {\n        // Handle potential\
+    \ errors during message sending\n        cJSON_free(json_string);\n        cJSON_Delete(json_root);\n\
+    \        return;\n    }\n    \n    // Clean up resources\n    cJSON_free(json_string);\n\
+    \    cJSON_Delete(json_root);\n}"
+  graph-SRP_KG-it-small;: "void Protocol::SendMcpMessage(const std::string& payload)\
+    \ {\n    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\
+    \\\",\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  graph-SRP_KG-it;: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n\
+    \    std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  without-small;: "#include <string>\n#include <json/json.h>  // Assuming jsoncpp\
+    \ library is available\n\nbool SendMcpMessage(const std::string& payload) {\n\
+    \    // Session ID - this would typically come from session management\n    const\
+    \ std::string sessionId = \"default_session_123\";\n    \n    try {\n        //\
+    \ Create JSON object\n        Json::Value message;\n        message[\"session_id\"\
+    ] = sessionId;\n        message[\"payload\"] = payload;\n        \n        //\
+    \ Serialize to JSON string\n        Json::StreamWriterBuilder builder;\n     \
+    \   builder[\"indentation\"] = \"\"; // Compact format\n        std::string jsonString\
+    \ = Json::writeString(builder, message);\n        \n        // Send as text message\
+    \ (implementation depends on communication layer)\n        // This is a placeholder\
+    \ for actual sending logic\n        // In embedded systems, this might involve:\n\
+    \        // - UART communication\n        // - TCP/UDP socket\n        // - MQTT\
+    \ publish\n        // - Serial port write\n        \n        // Example of sending\
+    \ via serial (pseudo-code):\n        // serialPort.write(jsonString + \"\\n\"\
+    );\n        \n        // For demonstration, we'll return true to indicate success\n\
+    \        // Actual implementation would depend on the specific communication method\n\
+    \        return true;\n        \n    } catch (const std::exception& e) {\n   \
+    \     // Handle JSON creation errors\n        return false;\n    }\n}"
+  local-small;: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n  \
+    \  std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\
+    \"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  tools-small;: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n  \
+    \  std::string message = \"{\\\\\\\"session_id\\\\\\\":\\\\\\\"\" + session_id_\
+    \ + \"\\\\\\\",\\\\\\\"type\\\\\\\":\\\\\\\"mcp\\\\\\\",\\\\\\\"payload\\\\\\\"\
+    :\\\\\\\"\" + payload + \"\\\\\\\"}\";\n    SendText(message);\n}"
+  without;: "void SendMcpMessage(const std::string& payload) {\n    // Assuming session_id\
+    \ is available as a member variable or global\n    static std::string session_id\
+    \ = \"default_session\";\n    \n    // Create JSON message structure\n    std::string\
+    \ json_message = \"{\";\n    json_message += \"\\\"sessionId\\\":\\\"\" + session_id\
+    \ + \"\\\",\";\n    json_message += \"\\\"payload\\\":\\\"\" + payload + \"\\\"\
+    \";\n    json_message += \"}\";\n    \n    // Send the constructed message\n \
+    \   // Assuming there's a low-level send function available\n    // This could\
+    \ be replaced with actual socket/serial/port communication\n    SendMessage(json_message);\n\
+    }\n\n// Note: If this is part of a class, the function signature would be:\n//\
+    \ void ClassName::SendMcpMessage(const std::string& payload) {\n//     std::string\
+    \ json_message = \"{\";\n//     json_message += \"\\\"sessionId\\\":\\\"\" + this->session_id\
+    \ + \"\\\",\";\n//     json_message += \"\\\"payload\\\":\\\"\" + payload + \"\
+    \\\"\";\n//     json_message += \"}\";\n//     \n//     this->SendMessage(json_message);\n\
+    // }"
+  local;: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  tools;: "void Protocol::SendMcpMessage(const std::string &payload)\n{\n    std::string\
+    \ message = \"{\"\n                          \"\\\"session_id\\\":\\\"\" + session_id_\
+    \ + \"\\\",\"\n                          \"\\\"type\\\":\\\"mcp\\\",\"\n     \
+    \                     \"\\\"payload\\\":\\\"\" + payload + \"\\\"\"\n        \
+    \                  \"}\";\n    SendText(message);\n}"
+  eg;: "#include <nlohmann/json.hpp>\n#include <string>\n#include <iostream>\n\n//\
+    \ Assume these exist elsewhere in your codebase\nextern void SendMessage(const\
+    \ std::string& message); // Communication interface\nextern std::string GetSessionId();\
+    \                   // Retrieve current session ID\n\nusing json = nlohmann::json;\n\
+    \nvoid SendMcpMessage(const std::string& payload) {\n    try {\n        // Step\
+    \ 1: Construct JSON message with session ID and payload\n        json message_json;\n\
+    \        message_json[\"sessionId\"] = GetSessionId();\n        message_json[\"\
+    payload\"] = payload;\n\n        // Step 2: Serialize the JSON object into a text\
+    \ string\n        std::string serialized_message = message_json.dump();\n\n  \
+    \      // Step 3: Send serialized message over communication channel\n       \
+    \ SendMessage(serialized_message);\n    } catch (const std::exception& e) {\n\
+    \        // Step 4: Handle potential errors during message construction or sending\n\
+    \        std::cerr << \"Error in SendMcpMessage: \" << e.what() << std::endl;\n\
+    \        // Optionally rethrow or handle according to application policy\n   \
+    \ }\n}"
+  a3;: "void Protocol::SendMcpMessage(const std::string& payload) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  eg-small;: "#include <string>\n#include <nlohmann/json.hpp>\n\n// Assuming these\
+    \ are available from other modules\nextern std::string GetSessionId();       \
+    \    // From session management module\nextern void SendTextMessage(const std::string&\
+    \ message);  // From communication handler\n\nvoid SendMcpMessage(const std::string&\
+    \ payload) {\n    // Step 1: Prepare the JSON message structure with session ID\
+    \ and payload\n    nlohmann::json message_json;\n    message_json[\"sessionId\"\
+    ] = GetSessionId();\n    message_json[\"payload\"] = payload;\n    \n    // Step\
+    \ 2: Serialize the JSON object into a string format suitable for transmission\n\
+    \    std::string serialized_message = message_json.dump();\n    \n    // Step\
+    \ 3: Send the serialized message through the configured text communication channel\n\
+    \    SendTextMessage(serialized_message);\n}"
+  a3-small;: "void Protocol::SendMcpMessage(const std::string& payload) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  SRP-small;: "void Protocol::SendMcpMessage(const std::string& payload) {\n    std::string\
+    \ message = \"{\";\n    message += \"\\\"session_id\\\":\\\"\" + session_id_ +\
+    \ \"\\\",\";\n    message += \"\\\"type\\\":\\\"mcp\\\",\";\n    message += \"\
+    \\\"payload\\\":\" + payload;\n    message += \"}\";\n    SendText(message);\n\
+    }"
+  SRP;: "void Protocol::SendMcpMessage(const std::string& payload) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+  eg-small-168;: "void Protocol::SendMcpMessage(const std::string& payload) {\n  \
+    \  std::string message = \"{\\\\\"session_id\\\\\":\\\\\"\" + session_id_ + \"\
+    \\\\\",\\\\\"type\\\\\":\\\\\"mcp\\\\\",\\\\\"payload\\\\\":\\\\\"\";\n    //\
+    \ Escape quotes in the payload\n    std::string escaped_payload = payload;\n \
+    \   size_t pos = 0;\n    while ((pos = escaped_payload.find('\"', pos)) != std::string::npos)\
+    \ {\n        escaped_payload.replace(pos, 1, \"\\\\\\\"\");\n        pos += 2;\n\
+    \    }\n    message += escaped_payload + \"\\\\\"}\";\n    SendText(message);\n\
+    }"
+  eg-168;: "void Protocol::SendMcpMessage(const std::string& payload) {\n    // Construct\
+    \ the JSON message manually\n    std::string message = \"{\\\"session_id\\\":\\\
+    \"\" + session_id_ + \"\\\",\\\"payload\\\":\\\"\" + payload + \"\\\"}\";\n  \
+    \  \n    // Send the constructed message using the existing SendText method\n\
+    \    SendText(message);\n}"
+  SRP-small-168;: "void Protocol::SendMcpMessage(const std::string& payload) {\n \
+    \   std::string message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\"\
+    ,\\\"type\\\":\\\"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n\
+    }"
+  SRP-168;: "void Protocol::SendMcpMessage(const std::string& payload) {\n    std::string\
+    \ message = \"{\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\
+    \"mcp\\\",\\\"payload\\\":\" + payload + \"}\";\n    SendText(message);\n}"
+- query: complete the function IsTimeout() const()
+  ground_truth: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds\
+    \ = 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration\
+    \ = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  workflow: ''
+  cursor: ''
+  without: "bool IsTimeout() const {\n    // Assuming there's a member variable storing\
+    \ the timeout duration or deadline\n    // and possibly a start time or current\
+    \ time reference\n    \n    // Example implementation assuming we have:\n    //\
+    \ - m_startTime: when the operation started\n    // - m_timeoutDuration: how long\
+    \ until timeout\n    // - or m_deadline: absolute time when timeout occurs\n \
+    \   \n    // If we track deadline approach:\n    auto currentTime = std::chrono::steady_clock::now();\n\
+    \    \n    // Assuming m_deadline is a member variable of type std::chrono::time_point\n\
+    \    // return currentTime >= m_deadline;\n    \n    // Or if we track start time\
+    \ and duration:\n    // return (currentTime - m_startTime) >= m_timeoutDuration;\n\
+    \    \n    // Placeholder implementation - replace with actual member variable\
+    \ references\n    // This is a generic pattern that would need to be adapted to\
+    \ the specific class members\n    return false; // Replace with actual timeout\
+    \ check logic\n}\n```\n\nHowever, since I don't have access to the specific class\
+    \ members and context, here's a more complete generic implementation that covers\
+    \ common timeout scenarios:\n\n```cpp\nbool IsTimeout() const {\n    // Implementation\
+    \ depends on what timeout tracking mechanism is used\n    // Common approaches:\n\
+    \    \n    // 1. If using absolute deadline:\n    // return std::chrono::steady_clock::now()\
+    \ >= m_deadline;\n    \n    // 2. If using start time + duration:\n    // auto\
+    \ elapsed = std::chrono::steady_clock::now() - m_startTime;\n    // return elapsed\
+    \ >= m_timeoutDuration;\n    \n    // 3. If using a simple timeout flag:\n   \
+    \ // return m_timeoutFlag;\n    \n    // Without knowing the specific implementation\
+    \ details,\n    // returning a placeholder - this should be replaced\n    // with\
+    \ the actual timeout checking logic based on \n    // the class's member variables\n\
+    \    return false;\n}"
+  tools: "bool Protocol::IsTimeout() const\n{\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now\
+    \ - last_incoming_time_).count();\n    return elapsed > kDefaultProtocolTimeoutMs;\n\
+    }"
+  without-small: "cpp\nbool IsTimeout() const {\n    // Assuming there's a member\
+    \ variable for timeout duration and start time\n    // This is a common pattern\
+    \ for timeout checking\n    \n    // If no timeout is set, return false\n    if\
+    \ (timeoutDuration <= 0) {\n        return false;\n    }\n    \n    // Get current\
+    \ time (assuming we have access to a time function)\n    auto currentTime = std::chrono::steady_clock::now();\n\
+    \    \n    // Calculate elapsed time since start\n    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(\n\
+    \        currentTime - startTime\n    ).count();\n    \n    // Check if elapsed\
+    \ time exceeds timeout duration\n    return elapsed >= timeoutDuration;\n}\n```\n\
+    \nHowever, since I don't have the exact class structure from the context, here's\
+    \ a more generic version that assumes basic member variables:\n\n```cpp\ncpp\n\
+    bool IsTimeout() const {\n    // Check if timeout has occurred by comparing current\
+    \ time with timeout threshold\n    if (startTime == 0 || timeoutDuration == 0)\
+    \ {\n        return false; // No timeout configured\n    }\n    \n    // Simple\
+    \ time comparison (assuming timestamp-based approach)\n    auto currentTime =\
+    \ GetTickCount(); // Or equivalent time function\n    return (currentTime - startTime)\
+    \ >= timeoutDuration;\n}"
+  tools-small: "bool Protocol::IsTimeout() const\n{\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now\
+    \ - last_incoming_time_);\n    constexpr int kTimeoutMs = 30000; // 30 seconds\
+    \ timeout\n    return duration.count() > kTimeoutMs;\n}"
+  workflow+sd+mi: "bool Protocol::IsTimeout() const {\n    if (last_incoming_time_\
+    \ == std::chrono::steady_clock::time_point{}) {\n        return false;\n    }\n\
+    \    auto now = std::chrono::steady_clock::now();\n    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now\
+    \ - last_incoming_time_).count();\n    return elapsed > PROTOCOL_TIMEOUT_MS;\n\
+    }"
+  workflow+sd+mi+rf: "bool Protocol::IsTimeout() const\n{\n    // If last_incoming_time_\
+    \ is not initialized (epoch), we should check\n    // if enough time has passed\
+    \ since the protocol was created/started\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(\n \
+    \       now - last_incoming_time_).count();\n    \n    return elapsed > PROTOCOL_TIMEOUT_MS;\n\
+    }"
+  local: "bool Protocol::IsTimeout() const\n{\n    const int kTimeoutSeconds = 120;\n\
+    \    auto now = std::chrono::steady_clock::now();\n    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now\
+    \ - last_incoming_time_);\n    bool timeout = duration.count() > kTimeoutSeconds;\n\
+    \    if (timeout)\n    {\n        ESP_LOGE(TAG, \"Channel timeout %ld seconds\"\
+    , (long)duration.count());\n    }\n    return timeout;\n}"
+  workflow-small-rf: "std::chrono::time_point<std::chrono::steady_clock> last_incoming_time_;\n\
+    ```\n\nBut `PROTOCOL_TIMEOUT_MS` is not defined anywhere, causing a compilation\
+    \ error.\n\n## Fixed Implementation:\n\n```cpp\nbool Protocol::IsTimeout() const\n\
+    {\n    // Define a reasonable timeout value (e.g., 30 seconds)\n    static const\
+    \ int64_t PROTOCOL_TIMEOUT_MS = 30000;\n    \n    // Check if last_incoming_time_\
+    \ was never set (no message received yet)\n    if (last_incoming_time_ == std::chrono::steady_clock::time_point{})\n\
+    \    {\n        // If no message has ever been received, we might not want to\
+    \ consider this a timeout\n        // unless we're past some initial connection\
+    \ period. For now, return false.\n        return false;\n    }\n\n    // Get current\
+    \ time and calculate elapsed time since last incoming message\n    auto now =\
+    \ std::chrono::steady_clock::now();\n    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(\n\
+    \        now - last_incoming_time_\n    ).count();\n\n    // Return whether elapsed\
+    \ time exceeds the defined timeout threshold\n    return elapsed > PROTOCOL_TIMEOUT_MS;\n\
+    }"
+  local-small: "bool Protocol::IsTimeout() const\n{\n    // Placeholder implementation\
+    \ - in a real scenario this would check\n    // if a timeout condition has occurred\
+    \ (e.g., connection timeout,\n    // response timeout, etc.)\n    // For now,\
+    \ returning false as no timeout logic is visible in the current implementation\n\
+    \    return false;\n}"
+  tools-long: "bool Protocol::IsTimeout() const\n{\n    constexpr auto kTimeoutDuration\
+    \ = std::chrono::seconds(30);\n    auto now = std::chrono::steady_clock::now();\n\
+    \    return (now - last_incoming_time_) > kTimeoutDuration;\n}"
+  graph-5-5: "bool Protocol::IsTimeout() const {\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_).count();\n\
+    \    return elapsed > 120;  // 120 seconds timeout threshold\n}"
+  graph-small-5-5: "bool Protocol::IsTimeout() const {\n    // Get current time using\
+    \ steady clock\n    auto current_time = std::chrono::steady_clock::now();\n  \
+    \  \n    // Calculate elapsed time since last incoming message\n    auto elapsed_time\
+    \ = std::chrono::duration_cast<std::chrono::seconds>(\n        current_time -\
+    \ last_incoming_time_\n    );\n    \n    // Check if elapsed time exceeds timeout\
+    \ threshold (120 seconds)\n    if (elapsed_time.count() > kTimeoutSeconds) {\n\
+    \        // Log error when timeout occurs\n        ESP_LOGE(\"Protocol\", \"Protocol\
+    \ timeout detected: %ld seconds since last incoming data\",\n                \
+    \ elapsed_time.count());\n        return true;\n    }\n    \n    return false;\n\
+    }"
+  Desc+without: "bool Protocol::IsTimeout() const {\n    // Get current time\n   \
+    \ auto currentTime = std::chrono::steady_clock::now();\n    \n    // Calculate\
+    \ elapsed time since last message\n    auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(\n\
+    \        currentTime - m_lastMessageTime).count();\n    \n    // Check if elapsed\
+    \ time exceeds threshold (120 seconds)\n    if (elapsedTime > 120) {\n       \
+    \ // Log error message indicating channel timeout\n        LOG_ERROR(\"Channel\
+    \ timeout detected. No message received for \" \n                  + std::to_string(elapsedTime)\
+    \ + \" seconds\");\n        return true;\n    }\n    \n    return false;\n}"
+  Desc+local: "private:\n    mutable std::chrono::steady_clock::time_point last_incoming_message_time_;"
+  Desc+graph-5-5: "bool NetworkEventManager::IsTimeout() const {\n    const int kTimeoutSeconds\
+    \ = 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration\
+    \ = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  Desc+tools: "bool IsTimeout() const {\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_).count();\n\
+    \    if (elapsed > 120) {\n        ESP_LOGE(TAG, \"Channel timeout: no message\
+    \ received for over 120 seconds\");\n        return true;\n    }\n    return false;\n\
+    }"
+  Desc+graph-KG-5-5: "bool IsTimeout() const {\n    const int kTimeoutSeconds = 120;\n\
+    \    auto now = std::chrono::steady_clock::now();\n    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now\
+    \ - last_incoming_time_);\n    bool timeout = duration.count() > kTimeoutSeconds;\n\
+    \    if (timeout) {\n        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  Desc+workflow: "bool Protocol::IsTimeout() const {\n    const int64_t timeout_threshold_us\
+    \ = 120 * 1000 * 1000;  // 120 seconds in microseconds\n    int64_t now = esp_timer_get_time();\n\
+    \    int64_t elapsed = now - last_message_time_;\n\n    if (elapsed > timeout_threshold_us)\
+    \ {\n        double elapsed_seconds = static_cast<double>(elapsed) / 1e6;\n  \
+    \      ESP_LOGE(\"Protocol\", \"Channel timeout detected after %.2f seconds\"\
+    , elapsed_seconds);\n        return true;\n    }\n    return false;\n}"
+  Desc+graph-SRP_KG-5-5-rf: 'Protocol::Protocol() : last_incoming_time_(std::chrono::steady_clock::now())
+    {}'
+  Desc+graph-wt-SRP_KG-3-3: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds\
+    \ = 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration\
+    \ = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "bool Protocol::IsTimeout() const {\n  \
+    \  const int kTimeoutSeconds = 120;\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "bool Protocol::IsTimeout() const\n\
+    {\n    const int kTimeoutSeconds = 120;\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout)\n  \
+    \  {\n        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "bool Protocol::IsTimeout() const {\n   \
+    \ // Get current time\n    auto now = std::chrono::steady_clock::now();\n    \n\
+    \    // Calculate elapsed time since last incoming message\n    auto elapsed =\
+    \ std::chrono::duration_cast<std::chrono::seconds>(\n        now - last_incoming_message_time_\n\
+    \    ).count();\n    \n    // Check if elapsed time exceeds the 120-second timeout\
+    \ threshold\n    if (elapsed > 120) {\n        // Log an error message indicating\
+    \ the channel has timed out\n        ESP_LOGE(\"PROTOCOL\", \"Channel timeout:\
+    \ %ld seconds since last message\", elapsed);\n        return true;\n    }\n \
+    \   \n    // No timeout has occurred\n    return false;\n}"
+  graph-SRP_KG-it-small;: "bool Protocol::IsTimeout() const {\n    // Get current\
+    \ time\n    auto now = std::chrono::system_clock::now();\n    \n    // Calculate\
+    \ elapsed time since last message\n    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now\
+    \ - last_message_time_);\n    \n    // Check if elapsed time exceeds 120 seconds\n\
+    \    if (elapsed.count() > 120) {\n        ESP_LOGE(TAG, \"Channel has timed out\"\
+    );\n        return true;\n    }\n    \n    return false;\n}"
+  graph-SRP_KG-it;: "bool Protocol::IsTimeout() const\n{\n    const int kTimeoutSeconds\
+    \ = 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration\
+    \ = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  without-small;: "bool Protocol::IsTimeout() const\n{\n    // Check if we have received\
+    \ any messages yet\n    if (m_lastMessageTime == 0)\n    {\n        return false;\
+    \ // No messages received, so not timed out\n    }\n    \n    // Get current time\
+    \ (assuming we have access to a time function)\n    uint32_t currentTime = GetSystemTime();\
+    \ // Placeholder for actual time function\n    \n    // Calculate elapsed time\n\
+    \    uint32_t elapsedTime = currentTime - m_lastMessageTime;\n    \n    // Check\
+    \ if elapsed time exceeds timeout threshold (120 seconds)\n    if (elapsedTime\
+    \ >= 120)\n    {\n        // Log error message for channel timeout\n        LogError(\"\
+    Channel has timed out after %d seconds\", elapsedTime);\n        return true;\n\
+    \    }\n    \n    return false;\n}"
+  local-small;: "bool Protocol::IsTimeout() const\n{\n    // Check if the time elapsed\
+    \ since last incoming message exceeds 120 seconds\n    // This is a simplified\
+    \ version - in practice would need access to timing mechanisms\n    // that are\
+    \ likely defined elsewhere in the class\n    \n    // Assuming there's a last_message_timestamp_\
+    \ member variable\n    // and a way to get current time (this would be implemented\
+    \ based on \n    // available timer functions in the embedded system)\n    \n\
+    \    // Return false by default - actual implementation requires more context\n\
+    \    // The real implementation would typically do something like:\n    // auto\
+    \ now = get_current_time_ms();\n    // if (now - last_message_time_ > 120000)\
+    \ {\n    //     ESP_LOGE(TAG, \"Channel timed out after 120 seconds of inactivity\"\
+    );\n    //     return true;\n    // }\n    // return false;\n    \n    return\
+    \ false;\n}"
+  tools-small;: "bool Protocol::IsTimeout() const\n{\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    \n    if (elapsed.count() > 120) {\n        ESP_LOGE(TAG, \"Channel timeout\
+    \ detected\");\n        return true;\n    }\n    \n    return false;\n}"
+  without;: "bool Protocol::IsTimeout() const {\n    // Get current time\n    auto\
+    \ currentTime = std::chrono::steady_clock::now();\n    \n    // Calculate elapsed\
+    \ time since last message\n    auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(\n\
+    \        currentTime - m_lastMessageTime).count();\n    \n    // Check if elapsed\
+    \ time exceeds threshold (120 seconds)\n    if (elapsedTime > 120) {\n       \
+    \ // Log error message indicating channel timeout\n        LOG_ERROR(\"Channel\
+    \ timeout detected. No message received for \" \n                  + std::to_string(elapsedTime)\
+    \ + \" seconds\");\n        return true;\n    }\n    \n    return false;\n}"
+  local;: "private:\n    mutable std::chrono::steady_clock::time_point last_incoming_message_time_;"
+  tools;: "bool Protocol::IsTimeout() const\n{\n    auto now = std::chrono::steady_clock::now();\n\
+    \    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_).count();\n\
+    \    \n    if (elapsed > 120) {\n        ESP_LOGE(TAG, \"Channel timeout: %ld\
+    \ seconds elapsed since last message\", elapsed);\n        return true;\n    }\n\
+    \    \n    return false;\n}"
+  eg;: "bool Protocol::IsTimeout() const {\n    // Step 1: Get current time (assuming\
+    \ millisecond resolution)\n    uint32_t current_time_ms = GetCurrentTimeMs();\n\
+    \n    // Step 2: Calculate elapsed time since last incoming message\n    uint32_t\
+    \ elapsed_time_ms = current_time_ms - last_incoming_timestamp_;\n\n    // Step\
+    \ 3: Define timeout threshold (in milliseconds)\n    const uint32_t TIMEOUT_THRESHOLD_MS\
+    \ = 120 * 1000; // 120 seconds\n\n    // Step 4: Check for timeout\n    if (elapsed_time_ms\
+    \ > TIMEOUT_THRESHOLD_MS) {\n        // Step 5: Log error and return true\n  \
+    \      ESP_LOGE(\"PROTOCOL\", \"Channel timeout detected: %u ms elapsed\", elapsed_time_ms);\n\
+    \        return true;\n    }\n\n    // Step 6: No timeout, return false\n    return\
+    \ false;\n}"
+  a3;: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds = 120;\n\
+    \    auto now = std::chrono::steady_clock::now();\n    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now\
+    \ - last_incoming_time_);\n    bool timeout = duration.count() > kTimeoutSeconds;\n\
+    \    if (timeout) {\n        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  eg-small;: "bool Protocol::IsTimeout() const {\n    // Get current timestamp\n \
+    \   auto current_time = std::chrono::steady_clock::now();\n    \n    // Get last\
+    \ message timestamp (assuming there's a member variable m_last_message_time)\n\
+    \    auto last_message_time = m_last_message_time;\n    \n    // Calculate time\
+    \ difference\n    auto time_diff = std::chrono::duration_cast<std::chrono::seconds>(\n\
+    \        current_time - last_message_time);\n    \n    // Check if elapsed time\
+    \ exceeds 120 seconds timeout threshold\n    if (time_diff.count() > 120) {\n\
+    \        // Log error message for channel timeout event\n        LOG_ERROR(\"\
+    Channel has timed out after {} seconds\", time_diff.count());\n        \n    \
+    \    // Return true indicating timeout occurred\n        return true;\n    }\n\
+    \    \n    // Return false if no timeout occurred\n    return false;\n}"
+  a3-small;: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds =\
+    \ 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration =\
+    \ std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  SRP-small;: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds =\
+    \ 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration =\
+    \ std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  SRP;: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds = 120;\n\
+    \    auto now = std::chrono::steady_clock::now();\n    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now\
+    \ - last_incoming_time_);\n    bool timeout = duration.count() > kTimeoutSeconds;\n\
+    \    if (timeout) {\n        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  eg-small-168;: "bool Protocol::IsTimeout() const {\n    // Get current time\n  \
+    \  auto now = std::chrono::steady_clock::now();\n    \n    // Calculate time difference\
+    \ since last message\n    auto time_diff = std::chrono::duration_cast<std::chrono::seconds>(\n\
+    \        now - last_message_time_\n    ).count();\n    \n    // Check if timeout\
+    \ exceeded (120 seconds)\n    if (time_diff > 120) {\n        // Log error message\
+    \ for channel timeout\n        ESP_LOGE(TAG, \"Channel timeout detected: %ld seconds\
+    \ since last message\", time_diff);\n        return true;\n    }\n    \n    return\
+    \ false;\n}"
+  eg-168;: "bool Protocol::IsTimeout() const {\n    // Get current time in microseconds\n\
+    \    int64_t current_time = esp_timer_get_time();\n\n    // Calculate elapsed\
+    \ time since last message\n    int64_t elapsed_time_us = current_time - last_message_time_;\n\
+    \n    // Convert 120 seconds to microseconds\n    const int64_t timeout_threshold_us\
+    \ = 120 * 1000 * 1000;\n\n    // Check if elapsed time exceeds the threshold\n\
+    \    if (elapsed_time_us > timeout_threshold_us) {\n        ESP_LOGE(TAG, \"Channel\
+    \ timeout: No message received for %lld seconds\", \n                 elapsed_time_us\
+    \ / 1000000);\n        return true;\n    }\n\n    return false;\n}"
+  SRP-small-168;: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds\
+    \ = 120;\n    auto now = std::chrono::steady_clock::now();\n    auto duration\
+    \ = std::chrono::duration_cast<std::chrono::seconds>(now - last_incoming_time_);\n\
+    \    bool timeout = duration.count() > kTimeoutSeconds;\n    if (timeout) {\n\
+    \        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"
+  SRP-168;: "bool Protocol::IsTimeout() const {\n    const int kTimeoutSeconds = 120;\n\
+    \    auto now = std::chrono::steady_clock::now();\n    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now\
+    \ - last_incoming_time_);\n    bool timeout = duration.count() > kTimeoutSeconds;\n\
+    \    if (timeout) {\n        ESP_LOGE(TAG, \"Channel timeout %ld seconds\", (long)duration.count());\n\
+    \    }\n    return timeout;\n}"

@@ -1,0 +1,6 @@
+complete the function PlaySound(const std::string_view &)():
+  functions:
+  - audio_service_.PlaySound()
+  variables:
+  - audio_service_
+  - sound

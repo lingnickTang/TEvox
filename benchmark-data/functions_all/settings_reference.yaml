@@ -1,0 +1,115 @@
+
+complete the function ~Settings()():
+  functions:
+  - ESP_ERROR_CHECK
+  - nvs_commit
+  - nvs_close
+  variables:
+  - nvs_handle_
+  - read_write_
+  - dirty_
+complete the function GetString(const std::string &, const std::string &)():
+  functions:
+  - nvs_get_str
+  - ESP_ERROR_CHECK
+  - key.c_str
+  - value.data
+  - value.pop_back
+  - value.empty
+  - value.back
+  - value.resize
+  variables:
+  - nvs_handle_
+  - key
+  - default_value
+  - length
+  - value
+complete the function SetString(const std::string &, const std::string &)():
+  functions:
+  - ESP_ERROR_CHECK
+  - nvs_set_str
+  - ESP_LOGW
+  - key.c_str
+  - value.c_str
+  - ns_.c_str
+  variables:
+  - read_write_
+  - nvs_handle_
+  - key
+  - value
+  - dirty_
+  - TAG
+  - ns_
+complete the function GetInt(const std::string &, int32_t)():
+  functions:
+  - nvs_get_i32
+  - key.c_str
+  variables:
+  - nvs_handle_
+  - key
+  - default_value
+  - value
+complete the function SetInt(const std::string &, int32_t)():
+  functions:
+  - ESP_ERROR_CHECK()
+  - nvs_set_i32()
+  - key.c_str()
+  - ESP_LOGW()
+  - ns_.c_str()
+  variables:
+  - read_write_
+  - nvs_handle_
+  - key
+  - value
+  - dirty_
+  - TAG
+  - ns_
+complete the function GetBool(const std::string &, bool)():
+  functions:
+  - nvs_get_u8
+  - key.c_str
+  variables:
+  - nvs_handle_
+  - key
+  - default_value
+  - value
+complete the function SetBool(const std::string &, bool)():
+  functions:
+  - ESP_ERROR_CHECK
+  - nvs_set_u8
+  - key.c_str
+  - ESP_LOGW
+  - ns_.c_str
+  variables:
+  - read_write_
+  - nvs_handle_
+  - key
+  - value
+  - dirty_
+  - TAG
+  - ns_
+complete the function EraseKey(const std::string &)():
+  functions:
+  - nvs_erase_key
+  - ESP_ERROR_CHECK
+  - ESP_LOGW
+  - key.c_str
+  - ns_.c_str
+  variables:
+  - read_write_
+  - nvs_handle_
+  - key
+  - ret
+  - TAG
+  - ns_
+complete the function EraseAll()():
+  functions:
+  - ESP_ERROR_CHECK
+  - nvs_erase_all
+  - ESP_LOGW
+  - c_str
+  variables:
+  - read_write_
+  - nvs_handle_
+  - TAG
+  - ns_

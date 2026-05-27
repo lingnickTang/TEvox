@@ -1,0 +1,178 @@
+complete the function AfeWakeWord()():
+  functions:
+  - xEventGroupCreate
+  variables:
+  - afe_data_
+  - wake_word_pcm_
+  - wake_word_opus_
+  - event_group_
+complete the function ~AfeWakeWord()():
+  functions:
+  - afe_iface_->destroy
+  - heap_caps_free
+  - esp_srmodel_deinit
+  - vEventGroupDelete
+  variables:
+  - afe_data_
+  - afe_iface_
+  - wake_word_encode_task_stack_
+  - wake_word_encode_task_buffer_
+  - models_
+  - event_group_
+complete the function Initialize(AudioCodec *, srmodel_list_t *)():
+  functions:
+  - codec_->input_reference
+  - esp_srmodel_init
+  - ESP_LOGE
+  - ESP_LOGI
+  - strstr
+  - esp_srmodel_get_wake_words
+  - std::getline
+  - codec_->input_channels
+  - afe_config_init
+  - afe_iface_->create_from_config
+  - xTaskCreate
+  - vTaskDelete
+  - esp_afe_handle_from_config
+  variables:
+  - codec_
+  - ref_num
+  - models_list
+  - models_
+  - TAG
+  - i
+  - models_->num
+  - models_->model_name
+  - ESP_WN_PREFIX
+  - wakenet_model_
+  - words
+  - ss
+  - word
+  - wake_words_
+  - input_format
+  - codec_->input_channels
+  - ref_num
+  - afe_config
+  - input_format.c_str
+  - models_
+  - AFE_TYPE_SR
+  - AFE_MODE_HIGH_PERF
+  - afe_config->aec_init
+  - afe_config->aec_mode
+  - AEC_MODE_SR_HIGH_PERF
+  - afe_config->afe_perferred_core
+  - afe_config->afe_perferred_priority
+  - afe_config->memory_alloc_mode
+  - AFE_MEMORY_ALLOC_MORE_PSRAM
+  - afe_iface_
+  - afe_data_
+  - this_
+  - AudioDetectionTask
+complete the function Stop()():
+  functions:
+  - xEventGroupClearBits
+  - afe_iface_->reset_buffer
+  variables:
+  - event_group_
+  - DETECTION_RUNNING_EVENT
+  - afe_data_
+  - afe_iface_
+  - nullptr
+complete the function Feed(const std::vector<int16_t>&)():
+  functions:
+  - afe_iface_->feed()
+  variables:
+  - afe_data_
+  - afe_iface_
+  - data
+complete the function GetFeedSize()():
+  functions:
+  - afe_iface_->get_feed_chunksize()
+  variables:
+  - afe_data_
+  - afe_iface_
+complete the function AudioDetectionTask()():
+  functions:
+  - afe_iface_->get_fetch_chunksize
+  - afe_iface_->get_feed_chunksize
+  - ESP_LOGI
+  - xEventGroupWaitBits
+  - afe_iface_->fetch_with_delay
+  - StoreWakeWordData
+  - Stop
+  - wake_word_detected_callback_
+  variables:
+  - afe_data_
+  - TAG
+  - event_group_
+  - DETECTION_RUNNING_EVENT
+  - fetch_size
+  - feed_size
+  - res
+  - portMAX_DELAY
+  - last_detected_wake_word_
+  - wake_words_
+  - wakenet_model_index
+  - wakeup_state
+  - WAKENET_DETECTED
+  - data
+  - data_size
+  - sizeof
+  - int16_t
+  - pdFALSE
+  - pdTRUE
+complete the function EncodeWakeWordData()():
+  functions:
+  - wake_word_opus_.clear
+  - heap_caps_malloc
+  - assert
+  - xTaskCreateStatic
+  - esp_timer_get_time
+  - std::make_unique
+  - encoder->SetComplexity
+  - encoder->Encode
+  - std::lock_guard
+  - wake_word_cv_.notify_all
+  - wake_word_pcm_.clear
+  - ESP_LOGI
+  - wake_word_opus_.push_back
+  - vTaskDelete
+  variables:
+  - stack_size
+  - wake_word_opus_
+  - wake_word_encode_task_stack_
+  - wake_word_encode_task_buffer_
+  - wake_word_encode_task_
+  - this_
+  - start_time
+  - encoder
+  - packets
+  - pcm
+  - this_->wake_word_pcm_
+  - opus
+  - this_->wake_word_mutex_
+  - this_->wake_word_opus_
+  - this_->wake_word_cv_
+  - end_time
+  - TAG
+complete the function GetWakeWordOpus(std::vector<uint8_t>&)():
+  functions:
+  - std::unique_lock<std::mutex>
+  - wake_word_cv_.wait
+  - opus.swap
+  - wake_word_opus_.front
+  - wake_word_opus_.pop_front
+  - opus.empty
+  variables:
+  - wake_word_mutex_
+  - wake_word_cv_
+  - wake_word_opus_
+  - opus
+complete the function StoreWakeWordData(const int16_t *, size_t)():
+  functions:
+  - wake_word_pcm_.emplace_back()
+  - wake_word_pcm_.pop_front()
+  variables:
+  - data
+  - samples
+  - wake_word_pcm_

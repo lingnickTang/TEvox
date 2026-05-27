@@ -1,0 +1,335 @@
+complete the function Initialize(AudioCodec *)():
+  functions:
+  - codec_->Start
+  - std::make_unique<OpusDecoderWrapper>
+  - codec->output_sample_rate
+  - std::make_unique<OpusEncoderWrapper>
+  - opus_encoder_->SetComplexity
+  - codec->input_sample_rate
+  - input_resampler_.Configure
+  - reference_resampler_.Configure
+  - std::make_unique<AfeAudioProcessor>
+  - std::make_unique<NoAudioProcessor>
+  - audio_processor_->OnOutput
+  - PushTaskToEncodeQueue
+  - audio_processor_->OnVadStateChange
+  - callbacks_.on_vad_change
+  - esp_timer_create
+  - CheckAndUpdateAudioPowerState
+  variables:
+  - codec_
+  - opus_decoder_
+  - opus_encoder_
+  - input_resampler_
+  - reference_resampler_
+  - audio_processor_
+  - voice_detected_
+  - callbacks_
+  - on_vad_change
+  - esp_timer_create_args_t
+  - audio_power_timer_args
+  - callback
+  - arg
+  - dispatch_method
+  - name
+  - skip_unhandled_events
+  - ESP_TIMER_TASK
+  - audio_power_timer_
+  - kAudioTaskTypeEncodeToSendQueue
+  - data
+  - speaking
+complete the function Start()():
+  functions:
+  - xEventGroupClearBits
+  - esp_timer_start_periodic
+  - xTaskCreatePinnedToCore
+  - audio_service->AudioInputTask
+  - vTaskDelete
+  - xTaskCreate
+  - audio_service->AudioOutputTask
+  - audio_service->OpusCodecTask
+  variables:
+  - service_stopped_
+  - event_group_
+  - AS_EVENT_AUDIO_TESTING_RUNNING
+  - AS_EVENT_WAKE_WORD_RUNNING
+  - AS_EVENT_AUDIO_PROCESSOR_RUNNING
+  - audio_power_timer_
+  - CONFIG_USE_AUDIO_PROCESSOR
+  - audio_service
+  - audio_input_task_handle_
+  - audio_output_task_handle_
+  - opus_codec_task_handle_
+complete the function ReadAudioData(std::vector<int16_t>&, int, int)():
+  functions:
+  - codec_->input_enabled
+  - esp_timer_stop
+  - esp_timer_start_periodic
+  - codec_->EnableInput
+  - codec_->input_sample_rate
+  - data.resize
+  - codec_->InputData
+  - codec_->input_channels
+  - input_resampler_.GetOutputSamples
+  - reference_resampler_.GetOutputSamples
+  - input_resampler_.Process
+  - reference_resampler_.Process
+  - std::chrono::steady_clock::now
+  - std::make_unique<AudioDebugger>
+  - audio_debugger_->Feed
+  variables:
+  - codec_
+  - audio_power_timer_
+  - AUDIO_POWER_CHECK_INTERVAL_MS
+  - data
+  - sample_rate
+  - samples
+  - mic_channel
+  - reference_channel
+  - i
+  - j
+  - resampled_mic
+  - resampled_reference
+  - resampled
+  - last_input_time_
+  - debug_statistics_.input_count
+  - CONFIG_USE_AUDIO_DEBUGGER
+  - audio_debugger_
+complete the function AudioInputTask()():
+  functions:
+  - xEventGroupWaitBits
+  - vTaskDelay
+  - pdMS_TO_TICKS
+  - ESP_LOGW
+  - EnableAudioTesting
+  - ReadAudioData
+  - codec_->input_channels
+  - PushTaskToEncodeQueue
+  - ESP_LOGE
+  - wake_word_->GetFeedSize
+  - wake_word_->Feed
+  - audio_processor_->GetFeedSize
+  - audio_processor_->Feed
+  - ESP_LOGW
+  variables:
+  - event_group_
+  - AS_EVENT_AUDIO_TESTING_RUNNING
+  - AS_EVENT_WAKE_WORD_RUNNING
+  - AS_EVENT_AUDIO_PROCESSOR_RUNNING
+  - pdFALSE
+  - portMAX_DELAY
+  - service_stopped_
+  - audio_input_need_warmup_
+  - audio_testing_queue_
+  - AUDIO_TESTING_MAX_DURATION_MS
+  - OPUS_FRAME_DURATION_MS
+  - TAG
+  - data
+  - samples
+  - codec_
+  - mono_data
+  - kAudioTaskTypeEncodeToTestingQueue
+  - wake_word_
+  - audio_processor_
+  - bits
+  - i
+  - j
+complete the function AudioOutputTask()():
+  functions:
+  - std::unique_lock<std::mutex>
+  - audio_queue_cv_.wait
+  - std::move
+  - audio_playback_queue_.front
+  - audio_playback_queue_.pop_front
+  - audio_queue_cv_.notify_all
+  - lock.unlock
+  - codec_->output_enabled
+  - esp_timer_stop
+  - esp_timer_start_periodic
+  - codec_->EnableOutput
+  - codec_->OutputData
+  - std::chrono::steady_clock::now
+  - lock.lock
+  - timestamp_queue_.push_back
+  - ESP_LOGW
+  variables:
+  - audio_queue_mutex_
+  - audio_queue_cv_
+  - audio_playback_queue_
+  - service_stopped_
+  - task
+  - codec_
+  - audio_power_timer_
+  - AUDIO_POWER_CHECK_INTERVAL_MS
+  - last_output_time_
+  - debug_statistics_
+  - playback_count
+  - timestamp_queue_
+  - TAG
+complete the function OpusCodecTask()():
+  functions:
+  - std::unique_lock<std::mutex>
+  - audio_queue_cv_.wait
+  - audio_decode_queue_.empty
+  - audio_playback_queue_.size
+  - audio_encode_queue_.empty
+  - audio_send_queue_.size
+  - std::move
+  - audio_decode_queue_.front
+  - audio_decode_queue_.pop_front
+  - audio_queue_cv_.notify_all
+  - lock.unlock
+  - std::make_unique<AudioTask>
+  - SetDecodeSampleRate
+  - opus_decoder_->Decode
+  - output_resampler_.GetOutputSamples
+  - output_resampler_.Process
+  - lock.lock
+  - audio_playback_queue_.push_back
+  - ESP_LOGE
+  - audio_encode_queue_.front
+  - audio_encode_queue_.pop_front
+  - std::make_unique<AudioStreamPacket>
+  - opus_encoder_->Encode
+  - std::lock_guard<std::mutex>
+  - audio_send_queue_.push_back
+  - callbacks_.on_send_queue_available
+  - audio_testing_queue_.push_back
+  - ESP_LOGW
+  variables:
+  - audio_queue_mutex_
+  - audio_queue_cv_
+  - service_stopped_
+  - audio_encode_queue_
+  - audio_send_queue_
+  - MAX_SEND_PACKETS_IN_QUEUE
+  - audio_decode_queue_
+  - audio_playback_queue_
+  - MAX_PLAYBACK_TASKS_IN_QUEUE
+  - packet
+  - task
+  - kAudioTaskTypeDecodeToPlaybackQueue
+  - timestamp
+  - sample_rate
+  - frame_duration
+  - payload
+  - pcm
+  - opus_decoder_
+  - codec_->output_sample_rate
+  - output_resampler_
+  - resampled
+  - debug_statistics_.decode_count
+  - kAudioTaskTypeEncodeToSendQueue
+  - kAudioTaskTypeEncodeToTestingQueue
+  - OPUS_FRAME_DURATION_MS
+  - callbacks_.on_send_queue_available
+  - audio_testing_queue_
+  - debug_statistics_.encode_count
+  - TAG
+complete the function PushTaskToEncodeQueue(AudioTaskType, std::vector<int16_t>&&)():
+  functions:
+  - std::make_unique<AudioTask>
+  - std::move
+  - std::unique_lock<std::mutex>
+  - timestamp_queue_.empty
+  - timestamp_queue_.size
+  - timestamp_queue_.front
+  - ESP_LOGW
+  - timestamp_queue_.pop_front
+  - audio_queue_cv_.wait
+  - audio_encode_queue_.size
+  - audio_encode_queue_.push_back
+  - audio_queue_cv_.notify_all
+  variables:
+  - type
+  - pcm
+  - task
+  - audio_queue_mutex_
+  - kAudioTaskTypeEncodeToSendQueue
+  - timestamp_queue_
+  - MAX_TIMESTAMPS_IN_QUEUE
+  - task->timestamp
+  - TAG
+  - audio_queue_cv_
+  - audio_encode_queue_
+  - MAX_ENCODE_TASKS_IN_QUEUE
+complete the function EnableWakeWordDetection(bool)():
+  functions:
+  - 'ESP_LOGD(TAG, "%s wake word detection", enable ? "Enabling" : "Disabling")'
+  - wake_word_->Initialize(codec_, models_list_)
+  - ESP_LOGE(TAG, "Failed to initialize wake word")
+  - wake_word_->Start()
+  - xEventGroupSetBits(event_group_, AS_EVENT_WAKE_WORD_RUNNING)
+  - wake_word_->Stop()
+  - xEventGroupClearBits(event_group_, AS_EVENT_WAKE_WORD_RUNNING)
+  variables:
+  - wake_word_
+  - enable
+  - wake_word_initialized_
+  - codec_
+  - models_list_
+  - event_group_
+  - AS_EVENT_WAKE_WORD_RUNNING
+  - TAG
+complete the function PlaySound(const std::string_view &)():
+  functions:
+  - codec_->output_enabled()
+  - esp_timer_stop()
+  - esp_timer_start_periodic()
+  - codec_->EnableOutput()
+  - std::memcmp()
+  - ESP_LOGI()
+  - std::make_unique()
+  - PushPacketToDecodeQueue()
+  - std::memcpy()
+  variables:
+  - codec_
+  - audio_power_timer_
+  - AUDIO_POWER_CHECK_INTERVAL_MS
+  - ogg
+  - buf
+  - size
+  - offset
+  - find_page
+  - seen_head
+  - seen_tags
+  - sample_rate
+  - pos
+  - page
+  - page_segments
+  - seg_table_off
+  - body_size
+  - body_off
+  - cur
+  - seg_idx
+  - pkt_len
+  - pkt_start
+  - continued
+  - l
+  - pkt_ptr
+  - version
+  - channel_count
+  - input_sample_rate
+  - output_gain
+  - mapping_family
+  - TAG
+  - packet
+  - frame_duration
+  - payload
+complete the function SetModelsList(srmodel_list_t *)():
+  functions:
+  - esp_srmodel_filter
+  - std::make_unique<CustomWakeWord>
+  - std::make_unique<AfeWakeWord>
+  - std::make_unique<EspWakeWord>
+  - wake_word_->OnWakeWordDetected
+  - callbacks_.on_wake_word_detected
+  variables:
+  - models_list_
+  - models_list
+  - wake_word_
+  - wake_word
+  - ESP_MN_PREFIX
+  - ESP_WN_PREFIX
+  - callbacks_
+  - on_wake_word_detected

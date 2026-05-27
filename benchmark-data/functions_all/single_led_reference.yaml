@@ -1,0 +1,106 @@
+complete the function SingleLed(gpio_num_t)():
+  functions:
+  - assert()
+  - led_strip_new_rmt_device()
+  - led_strip_clear()
+  - esp_timer_create()
+  - ESP_ERROR_CHECK()
+  variables:
+  - gpio
+  - strip_config
+  - strip_config.strip_gpio_num
+  - strip_config.max_leds
+  - strip_config.color_component_format
+  - strip_config.led_model
+  - rmt_config
+  - rmt_config.resolution_hz
+  - led_strip_
+  - blink_timer_args
+  - blink_timer_args.callback
+  - blink_timer_args.arg
+  - blink_timer_args.dispatch_method
+  - blink_timer_args.name
+  - blink_timer_args.skip_unhandled_events
+  - blink_timer_
+  - led
+  - arg
+complete the function ~SingleLed()():
+  functions:
+  - esp_timer_stop
+  - led_strip_del
+  variables:
+  - blink_timer_
+  - led_strip_
+complete the function SetColor(uint8_t, uint8_t, uint8_t)():
+  functions: []
+  variables:
+  - r_
+  - g_
+  - b_
+  - r
+  - g
+  - b
+complete the function TurnOn()():
+  functions:
+  - esp_timer_stop
+  - led_strip_set_pixel
+  - led_strip_refresh
+  variables:
+  - led_strip_
+  - mutex_
+  - blink_timer_
+  - r_
+  - g_
+  - b_
+complete the function TurnOff()():
+  functions:
+  - esp_timer_stop()
+  - led_strip_clear()
+  variables:
+  - led_strip_
+  - mutex_
+  - blink_timer_
+complete the function StartBlinkTask(int, int)():
+  functions:
+  - esp_timer_stop()
+  - esp_timer_start_periodic()
+  variables:
+  - led_strip_
+  - mutex_
+  - blink_timer_
+  - blink_counter_
+  - times
+  - blink_interval_ms_
+  - interval_ms
+complete the function OnBlinkTimer()():
+  functions:
+  - std::lock_guard<std::mutex>
+  - led_strip_set_pixel
+  - led_strip_refresh
+  - led_strip_clear
+  - esp_timer_stop
+  variables:
+  - mutex_
+  - blink_counter_
+  - led_strip_
+  - r_
+  - g_
+  - b_
+  - blink_timer_
+complete the function OnStateChanged()():
+  functions:
+  - Application::GetInstance()
+  - app.GetDeviceState()
+  - SetColor()
+  - StartContinuousBlink()
+  - TurnOff()
+  - TurnOn()
+  - app.IsVoiceDetected()
+  - ESP_LOGW()
+  variables:
+  - app
+  - device_state
+  - DEFAULT_BRIGHTNESS
+  - HIGH_BRIGHTNESS
+  - LOW_BRIGHTNESS
+  - TAG

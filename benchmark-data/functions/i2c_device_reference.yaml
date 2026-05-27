@@ -1,0 +1,9 @@
+complete the function ReadRegs(uint8_t, uint8_t *, size_t)():
+  functions:
+  - ESP_ERROR_CHECK
+  - i2c_master_transmit_receive
+  variables:
+  - i2c_device_
+  - reg
+  - buffer
+  - length

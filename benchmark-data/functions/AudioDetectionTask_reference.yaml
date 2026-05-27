@@ -1,0 +1,32 @@
+complete the function AfeWakeWord::AudioDetectionTask():
+  functions:
+  - afe_iface_->get_fetch_chunksize
+  - afe_iface_->get_feed_chunksize
+  - ESP_LOGI
+  - xEventGroupWaitBits
+  - afe_iface_->fetch_with_delay
+  - StoreWakeWordData
+  - Stop
+  - wake_word_detected_callback_
+  variables:
+  - afe_data_
+  - event_group_
+  - DETECTION_RUNNING_EVENT
+  - pdFALSE
+  - pdTRUE
+  - portMAX_DELAY
+  - res
+  - res->data
+  - res->data_size
+  - sizeof(int16_t)
+  - res->ret_value
+  - ESP_FAIL
+  - res->wakeup_state
+  - WAKENET_DETECTED
+  - last_detected_wake_word_
+  - wake_words_
+  - res->wakenet_model_index
+  - wake_word_detected_callback_
+  - TAG
+  - fetch_size
+  - feed_size

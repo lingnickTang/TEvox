@@ -1,0 +1,224 @@
+complete the function Ota()():
+  functions:
+  - esp_efuse_read_field_blob
+  variables:
+  - serial_number
+  - ESP_EFUSE_USER_DATA
+  - serial_number_
+  - has_serial_number_
+complete the function GetCheckVersionUrl()():
+  functions:
+  - Settings()
+  - settings.GetString()
+  - url.empty()
+  variables:
+  - settings
+  - url
+  - CONFIG_OTA_URL
+complete the function SetupHttp()():
+  functions:
+  - Board::GetInstance()
+  - board.GetNetwork()
+  - network->CreateHttp()
+  - SystemInfo::GetUserAgent()
+  - http->SetHeader()
+  - SystemInfo::GetMacAddress()
+  - board.GetUuid()
+  - ESP_LOGI()
+  variables:
+  - board
+  - network
+  - http
+  - user_agent
+  - has_serial_number_
+  - serial_number_
+  - TAG
+  - Lang::CODE
+complete the function CheckVersion()():
+  functions:
+  - Board::GetInstance
+  - esp_app_get_description
+  - GetCheckVersionUrl
+  - SetupHttp
+  - board.GetSystemInfoJson
+  - http->SetContent
+  - http->Open
+  - http->GetLastError
+  - http->GetStatusCode
+  - http->ReadAll
+  - http->Close
+  - cJSON_Parse
+  - cJSON_GetObjectItem
+  - cJSON_IsObject
+  - cJSON_IsString
+  - cJSON_IsNumber
+  - cJSON_ArrayForEach
+  - settings.GetString
+  - settings.SetString
+  - settings.GetInt
+  - settings.SetInt
+  - settimeofday
+  - IsNewVersionAvailable
+  - cJSON_Delete
+  - ESP_LOGI
+  - ESP_LOGE
+  - ESP_LOGW
+  variables:
+  - board
+  - app_desc
+  - current_version_
+  - TAG
+  - url
+  - http
+  - data
+  - method
+  - last_error
+  - status_code
+  - root
+  - activation
+  - message
+  - activation_message_
+  - code
+  - activation_code_
+  - has_activation_code_
+  - challenge
+  - activation_challenge_
+  - has_activation_challenge_
+  - timeout_ms
+  - activation_timeout_ms_
+  - has_mqtt_config_
+  - mqtt
+  - settings
+  - item
+  - has_websocket_config_
+  - websocket
+  - has_server_time_
+  - server_time
+  - timestamp
+  - timezone_offset
+  - tv
+  - ts
+  - has_new_version_
+  - firmware
+  - version
+  - firmware_version_
+  - firmware_url_
+  - force
+complete the function MarkCurrentVersionValid()():
+  functions:
+  - esp_ota_get_running_partition()
+  - strcmp()
+  - ESP_LOGI()
+  - esp_ota_get_state_partition()
+  - ESP_LOGE()
+  - esp_ota_mark_app_valid_cancel_rollback()
+  variables:
+  - partition
+  - TAG
+  - state
+complete the function Upgrade(const std::string &, std::function<void(int progress,size_t speed)>)():
+  functions:
+  - ESP_LOGI
+  - esp_ota_get_next_update_partition
+  - ESP_LOGE
+  - Board::GetInstance
+  - GetNetwork
+  - CreateHttp
+  - Open
+  - GetStatusCode
+  - GetBodyLength
+  - Read
+  - esp_err_to_name
+  - esp_timer_get_time
+  - memcpy
+  - esp_app_get_description
+  - esp_ota_begin
+  - esp_ota_abort
+  - std::string().swap
+  - esp_ota_write
+  - Close
+  - esp_ota_end
+  - esp_ota_set_boot_partition
+  variables:
+  - TAG
+  - firmware_url
+  - callback
+  - update_handle
+  - update_partition
+  - image_header_checked
+  - image_header
+  - network
+  - http
+  - content_length
+  - buffer
+  - total_read
+  - recent_read
+  - last_calc_time
+  - ret
+  - progress
+  - new_app_info
+  - current_version
+  - err
+complete the function ParseVersion(const std::string &)():
+  functions:
+  - std::getline
+  - std::stoi
+  - push_back
+  variables:
+  - version
+  - versionNumbers
+  - ss
+  - segment
+complete the function GetActivationPayload()():
+  functions:
+  - esp_hmac_calculate
+  - esp_err_to_name
+  - sprintf
+  - cJSON_CreateObject
+  - cJSON_AddStringToObject
+  - cJSON_PrintUnformatted
+  - cJSON_free
+  - cJSON_Delete
+  - ESP_LOGE
+  - ESP_LOGI
+  variables:
+  - has_serial_number_
+  - activation_challenge_
+  - hmac_hex
+  - hmac_result
+  - ret
+  - buffer
+  - payload
+  - serial_number_
+  - json_str
+  - json
+  - TAG
+complete the function Activate()():
+  functions:
+  - ESP_LOGW
+  - GetCheckVersionUrl
+  - SetupHttp
+  - GetActivationPayload
+  - http->SetContent
+  - http->Open
+  - ESP_LOGE
+  - http->GetStatusCode
+  - http->ReadAll
+  - ESP_LOGI
+  variables:
+  - has_activation_challenge_
+  - TAG
+  - url
+  - http
+  - data
+  - status_code
+complete the function IsNewVersionAvailable(const std::string &, const std::string &)():
+  functions:
+  - ParseVersion
+  - std::min
+  variables:
+  - currentVersion
+  - newVersion
+  - current
+  - newer
+  - i

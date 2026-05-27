@@ -1,0 +1,6 @@
+- query: complete the function PlaySound(const std::string_view &)()
+  file_path: main/application.cc
+  ground_truth: "void Application::PlaySound(const std::string_view& sound) {\n  \
+    \  audio_service_.PlaySound(sound);\n}  "
+  workflow: "void Application::PlaySound(const std::string_view &sound)\n{\n    audio_service_.PlaySound(sound);\n\
+    }"

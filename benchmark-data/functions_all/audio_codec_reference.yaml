@@ -1,0 +1,54 @@
+complete the function InputData(std::vector<int16_t>&)():
+  functions:
+  - Read()
+  - data.data()
+  - data.size()
+  variables:
+  - data
+  - samples
+complete the function Start()():
+  functions:
+  - Settings
+  - settings.GetInt
+  - ESP_LOGW
+  - ESP_ERROR_CHECK
+  - i2s_channel_enable
+  - EnableInput
+  - EnableOutput
+  - ESP_LOGI
+  variables:
+  - settings
+  - output_volume_
+  - TAG
+  - tx_handle_
+  - rx_handle_
+complete the function SetOutputVolume(int)():
+  functions:
+  - ESP_LOGI
+  - Settings
+  - settings.SetInt
+  variables:
+  - output_volume_
+  - volume
+  - TAG
+complete the function SetInputGain(float)():
+  functions:
+  - ESP_LOGI
+  variables:
+  - input_gain_
+  - gain
+  - TAG
+complete the function EnableInput(bool)():
+  functions:
+  - ESP_LOGI
+  variables:
+  - input_enabled_
+  - enable
+  - TAG
+complete the function EnableOutput(bool)():
+  functions:
+  - ESP_LOGI
+  variables:
+  - enable
+  - output_enabled_
+  - TAG

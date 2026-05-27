@@ -1,0 +1,5 @@
+complete the function SendStopListening()():
+  functions:
+  - SendText
+  variables:
+  - session_id_

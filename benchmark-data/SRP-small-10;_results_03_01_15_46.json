@@ -1,0 +1,168 @@
+{
+  "metadata": {
+    "test_type": "SRP-small-10;",
+    "date": "03_01_15_46",
+    "model_name": "qwen3-coder-30b-a3b-instruct"
+  },
+  "statistics": {
+    "timing": {
+      "total": {
+        "knowledge_extraction": 0.0,
+        "code_generation": 0.0,
+        "debugging": 0.0,
+        "evaluation": 0.0
+      },
+      "average": {
+        "knowledge_extraction": 0.0,
+        "code_generation": 0.0,
+        "debugging": 0.0,
+        "evaluation": 0.0
+      }
+    },
+    "tokens": {
+      "KnowledgeExtractor": {
+        "total_tokens": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_cost": 0.0
+      },
+      "CodeCompleter": {
+        "total_tokens": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_cost": 0.0
+      },
+      "DebuggerAgent": {
+        "total_tokens": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_cost": 0.0
+      },
+      "EvaluatorAgent": {
+        "total_tokens": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_cost": 0.0
+      },
+      "GraphExtractor": {
+        "total_tokens": 3271,
+        "prompt_tokens": 1663,
+        "completion_tokens": 1608,
+        "total_cost": 0.0
+      }
+    },
+    "total_test_cases": 10
+  },
+  "results": [
+    {
+      "query": "complete the function SetChatMessage(const char *, const char *)()",
+      "description": "The `LcdDisplay::SetChatMessage` function displays chat messages on the LCD screen, managing message history by removing old messages when necessary and handling special display rules for system messages. It creates styled message bubbles with appropriate sizing and positioning based on the message content and role (e.g., user, AI, system). The function also ensures that empty messages are not displayed and hides the AI logo when non-system messages are shown.",
+      "file_path": "main/display/lcd_display.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function WakeWordInvoke(const std::string &)()",
+      "description": "",
+      "file_path": "main/application.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function HandleNetworkConnectedEvent()()",
+      "description": "The function handles network disconnection by closing the active audio channel and updating the display status to reflect the network state. It also manages device state transitions and plays a success sound when activation is complete.",
+      "file_path": "main/application.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function GetHelloMessage()()",
+      "description": "The `WebsocketProtocol::GetHelloMessage` function generates a JSON-formatted handshake message used to establish a connection with a server. It includes details about the communication protocol version, supported features (such as AEC and MCP), transport method (WebSocket), and audio parameters (format, sample rate, channels, and frame duration). This message is sent by the client to initiate communication and negotiate session settings.",
+      "file_path": "main/protocols/websocket_protocol.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function AudioOutputTask()()",
+      "description": "The `AudioOutputTask` function manages audio playback by processing queued audio data and sending it to the audio codec for output. It enables the audio output when needed, updates playback statistics, and optionally records timestamps for server-side acoustic echo cancellation (AEC). The task runs continuously until the service is stopped.",
+      "file_path": "main/audio/audio_service.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function Initialize(AudioCodec *)()",
+      "description": "The `AudioService::Initialize` function sets up the audio processing pipeline by configuring the audio codec, initializing Opus encoder and decoder wrappers, and setting up resamplers for input audio. It also initializes an audio processor for voice activity detection (VAD) and manages audio power state through a timer. The function prepares the service to handle audio input/output and communicate with other system components via callback mechanisms.",
+      "file_path": "main/audio/audio_service.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function GetActivationPayload()()",
+      "description": "The `Ota::GetActivationPayload` function generates a JSON-formatted activation payload for device authentication. It includes the device's serial number, a challenge string, and an HMAC-SHA256 signature computed using a hardware-backed key. The payload is returned as a string, or an empty JSON object if the serial number is not available.",
+      "file_path": "main/ota.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function Apply()()",
+      "description": "The `Assets::Apply()` function loads and applies system assets from an \"index.json\" configuration file, including speech recognition models and UI themes with associated fonts and emojis. It validates the asset version and initializes or updates the corresponding subsystems within the application. Returns true if all assets are successfully applied, otherwise returns false and logs errors.",
+      "file_path": "main/assets.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function UpgradeFirmware(const std::string &, const std::string &)()",
+      "description": "The `SetAecMode` function sets the acoustic echo cancellation (AEC) mode for the device, updating both the internal state and UI notification accordingly. It also ensures that any active audio channel is closed when the AEC mode changes. This maintains consistent audio processing behavior and prevents conflicts during mode transitions.",
+      "file_path": "main/application.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    },
+    {
+      "query": "complete the function MqttProtocol()()",
+      "description": "The `MqttProtocol` constructor initializes the MQTT communication layer, setting up an event group for synchronization and a reconnect timer that periodically attempts to reestablish the MQTT connection when the device is in an idle state. It ensures reliable server reconnection by scheduling retry attempts through the application's task scheduler while respecting the current device state. This maintains continuous communication with the backend without interrupting active operations.",
+      "file_path": "main/protocols/mqtt_protocol.cc",
+      "knowledge_extraction": null,
+      "code_generation": null,
+      "debugging": null,
+      "evaluation": null,
+      "timing": {},
+      "error": "cannot access local variable 'context' where it is not associated with a value"
+    }
+  ]
+}

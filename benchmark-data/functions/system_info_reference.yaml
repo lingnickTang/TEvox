@@ -1,0 +1,5 @@
+complete the function GetChipModelName()():
+  functions:
+  - std::string()
+  variables:
+  - CONFIG_IDF_TARGET

@@ -1,0 +1,144 @@
+complete the function Start()():
+  functions: []
+  variables: []
+complete the function SendAudio(std::unique_ptr<AudioStreamPacket>)():
+  functions:
+  - websocket_->IsConnected()
+  - htons(version_)
+  - htonl(packet->timestamp)
+  - htonl(packet->payload.size())
+  - memcpy(bp2->payload, packet->payload.data(), packet->payload.size())
+  - websocket_->Send(serialized.data(), serialized.size(), true)
+  - htons(packet->payload.size())
+  - memcpy(bp3->payload, packet->payload.data(), packet->payload.size())
+  - websocket_->Send(packet->payload.data(), packet->payload.size(), true)
+  variables:
+  - websocket_
+  - version_
+  - packet
+  - serialized
+  - bp2
+  - bp3
+  - packet->payload
+  - packet->timestamp
+complete the function SendText(const std::string &)():
+  functions:
+  - websocket_->IsConnected()
+  - websocket_->Send()
+  - ESP_LOGE()
+  - text.c_str()
+  - SetError()
+  - Lang::Strings::SERVER_ERROR
+  variables:
+  - websocket_
+  - TAG
+  - text
+complete the function OpenAudioChannel()():
+  functions:
+  - Settings
+  - settings.GetString
+  - settings.GetInt
+  - Board::GetInstance
+  - Board::GetInstance().GetNetwork
+  - network->CreateWebSocket
+  - ESP_LOGE
+  - token.find
+  - websocket_->SetHeader
+  - std::to_string
+  - SystemInfo::GetMacAddress
+  - Board::GetInstance().GetUuid
+  - websocket_->OnData
+  - ntohs
+  - ntohl
+  - on_incoming_audio_
+  - std::make_unique
+  - AudioStreamPacket
+  - cJSON_Parse
+  - cJSON_GetObjectItem
+  - cJSON_IsString
+  - strcmp
+  - ParseServerHello
+  - on_incoming_json_
+  - cJSON_Delete
+  - std::chrono::steady_clock::now
+  - websocket_->OnDisconnected
+  - ESP_LOGI
+  - on_audio_channel_closed_
+  - websocket_->Connect
+  - websocket_->GetLastError
+  - SetError
+  - GetHelloMessage
+  - SendText
+  - xEventGroupWaitBits
+  - ESP_LOGE
+  - SetError
+  - on_audio_channel_opened_
+  variables:
+  - settings
+  - url
+  - token
+  - version
+  - version_
+  - error_occurred_
+  - network
+  - websocket_
+  - TAG
+  - server_sample_rate_
+  - server_frame_duration_
+  - on_incoming_audio_
+  - data
+  - len
+  - binary
+  - bp2
+  - bp3
+  - payload
+  - root
+  - type
+  - last_incoming_time_
+  - on_audio_channel_closed_
+  - event_group_handle_
+  - WEBSOCKET_PROTOCOL_SERVER_HELLO_EVENT
+  - bits
+  - on_audio_channel_opened_
+  - message
+complete the function GetHelloMessage()():
+  functions:
+  - cJSON_CreateObject
+  - cJSON_AddStringToObject
+  - cJSON_AddNumberToObject
+  - cJSON_AddBoolToObject
+  - cJSON_AddItemToObject
+  - cJSON_PrintUnformatted
+  - cJSON_free
+  - cJSON_Delete
+  variables:
+  - root
+  - version_
+  - features
+  - audio_params
+  - json_str
+  - message
+  - OPUS_FRAME_DURATION_MS
+complete the function ParseServerHello(const cJSON *)():
+  functions:
+  - cJSON_GetObjectItem
+  - strcmp
+  - ESP_LOGE
+  - cJSON_IsString
+  - ESP_LOGI
+  - cJSON_IsObject
+  - cJSON_IsNumber
+  - xEventGroupSetBits
+  variables:
+  - root
+  - transport
+  - session_id
+  - audio_params
+  - sample_rate
+  - frame_duration
+  - session_id_
+  - server_sample_rate_
+  - server_frame_duration_
+  - event_group_handle_
+  - WEBSOCKET_PROTOCOL_SERVER_HELLO_EVENT
+  - TAG

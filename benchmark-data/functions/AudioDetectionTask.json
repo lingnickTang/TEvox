@@ -1,0 +1,86 @@
+{
+  "benchmark_file": "AudioDetectionTask.yaml",
+  "total_cases": 1,
+  "evaluated_cases": 1,
+  "average_scores": {
+    "semantic_score": 40.0,
+    "structure_score": 30.0,
+    "completeness_score": 50.0
+  },
+  "results": [
+    {
+      "query": "complete the function AfeWakeWord::AudioDetectionTask()",
+      "file_path": "main/audio/wake_words/afe_wake_word.cc",
+      "quantitative": {
+        "correctly_reused": {
+          "functions": [
+            "xEventGroupWaitBits",
+            "StoreWakeWordData"
+          ],
+          "variables": [
+            "afe_data_",
+            "event_group_",
+            "DETECTION_RUNNING_EVENT",
+            "pdFALSE",
+            "pdTRUE",
+            "portMAX_DELAY"
+          ]
+        },
+        "incorrectly_constructed": {
+          "functions": [
+            "afe_iface_->get_fetch_chunksize",
+            "afe_iface_->get_feed_chunksize",
+            "ESP_LOGI",
+            "afe_iface_->fetch_with_delay",
+            "Stop",
+            "wake_word_detected_callback_"
+          ],
+          "variables": [
+            "res",
+            "res->data",
+            "res->data_size",
+            "sizeof(int16_t)",
+            "res->ret_value",
+            "ESP_FAIL",
+            "res->wakeup_state",
+            "WAKENET_DETECTED",
+            "last_detected_wake_word_",
+            "wake_words_",
+            "res->wakenet_model_index",
+            "wake_word_detected_callback_",
+            "TAG",
+            "fetch_size",
+            "feed_size"
+          ]
+        }
+      },
+      "qualitative": {
+        "semantic_score": 40,
+        "structure_score": 30,
+        "completeness_score": 50,
+        "analysis": "The generated code significantly deviates from the ground truth both semantically and structurally:\n\nSemantic Issues:\n- The generated code includes initialization logic that does not exist in the ground truth. The ground truth assumes `afe_iface_` and `afe_data_` are already initialized.\n- It reimplements the AFE setup process inside `AudioDetectionTask`, which is incorrect since this function is meant to run as a recurring detection loop, not an initializer.\n- Uses a fixed-size local buffer (`audio_buffer`) instead of interfacing with `fetch_with_delay()` as done in the ground truth.\n- Introduces unrelated functionality such as creating an encoder task using `xTaskCreateStatic`, which is absent in the reference implementation.\n- Misuses `fetch()` without delay handling compared to `fetch_with_delay()` used in ground truth.\n\nStructural Differences:\n- Function signature matches but internal structure diverges greatly.\n- Control flow differs: added unnecessary checks for event group bits despite already waiting via `xEventGroupWaitBits`.\n- Lacks proper use of result fields like `wakeup_state`, `wakenet_model_index`, and `data_size`.\n- Duplicated comment line \"// Feed audio into AFE\" appears twice.\n- Includes placeholder comments about I2S reading rather than actual integration.\n\nFunctional Gaps:\n- Misses critical parts like checking `res->wakeup_state == WAKENET_DETECTED`.\n- Does not stop detection upon wake word detection.\n- Fails to call the registered callback `wake_word_detected_callback_`.\n- Incorrectly stores only current chunk instead of buffered wake word data provided by AFE.\n- Adds extra complexity (e.g., encoder task creation) that isn't part of original functionality.\n\nOverall, while some elements like usage of FreeRTOS primitives (`xEventGroupWaitBits`, `vTaskDelay`) align conceptually, the core logic and intended behavior differ substantially from the ground truth."
+      },
+      "workflow_comparison": {
+        "similarity_score": 45,
+        "differences": [
+          "The workflow code includes initialization of AFE configuration and interface which is absent in the ground truth.",
+          "Workflow uses a fixed-size local audio buffer (`kChunkSamples = 480`) instead of using `get_feed_chunksize()` and `get_fetch_chunksize()` from the AFE interface.",
+          "Ground truth calls `fetch_with_delay` with `portMAX_DELAY`, whereas workflow uses a simple `fetch` after manually feeding data.",
+          "Workflow simulates reading audio data with `memset(audio_buffer, 0, sizeof(audio_buffer))` rather than integrating with an actual audio input source.",
+          "Workflow attempts to start an encoding task upon detection, including manual memory allocation for stack and task control block, which is not present in the ground truth.",
+          "Workflow adds a `vTaskDelay(pdMS_TO_TICKS(10))` at the end of each loop iteration, while the ground truth does not include such a delay.",
+          "The ground truth handles wake word model indexing and stores detected wake word string via `wake_words_[res->wakenet_model_index - 1]`, but this logic is missing in the workflow.",
+          "Error handling differs significantly; workflow deletes the task on failure during setup, while ground truth continues looping."
+        ],
+        "similarities": [
+          "Both functions implement the core logic inside an infinite `while(true)` loop.",
+          "Both use FreeRTOS event groups (`xEventGroupWaitBits`) to wait for the `DETECTION_RUNNING_EVENT`.",
+          "Both call methods on `afe_iface_` to process audio chunks (e.g., `fetch`, `feed`).",
+          "Both invoke `StoreWakeWordData` when a result is available.",
+          "Both check for valid results before proceeding with further processing."
+        ],
+        "analysis": "The two implementations share the same high-level goal of detecting wake words using an AFE interface within a FreeRTOS environment. However, they differ substantially in structure and detail. The ground truth focuses purely on the detection loop, utilizing proper chunk sizes provided by the AFE API and reacting to detection events with callbacks. It also correctly manages state transitions like stopping detection after a keyword is found. In contrast, the workflow includes extensive initialization steps that may belong elsewhere, hardcodes assumptions about audio format and buffer size, and introduces additional complexity such as launching an encoder task dynamically. While both versions interact with the AFE system, the workflow version diverges significantly in implementation strategy, error handling, and added functionality beyond basic detection. As a result, despite some shared constructs and concepts, the overall behavior and design are quite different."
+      }
+    }
+  ]
+}

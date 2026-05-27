@@ -1,0 +1,792 @@
+file_path: main/boards/common/i2c_device.cc
+benchmark:
+- query: complete the function I2cDevice(i2c_master_bus_handle_t, uint8_t)()
+  ground_truth: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\
+    \ {\n    i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 400 * 1000,\n      \
+    \  .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check = 0,\n\
+    \        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_device_cfg,\
+    \ &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  workflow: ''
+  cursor: ''
+  without: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t device_addr)\
+    \ {\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = device_addr,\n        . scl_speed_hz = 100000,\n  \
+    \      .flags = {\n            .disable_ack_check = false,\n        },\n    };\n\
+    \    \n    esp_err_t err = i2c_master_bus_add_device(bus_handle, &dev_cfg, &this->device_handle);\n\
+    \    if (err != ESP_OK) {\n        // Handle error appropriately - could throw\
+    \ exception or set error flag\n        this->device_handle = nullptr;\n    }\n\
+    }"
+  tools: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus, uint8_t addr)\n```\n\n\
+    From the reusable snippets and examples, we know that:\n1. An `i2c_device_config_t`\
+    \ structure must be filled out with at least:\n   - `.device_address = addr`\n\
+    \   - A suitable SCL speed (e.g., 400 kHz).\n2. The function `i2c_master_bus_add_device()`\
+    \ must be called to register the device with the given I2C bus.\n3. The resulting\
+    \ device handle should be stored in a member variable (presumably named `i2c_device_`).\n\
+    4. Error checking should always be performed after calling `i2c_master_bus_add_device()`.\n\
+    \nWe will assume the presence of a member variable of type `i2c_master_dev_handle_t`\
+    \ called `i2c_device_`.\n\n### Implementation\n\nHere's the complete implementation\
+    \ of the constructor within the required format:\n\n```cpp\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ bus, uint8_t addr)\n{\n    const i2c_device_config_t i2c_dev_cfg = {\n     \
+    \   .device_address = addr,\n        .scl_speed_hz = 400000,\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(bus,\
+    \ &i2c_dev_cfg, &i2c_device_));\n}"
+  without-small: "#include \"driver/i2c.h\"\n\nclass I2cDevice {\nprivate:\n    i2c_master_bus_handle_t\
+    \ bus_handle;\n    uint8_t device_address;\n\npublic:\n    // Constructor implementation\n\
+    \    I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t device_address) \n\
+    \        : bus_handle(bus_handle), device_address(device_address) {\n        //\
+    \ Initialize the I2C device with the provided bus handle and address\n       \
+    \ // This would typically involve setting up internal state but not actual hardware\n\
+    \        // The actual I2C communication setup happens during read/write operations\n\
+    \    }\n    \n    // Additional methods that might be needed for a complete I2C\
+    \ device class:\n    \n    esp_err_t write_register(uint8_t reg_addr, uint8_t\
+    \ data) {\n        i2c_cmd_handle_t cmd = i2c_cmd_link_create();\n        esp_err_t\
+    \ err = ESP_OK;\n        \n        err |= i2c_master_start(cmd);\n        err\
+    \ |= i2c_master_write_byte(cmd, (device_address << 1) | I2C_MASTER_WRITE, true);\n\
+    \        err |= i2c_master_write_byte(cmd, reg_addr, true);\n        err |= i2c_master_write_byte(cmd,\
+    \ data, true);\n        err |= i2c_master_stop(cmd);\n        \n        if (err\
+    \ == ESP_OK) {\n            err = i2c_master_cmd_begin(bus_handle, cmd, 1000 /\
+    \ portTICK_PERIOD_MS);\n        }\n        \n        i2c_cmd_link_delete(cmd);\n\
+    \        return err;\n    }\n    \n    esp_err_t read_register(uint8_t reg_addr,\
+    \ uint8_t* data, size_t len) {\n        i2c_cmd_handle_t cmd = i2c_cmd_link_create();\n\
+    \        esp_err_t err = ESP_OK;\n        \n        err |= i2c_master_start(cmd);\n\
+    \        err |= i2c_master_write_byte(cmd, (device_address << 1) | I2C_MASTER_WRITE,\
+    \ true);\n        err |= i2c_master_write_byte(cmd, reg_addr, true);\n       \
+    \ err |= i2c_master_start(cmd);\n        err |= i2c_master_write_byte(cmd, (device_address\
+    \ << 1) | I2C_MASTER_READ, true);\n        err |= i2c_master_read(cmd, data, len,\
+    \ I2C_MASTER_LAST_NACK);\n        err |= i2c_master_stop(cmd);\n        \n   \
+    \     if (err == ESP_OK) {\n            err = i2c_master_cmd_begin(bus_handle,\
+    \ cmd, 1000 / portTICK_PERIOD_MS);\n        }\n        \n        i2c_cmd_link_delete(cmd);\n\
+    \        return err;\n    }\n};"
+  tools-small: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n\
+    {\n    i2c_dev_config_t i2c_dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 100000,\n    };\n\n\
+    \    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_dev_cfg, &i2c_device_));\n\
+    }"
+  workflow+sd+mi: "#include \"i2c_device.h\"\n#include <esp_log.h>\n#include <driver/i2c_master.h>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 400000,\n    };\n\n    esp_err_t err = i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"\
+    Failed to add I2C device at address 0x%02X, error: %s\", addr, esp_err_to_name(err));\n\
+    \    }\n}"
+  workflow+sd+mi+rf: "#include \"i2c_device.h\"\n#include <esp_log.h>\n#include <driver/i2c_master.h>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 400000,\n    };\n\n    esp_err_t err = i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"\
+    Failed to add I2C device at address 0x%02X, error: %s\", addr, esp_err_to_name(err));\n\
+    \        i2c_device_ = nullptr; // Ensure handle is null on failure\n    }\n}"
+  local: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n{\n\
+    \    i2c_device_config_t device_config = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 100000,\n    };\n  \
+    \  \n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &device_config, &i2c_device_));\n\
+    }"
+  workflow-small-rf: "#include \"i2c_device.h\"\n#include <esp_log.h>\n#include <driver/i2c_master.h>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n    : i2c_device_(nullptr)\n{\n    i2c_device_config_t dev_cfg\
+    \ = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address\
+    \ = addr,\n        .scl_speed_hz = 400000,\n    };\n\n    esp_err_t err = i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"\
+    Failed to add I2C device at address 0x%02X, error: %s\", addr, esp_err_to_name(err));\n\
+    \        i2c_device_ = nullptr;\n    } else {\n        ESP_LOGI(TAG, \"Successfully\
+    \ added I2C device at address 0x%02X\", addr);\n    }\n}"
+  local-small: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n\
+    {\n    i2c_device_config_t dev_config = {\n        .dev_addr_len = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 100000,\n    };\n  \
+    \  \n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &dev_config, &i2c_device_));\n\
+    }"
+  tools-long: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n\
+    {\n    i2c_master_dev_config_t i2c_dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 400000,\n    };\n\n\
+    \    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_dev_cfg, &i2c_device_));\n\
+    }"
+  graph-5-5: "#include <driver/i2c_master.h>\n#include \"i2c_device.h\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    i2c_device_config_t i2c_device_cfg = {\n     \
+    \   .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n\
+    \        .scl_speed_hz = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags.disable_ack_check\
+    \ = 0\n    };\n\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_device_cfg,\
+    \ &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  graph-small-5-5: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t\
+    \ addr)\n{\n    // Initialize I2C device configuration\n    i2c_device_config_t\
+    \ dev_config = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address\
+    \ = addr,\n        .scl_speed_hz = 400000,\n    };\n\n    // Add device to I2C\
+    \ bus\n    esp_err_t result = i2c_master_bus_add_device(bus_handle, &dev_config,\
+    \ &i2c_device_);\n    \n    // Check for errors and assert that device handle\
+    \ is valid\n    ESP_ERROR_CHECK(result);\n    assert(i2c_device_ != NULL);\n}"
+  Desc+without: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t\
+    \ device_address) {\n    // Configure the I2C device with standard settings\n\
+    \    i2c_device_config_t dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_7,\n\
+    \        .device_address = device_address,\n        . scl_speed_hz = 100000, \
+    \ // Standard mode: 100 kHz\n        .flags = {\n            .disable_ack_check\
+    \ = false  // Enable ACK check by default\n        }\n    };\n    \n    // Initialize\
+    \ the I2C device on the specified bus\n    esp_err_t err = i2c_master_bus_add_device(bus_handle,\
+    \ &dev_cfg, &device_handle);\n    \n    // Assert that the device handle is valid\
+    \ after initialization\n    assert(err == ESP_OK);\n    assert(device_handle !=\
+    \ nullptr);\n}"
+  Desc+local: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n\
+    {\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        . scl_speed = 100000,\n    };\n    \n\
+    \    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &dev_cfg, &i2c_device_));\n\
+    \    \n    assert(i2c_device_ != nullptr);\n}"
+  Desc+graph-5-5: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\
+    \ {\n    i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 400 * 1000,\n      \
+    \  .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check = 0,\n\
+    \        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_device_cfg,\
+    \ &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  Desc+tools: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t device_addr)\n\
+    {\n    // Configure the I2C device with the provided address\n    const i2c_device_config_t\
+    \ i2c_dev_cfg = {\n        .device_address = device_addr,\n    };\n    \n    //\
+    \ Add the I2C device to the bus and store the handle\n    esp_err_t err = i2c_master_bus_add_device(bus_handle,\
+    \ &i2c_dev_cfg, &this->i2c_device_);\n    \n    // Check if device addition was\
+    \ successful\n    if (err != ESP_OK) {\n        // Handle error appropriately\
+    \ - could be logging or throwing an exception\n        // depending on the implementation\
+    \ context\n        ESP_LOGE(TAG, \"Failed to add I2C device at address 0x%02X,\
+    \ error: %s\", \n                 device_addr, esp_err_to_name(err));\n      \
+    \  // In a real implementation, you might want to throw an exception or set an\
+    \ error flag\n        return;\n    }\n    \n    // Verify that the device handle\
+    \ is valid\n    assert(this->i2c_device_ != nullptr);\n}"
+  Desc+graph-KG-5-5: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t\
+    \ addr) {\n    i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check\
+    \ = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  Desc+workflow: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\
+    \ {\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 100000, // Standard\
+    \ mode (100 kHz)\n    };\n\n    esp_err_t err = i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    assert(err == ESP_OK);\n    assert(i2c_device_\
+    \ != nullptr);\n}"
+  Desc+without-small: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t\
+    \ address)\n{\n    // Store the bus handle and address\n    this->bus_handle =\
+    \ bus_handle;\n    this->address = address;\n    \n    // Configure I2C device\
+    \ with standard settings\n    i2c_device_config_t dev_config = {\n        .dev_addr_len\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = address,\n        .scl_speed_hz\
+    \ = 100000,  // Standard I2C speed\n        .scl_wait_time_ns = 0,\n        .sda_hold_time_ns\
+    \ = 0,\n        .sda_sample_time_ns = 0,\n        .scl_start_setup_time_ns = 0,\n\
+    \        .scl_stop_setup_time_ns = 0,\n        .scl_start_hold_time_ns = 0,\n\
+    \        .scl_stop_hold_time_ns = 0,\n        .scl_rise_time_ns = 0,\n       \
+    \ .scl_fall_time_ns = 0,\n    };\n    \n    // Register the device with the I2C\
+    \ master bus\n    esp_err_t result = i2c_master_bus_add_device(bus_handle, &dev_config,\
+    \ &this->device_handle);\n    \n    // Assert that device handle is valid after\
+    \ initialization\n    assert(result == ESP_OK);\n    assert(this->device_handle\
+    \ != NULL);\n}"
+  Desc+graph-SRP_KG-5-5-rf: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check\
+    \ = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  Desc+graph-wt-SRP_KG-3-3: "esp_err_t I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    // Create I2C device configuration\n    i2c_device_config_t\
+    \ i2c_device_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n       \
+    \ .device_address = addr,\n        .scl_speed_hz = 400 * 1000,\n        .scl_wait_us\
+    \ = 0,\n        .flags = {\n            .disable_ack_check = 0,\n        },\n\
+    \    };\n    \n    // Add device to the I2C bus\n    i2c_device_handle_t i2c_device_;\n\
+    \    esp_err_t ret = i2c_master_bus_add_device(i2c_bus, &i2c_device_cfg, &i2c_device_);\n\
+    \    \n    // Check for errors\n    if (ret != ESP_OK) {\n        return ret;\n\
+    \    }\n    \n    // Verify that the device handle was created successfully\n\
+    \    if (i2c_device_ == NULL) {\n        return ESP_FAIL;\n    }\n    \n    //\
+    \ Return success\n    return ESP_OK;\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "I2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    i2c_device_config_t i2c_device_cfg = {\n     \
+    \   .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n\
+    \        .scl_speed_hz = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags\
+    \ = {\n            .disable_ack_check = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "I2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    i2c_device_config_t i2c_device_cfg = {\n     \
+    \   .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n\
+    \        .scl_speed_hz = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags\
+    \ = {\n            .disable_ack_check = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "I2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ bus_handle, uint8_t address) {\n    // Step 1: Initialize I2C device configuration\
+    \ with default settings\n    i2c_device_config_t config = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = address,\n        .scl_speed_hz\
+    \ = 100000,  // Standard mode speed\n        .flags = {\n            .disable_ack_check\
+    \ = 0,  // Enable ACK checking by default\n        }\n    };\n    \n    // Step\
+    \ 2: Register the device with the I2C master bus using provided handle and address\n\
+    \    esp_err_t result = i2c_master_bus_add_device(bus_handle, &config, &device_handle_);\n\
+    \    \n    // Step 3: Verify that the device handle is valid after registration\n\
+    \    assert(result == ESP_OK);\n    assert(device_handle_ != nullptr);\n    \n\
+    \    // Step 4: Set up communication parameters for the I2C device\n    // Communication\
+    \ parameters are already set through the config structure above\n    \n    //\
+    \ Step 5: Return initialized I2C device instance\n    // Constructor automatically\
+    \ returns the initialized instance\n}"
+  graph-SRP_KG-it-small;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include\
+    \ <assert.h>\n\n#define TAG \"I2cDevice\"\n\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    // Configure I2C device settings\n    i2c_device_config_t\
+    \ dev_config = {\n        .device_address = addr,\n        .scl_speed_hz = 100000,\
+    \  // Standard I2C speed\n    };\n    \n    // Register the device with the I2C\
+    \ master bus\n    esp_err_t ret = i2c_master_bus_add_device(i2c_bus, &dev_config,\
+    \ &i2c_device_);\n    assert(ret == ESP_OK);\n    \n    // Verify that the device\
+    \ handle is valid\n    assert(i2c_device_ != NULL);\n}"
+  graph-SRP_KG-it;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <assert.h>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_7,\n        .device_address = addr,\n        . scl_speed_hz =\
+    \ 100000, // Standard mode\n        .flags = {\n            .disable_ack_check\
+    \ = false,\n        },\n    };\n\n    esp_err_t err = i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    ESP_ERROR_CHECK(err);\n    assert(i2c_device_\
+    \ != nullptr && \"Failed to add I2C device to the bus\");\n}"
+  without-small;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t\
+    \ address)\n{\n    // Store the bus handle and address\n    this->bus_handle =\
+    \ bus_handle;\n    this->address = address;\n    \n    // Configure I2C device\
+    \ with standard settings\n    i2c_device_config_t dev_config = {\n        .dev_addr_len\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = address,\n        .scl_speed_hz\
+    \ = 100000,  // Standard I2C speed\n        .scl_wait_time_ns = 0,\n        .sda_hold_time_ns\
+    \ = 0,\n        .sda_sample_time_ns = 0,\n        .scl_start_setup_time_ns = 0,\n\
+    \        .scl_stop_setup_time_ns = 0,\n        .scl_start_hold_time_ns = 0,\n\
+    \        .scl_stop_hold_time_ns = 0,\n        .scl_rise_time_ns = 0,\n       \
+    \ .scl_fall_time_ns = 0,\n    };\n    \n    // Register the device with the I2C\
+    \ master bus\n    esp_err_t result = i2c_master_bus_add_device(bus_handle, &dev_config,\
+    \ &this->device_handle);\n    \n    // Assert that device handle is valid after\
+    \ initialization\n    assert(result == ESP_OK);\n    assert(this->device_handle\
+    \ != NULL);\n}"
+  local-small;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n\
+    {\n    i2c_device_config_t dev_config = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .dev_addr = addr,\n        .scl_speed_hz = 100000,\n    };\n    \n  \
+    \  ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &dev_config, &i2c_device_));\n\
+    \    \n    // Assert that the device handle is valid\n    assert(i2c_device_ !=\
+    \ NULL);\n}"
+  tools-small;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <assert.h>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    i2c_device_config_t dev_config = {\n        .dev_addr_len\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 100000,\n    };\n    \n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_config, &i2c_device_));\n    \n    assert(i2c_device_ != NULL);\n}"
+  without;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t device_address)\
+    \ {\n    // Configure the I2C device with standard settings\n    i2c_device_config_t\
+    \ dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_7,\n        .device_address\
+    \ = device_address,\n        . scl_speed_hz = 100000,  // Standard mode: 100 kHz\n\
+    \        .flags = {\n            .disable_ack_check = false  // Enable ACK check\
+    \ by default\n        }\n    };\n    \n    // Initialize the I2C device on the\
+    \ specified bus\n    esp_err_t err = i2c_master_bus_add_device(bus_handle, &dev_cfg,\
+    \ &device_handle);\n    \n    // Assert that the device handle is valid after\
+    \ initialization\n    assert(err == ESP_OK);\n    assert(device_handle != nullptr);\n\
+    }"
+  local;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr)\n{\n\
+    \    i2c_device_config_t dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        . scl_speed = 100000,\n    };\n    \n\
+    \    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &dev_cfg, &i2c_device_));\n\
+    \    \n    assert(i2c_device_ != nullptr);\n}"
+  tools;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <cassert>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr)\n{\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,   // 7-bit addressing\n        .device_address = addr,\n\
+    \        .scl_speed_hz = 400000,                  // Standard 400kHz speed\n \
+    \       .flags = {\n            .disable_ack_check = false,          // Enable\
+    \ ACK checking\n        },\n    };\n\n    esp_err_t err = i2c_master_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"\
+    Failed to add I2C device at address 0x%02X, error: %s\", addr, esp_err_to_name(err));\n\
+    \        assert(false && \"Failed to initialize I2C device\");\n    }\n\n    assert(i2c_device_\
+    \ != nullptr && \"Invalid I2C device handle after initialization\");\n}"
+  eg;: "#include \"i2c_device.h\"\n#include <cassert>\n#include <esp_log.h>\n\n//\
+    \ Assuming these headers exist or would be included as part of build environment\n\
+    #include <driver/i2c_master.h> // Hypothetical header for I2C master abstraction\n\
+    #include <hal/i2c_types.h>     // For config enums\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ bus_handle, uint8_t device_address) {\n    // Step 1: Initialize I2C device\
+    \ configuration with default settings\n    i2c_device_config_t dev_cfg = {};\n\
+    \    dev_cfg.dev_addr_length = I2C_ADDR_BIT_7;           // 7-bit addressing\n\
+    \    dev_cfg.device_address = device_address;\n    dev_cfg.scl_speed_hz = 100000;\
+    \                      // Standard mode (100kHz)\n    dev_cfg.flags.disable_ack_check\
+    \ = false;            // Enable ACK checking\n\n    // Step 2: Register the device\
+    \ with the I2C master bus\n    esp_err_t err = i2c_master_bus_add_device(bus_handle,\
+    \ &dev_cfg, &device_handle);\n    if (err != ESP_OK) {\n        ESP_LOGE(\"I2C\"\
+    , \"Failed to add I2C device at address 0x%02X, error: %d\", device_address, err);\n\
+    \        device_handle = nullptr;\n    }\n\n    // Step 3: Verify that the device\
+    \ handle is valid after registration\n    assert(device_handle != nullptr && \"\
+    Failed to create I2C device\");\n\n    // Step 4: Setup communication parameters\
+    \ (already done via config above)\n\n    // Step 5: Object is now ready for use\n\
+    }"
+  a3;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr) {\n  \
+    \  i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 400 * 1000,\n      \
+    \  .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check = 0,\n\
+    \        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_device_cfg,\
+    \ &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  eg-small;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t bus_handle, uint8_t address)\n\
+    {\n    // Step 1: Initialize the I2C device handle with the provided bus handle\
+    \ and 7-bit address\n    i2c_device_config_t dev_config = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = address,\n        .scl_speed_hz\
+    \ = 100000,  // Standard I2C speed\n    };\n    \n    // Step 2: Configure the\
+    \ I2C device with standard settings such as clock speed and pull-up resistors\n\
+    \    esp_err_t err = i2c_master_bus_add_device(bus_handle, &dev_config, &m_device_handle);\n\
+    \    if (err != ESP_OK) {\n        // Handle error appropriately - could throw\
+    \ exception or set error state\n        assert(false && \"Failed to add I2C device\
+    \ to bus\");\n    }\n    \n    // Step 3: Register the initialized device with\
+    \ the I2C master bus for communication\n    // The device is registered during\
+    \ the add_device call above\n    \n    // Step 4: Validate the device handle and\
+    \ assert its validity after initialization\n    assert(m_device_handle != NULL\
+    \ && \"I2C device handle is invalid after initialization\");\n}"
+  a3-small;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <assert.h>\n\
+    \n#define TAG \"I2cDevice\"\n\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    i2c_device_config_t i2c_device_cfg = {\n     \
+    \   .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n\
+    \        .scl_speed_hz = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags\
+    \ = {\n            .disable_ack_check = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  SRP-small;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <assert.h>\n\
+    \n#define TAG \"I2cDevice\"\n\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    i2c_device_config_t i2c_device_cfg = {\n     \
+    \   .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n\
+    \        .scl_speed_hz = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags\
+    \ = {\n            .disable_ack_check = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}\n\nvoid\
+    \ I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t buffer[2] = {reg,\
+    \ value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer, 2, 100));\n\
+    }\n\nuint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t buffer[1];\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, buffer, 1, 100));\n    return buffer[0];\n}\n\nvoid I2cDevice::ReadRegs(uint8_t\
+    \ reg, uint8_t* buffer, size_t length) {\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, buffer, length, 100));\n}"
+  SRP;: "I2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t addr) {\n \
+    \   i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 400 * 1000,\n      \
+    \  .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check = 0,\n\
+    \        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus, &i2c_device_cfg,\
+    \ &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  eg-small-168;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <esp_err.h>\n\
+    \n#define TAG \"I2cDevice\"\n\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t\
+    \ i2c_bus, uint8_t addr) {\n    // Configure I2C device with standard settings\n\
+    \    i2c_device_config_t dev_config = {\n        .dev_addr_len = I2C_ADDR_BIT_LEN_7,\n\
+    \        .device_address = addr,\n        .scl_speed_hz = 100000,  // Standard\
+    \ I2C speed\n    };\n    \n    // Register the device with the I2C master bus\n\
+    \    esp_err_t ret = i2c_master_bus_add_device(i2c_bus, &dev_config, &i2c_device_);\n\
+    \    assert(ret == ESP_OK);\n    \n    // Validate that the device handle is valid\
+    \ after initialization\n    assert(i2c_device_ != NULL);\n}"
+  eg-168;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <cassert>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr) {\n    // Step 1: Initialize device configuration with standard\
+    \ settings\n    i2c_device_config_t dev_cfg = {\n        .dev_addr_length = I2C_ADDR_BIT_LEN_7,\
+    \   // 7-bit addressing\n        .device_address = addr,\n        . scl_speed_hz\
+    \ = 100000,                 // Standard mode: 100kHz\n    };\n\n    // Step 2:\
+    \ Register the device with the I2C master bus\n    esp_err_t err = i2c_master_bus_add_device(i2c_bus,\
+    \ &dev_cfg, &i2c_device_);\n    if (err != ESP_OK) {\n        ESP_LOGE(TAG, \"\
+    Failed to add I2C device at address 0x%02X, error=%d\", addr, err);\n        i2c_device_\
+    \ = nullptr;\n    }\n\n    // Step 3: Assert validity of the device handle\n \
+    \   assert(i2c_device_ != nullptr && \"I2C Device Handle is invalid after initialization\"\
+    );\n}"
+  SRP-small-168;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n\n#define TAG\
+    \ \"I2cDevice\"\n\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus, uint8_t\
+    \ addr) {\n    i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check\
+    \ = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}"
+  SRP-168;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n#include <cassert>\n\
+    \n#define TAG \"I2cDevice\"\n\nI2cDevice::I2cDevice(i2c_master_bus_handle_t i2c_bus,\
+    \ uint8_t addr) {\n    i2c_device_config_t i2c_device_cfg = {\n        .dev_addr_length\
+    \ = I2C_ADDR_BIT_LEN_7,\n        .device_address = addr,\n        .scl_speed_hz\
+    \ = 400 * 1000,\n        .scl_wait_us = 0,\n        .flags = {\n            .disable_ack_check\
+    \ = 0,\n        },\n    };\n    ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus,\
+    \ &i2c_device_cfg, &i2c_device_));\n    assert(i2c_device_ != NULL);\n}\n\nvoid\
+    \ I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t buffer[2] = {reg,\
+    \ value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer, 2, 100));\n\
+    }\n\nuint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t buffer[1];\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, buffer, 1, 100));\n    return buffer[0];\n}\n\nvoid I2cDevice::ReadRegs(uint8_t\
+    \ reg, uint8_t* buffer, size_t length) {\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, buffer, length, 100));\n}"
+- query: complete the function WriteReg(uint8_t, uint8_t)()
+  ground_truth: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  workflow: ''
+  cursor: ''
+  without: "void WriteReg(uint8_t reg, uint8_t value) {\n    // Write the value to\
+    \ the specified register address\n    *((volatile uint8_t*)reg) = value;\n}"
+  tools: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t data[]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, data,\
+    \ sizeof(data), 100));\n}"
+  without-small: "void WriteReg(uint8_t reg_addr, uint8_t reg_data)\n{\n    // Implementation\
+    \ would depend on the specific hardware interface\n    // This is a generic template\
+    \ that could be adapted for different scenarios\n    \n    // Example implementation\
+    \ for I2C or SPI register write:\n    // Assuming we have a hardware abstraction\
+    \ layer or direct register access\n    \n    #ifdef USE_I2C\n        // I2C write\
+    \ implementation\n        i2c_start();\n        i2c_write(reg_addr);\n       \
+    \ i2c_write(reg_data);\n        i2c_stop();\n    #elif defined(USE_SPI)\n    \
+    \    // SPI write implementation\n        spi_select_device();\n        spi_write(reg_addr);\n\
+    \        spi_write(reg_data);\n        spi_deselect_device();\n    #else\n   \
+    \     // Direct memory-mapped register write (common in embedded systems)\n  \
+    \      *(volatile uint8_t*)reg_addr = reg_data;\n    #endif\n    \n    // Alternative\
+    \ simpler implementation if this is just a basic register write:\n    // *(__IO\
+    \ uint8_t*)(reg_addr) = reg_data;\n}\n```\n\nHowever, since I need to provide\
+    \ a more complete and realistic implementation, here's a cleaner version that\
+    \ focuses on the core functionality:\n\n```cpp\nvoid WriteReg(uint8_t reg_addr,\
+    \ uint8_t reg_data)\n{\n    // Write data to specified register address\n    //\
+    \ This assumes direct memory mapping or hardware register access\n    \n    //\
+    \ For embedded systems with memory-mapped registers:\n    // Cast the address\
+    \ to volatile pointer and write the data\n    *(volatile uint8_t*)reg_addr = reg_data;\n\
+    \    \n    // Alternative implementation if using a more structured approach:\n\
+    \    // RegisterInterface::write(reg_addr, reg_data);\n}"
+  tools-small: "void WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t data[] =\
+    \ {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, data, sizeof(data),\
+    \ 100));\n}"
+  workflow+sd+mi: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ data[] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ data, sizeof(data), 100));\n}"
+  workflow+sd+mi+rf: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n  \
+    \  uint8_t data[] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ data, sizeof(data), 100));\n}"
+  local: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t data[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, data,\
+    \ sizeof(data), 100));\n}\n```\n\nThis sends two bytes over I2C: the register\
+    \ address followed by the value to write into that register.\n\n---\n\n### Final\
+    \ Code\n\nBelow is the complete implementation enclosed as requested:\n\n```cpp\n\
+    void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t data[2] =\
+    \ {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, data, sizeof(data),\
+    \ 100));\n}"
+  workflow-small-rf: "esp_err_t I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n\
+    {\n    uint8_t data[] = {reg, value};\n    esp_err_t err = i2c_master_transmit(i2c_device_,\
+    \ data, sizeof(data), I2C_TIMEOUT_MS);\n    if (err != ESP_OK) {\n        ESP_LOGE(TAG,\
+    \ \"Failed to write register 0x%02X, err=0x%X\", reg, err);\n    }\n    return\
+    \ err;\n}"
+  local-small: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}\n```\n\nWait, looking more carefully at the code structure,\
+    \ I notice there's an issue with the provided file - the `WriteReg` function appears\
+    \ to have been cut off or has syntax errors in the original. However, based on\
+    \ the clear pattern established by the `ReadRegs` function and the typical I2C\
+    \ write operation, here's the corrected and complete implementation:\n\n```cpp\n\
+    void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer,\
+    \ 2, 100));\n}"
+  tools-long: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ data[] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ data, sizeof(data), 100));\n}"
+  graph-5-5: "esp_err_t WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    esp_err_t err = i2c_master_transmit(i2c_device_handle,\
+    \ buffer, sizeof(buffer), pdMS_TO_TICKS(100));\n    ESP_ERROR_CHECK(err);\n  \
+    \  return err;\n}"
+  graph-small-5-5: "esp_err_t WriteReg(uint8_t reg_addr, uint8_t value)\n{\n    //\
+    \ Create buffer with register address and value\n    uint8_t buffer[2] = {reg_addr,\
+    \ value};\n    \n    // Transmit the buffer to the I2C device\n    esp_err_t result\
+    \ = i2c_master_transmit(i2c_device_, buffer, sizeof(buffer), I2C_TRANSACTION_TIMEOUT_MS);\n\
+    \    \n    return result;\n}"
+  Desc+without: "void WriteReg(uint8_t regAddr, uint8_t value) {\n    // Create a\
+    \ 2-byte buffer: [register_address, value]\n    uint8_t buffer[2];\n    buffer[0]\
+    \ = regAddr;\n    buffer[1] = value;\n    \n    // Transmit the buffer to the\
+    \ I2C device using master interface\n    // Assuming there's an I2C master object\
+    \ (e.g., i2cMaster) with a write method\n    // and a predefined device address\
+    \ (e.g., I2C_DEVICE_ADDR)\n    i2cMaster.write(I2C_DEVICE_ADDR, buffer, 2, 100);\n\
+    }"
+  Desc+local: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, sizeof(buffer), 100));\n}"
+  Desc+graph-5-5: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  Desc+tools: "void WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t data[] = {reg,\
+    \ value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, data, sizeof(data),\
+    \ 100));\n}"
+  Desc+graph-KG-5-5: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n   \
+    \ uint8_t buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  Desc+workflow: "#include \"i2c_device.h\"\n#include <esp_log.h>\n#include <freertos/FreeRTOS.h>\n\
+    #include <freertos/task.h>\n\n#define I2C_TIMEOUT_MS 100\n\nvoid I2cDevice::WriteReg(uint8_t\
+    \ reg, uint8_t value) {\n    uint8_t write_buffer[2] = {reg, value};\n    esp_err_t\
+    \ err = i2c_master_transmit(i2c_device_, write_buffer, sizeof(write_buffer), pdMS_TO_TICKS(I2C_TIMEOUT_MS));\n\
+    \    if (err != ESP_OK) {\n        ESP_LOGE(\"I2C\", \"Failed to write reg 0x%02X:\
+    \ %s\", reg, esp_err_to_name(err));\n    }\n}"
+  Desc+without-small: "int WriteReg(uint8_t regAddr, uint8_t value)\n{\n    // Create\
+    \ buffer to hold register address and value\n    uint8_t buffer[2];\n    buffer[0]\
+    \ = regAddr;    // Register address\n    buffer[1] = value;      // Value to write\n\
+    \    \n    // Transmit the buffer via I2C master interface with 100ms timeout\n\
+    \    // Assuming I2C_Master_Transmit returns 0 for success, non-zero for error\n\
+    \    int result = I2C_Master_Transmit(buffer, 2, 100);\n    \n    // Return result\
+    \ (0 for success, non-zero for failure)\n    return result;\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n\
+    {\n    uint8_t buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\
+    \ {\n    uint8_t buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void I2cDevice::WriteReg(uint8_t reg, uint8_t\
+    \ value) {\n    uint8_t buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void I2cDevice::WriteReg(uint8_t\
+    \ reg, uint8_t value) {\n    uint8_t buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "esp_err_t I2cDevice::WriteReg(uint8_t reg_addr,\
+    \ uint8_t data)\n{\n    // Prepare the I2C write buffer with register address\
+    \ and data byte\n    uint8_t write_buffer[2];\n    write_buffer[0] = reg_addr;\n\
+    \    write_buffer[1] = data;\n    \n    // Invoke I2C master transmit function\
+    \ with 100ms timeout\n    esp_err_t result = i2c_master_write_to_device(i2c_port_,\
+    \ device_address_, \n                                                  write_buffer,\
+    \ sizeof(write_buffer), \n                                                  pdMS_TO_TICKS(100));\n\
+    \    \n    // Handle transmission result and return status\n    if (result !=\
+    \ ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to write register 0x%02X, error: %s\"\
+    , \n                 reg_addr, esp_err_to_name(result));\n        return result;\n\
+    \    }\n    \n    return ESP_OK;\n}"
+  graph-SRP_KG-it-small;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n\
+    \    uint8_t buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  graph-SRP_KG-it;: "#include \"i2c_device.h\"\n\n#include <esp_log.h>\n\n#define\
+    \ TAG \"I2cDevice\"\n\n// Assuming constructor or other parts initialize i2c_device_\n\
+    // ...\n\nvoid I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ buffer[2];\n    buffer[0] = reg;\n    buffer[1] = value;\n\n    esp_err_t result\
+    \ = i2c_master_transmit(i2c_device_, buffer, sizeof(buffer), pdMS_TO_TICKS(100));\n\
+    \    if (result != ESP_OK) {\n        ESP_LOGE(TAG, \"Failed to write register\
+    \ 0x%02X, error: 0x%X\", reg, result);\n    }\n}"
+  without-small;: "int WriteReg(uint8_t regAddr, uint8_t value)\n{\n    // Create\
+    \ buffer to hold register address and value\n    uint8_t buffer[2];\n    buffer[0]\
+    \ = regAddr;    // Register address\n    buffer[1] = value;      // Value to write\n\
+    \    \n    // Transmit the buffer via I2C master interface with 100ms timeout\n\
+    \    // Assuming I2C_Master_Transmit returns 0 for success, non-zero for error\n\
+    \    int result = I2C_Master_Transmit(buffer, 2, 100);\n    \n    // Return result\
+    \ (0 for success, non-zero for failure)\n    return result;\n}"
+  local-small;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  tools-small;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t\
+    \ data[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ data, sizeof(data), 100));\n}"
+  without;: "void WriteReg(uint8_t regAddr, uint8_t value) {\n    // Create a 2-byte\
+    \ buffer: [register_address, value]\n    uint8_t buffer[2];\n    buffer[0] = regAddr;\n\
+    \    buffer[1] = value;\n    \n    // Transmit the buffer to the I2C device using\
+    \ master interface\n    // Assuming there's an I2C master object (e.g., i2cMaster)\
+    \ with a write method\n    // and a predefined device address (e.g., I2C_DEVICE_ADDR)\n\
+    \    i2cMaster.write(I2C_DEVICE_ADDR, buffer, 2, 100);\n}"
+  local;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer,\
+    \ sizeof(buffer), 100));\n}"
+  tools;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value)\n{\n    uint8_t data[]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, data,\
+    \ sizeof(data), 100));\n}"
+  eg;: "#include <cstdint>\n\n// Assuming these are declared elsewhere or implied\
+    \ by context\nextern I2C_HandleTypeDef hi2c1; // Example I2C handle\nconstexpr\
+    \ uint8_t kDeviceAddress = 0x10 << 1; // Example device address (shifted for HAL)\n\
+    constexpr uint32_t kTimeoutMs = 100;\n\nclass I2CDevice {\npublic:\n    bool WriteReg(uint8_t\
+    \ reg_addr, uint8_t data) {\n        // Step 1: Prepare the I2C write buffer with\
+    \ register address and data byte\n        uint8_t buffer[2];\n        buffer[0]\
+    \ = reg_addr;\n        buffer[1] = data;\n\n        // Step 2: Invoke I2C master\
+    \ transmit function with 100ms timeout\n        HAL_StatusTypeDef result = HAL_I2C_Master_Transmit(&hi2c1,\
+    \ kDeviceAddress, buffer, sizeof(buffer), kTimeoutMs);\n\n        // Step 3: Handle\
+    \ transmission result and return status\n        return (result == HAL_OK);\n\
+    \    }\n};"
+  a3;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer,\
+    \ 2, 100));\n}"
+  eg-small;: "bool WriteReg(uint8_t reg_addr, uint8_t data_value) {\n    // Construct\
+    \ a two-byte buffer with the register address and data value\n    uint8_t buffer[2]\
+    \ = {reg_addr, data_value};\n    \n    // Use the I2C master interface to transmit\
+    \ the buffer to the device\n    // with a timeout of 100 milliseconds\n    bool\
+    \ result = _i2c_master.Write(_device_address, buffer, sizeof(buffer), 100);\n\
+    \    \n    // Handle potential transmission errors and ensure 100ms timeout is\
+    \ enforced\n    if (!result) {\n        // Handle write failure - could log error\
+    \ or return false\n        return false;\n    }\n    \n    return true;\n}"
+  a3-small;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  SRP-small;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  SRP;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer,\
+    \ 2, 100));\n}"
+  eg-small-168;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  eg-168;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer,\
+    \ sizeof(buffer), 100));\n}"
+  SRP-small-168;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t\
+    \ buffer[2] = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_,\
+    \ buffer, 2, 100));\n}"
+  SRP-168;: "void I2cDevice::WriteReg(uint8_t reg, uint8_t value) {\n    uint8_t buffer[2]\
+    \ = {reg, value};\n    ESP_ERROR_CHECK(i2c_master_transmit(i2c_device_, buffer,\
+    \ 2, 100));\n}"
+- query: complete the function ReadReg(uint8_t)()
+  ground_truth: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t buffer[1];\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, buffer,\
+    \ 1, 100));\n    return buffer[0];\n}"
+  workflow: ''
+  cursor: ''
+  without: "uint8_t ReadReg(uint8_t regAddress) {\n    // Validate the register address\
+    \ if there are known bounds\n    // For now, we'll assume all register addresses\
+    \ are valid\n    \n    // Simulate reading from a register\n    // In a real implementation,\
+    \ this would interface with hardware\n    // through memory-mapped I/O, I2C, SPI,\
+    \ or other communication protocols\n    \n    // Example implementation for memory-mapped\
+    \ registers:\n    // volatile uint8_t* registerBase = (volatile uint8_t*)0x40000000;\n\
+    \    // return *(registerBase + regAddress);\n    \n    // Example implementation\
+    \ for I2C device:\n    // return i2c_read_register(deviceAddress, regAddress);\n\
+    \    \n    // Placeholder implementation - in a real system, replace with actual\n\
+    \    // hardware register reading code\n    static uint8_t dummyRegisters[256]\
+    \ = {0};\n    \n    // Return the value stored at the requested register address\n\
+    \    return dummyRegisters[regAddress];\n}"
+  tools: "uint8_t ReadReg(uint8_t reg) {\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  without-small: "#include <cstdint>\n\n// Assuming this is part of a class or has\
+    \ access to hardware registers\n// The function reads from a register at the specified\
+    \ address\nuint8_t ReadReg(uint8_t regAddress) {\n    // This would typically\
+    \ involve:\n    // 1. Accessing the hardware register at regAddress\n    // 2.\
+    \ Reading the value from that register\n    // 3. Returning the read value\n \
+    \   \n    // Example implementation for embedded systems:\n    // Assuming we\
+    \ have a base address for registers (could be defined elsewhere)\n    // For demonstration\
+    \ purposes, using a generic approach:\n    \n    // Cast the register address\
+    \ to a pointer to uint8_t and dereference it\n    volatile uint8_t* regPtr = reinterpret_cast<volatile\
+    \ uint8_t*>(regAddress);\n    \n    // Read and return the register value\n  \
+    \  return *regPtr;\n}\n```\n\nHowever, since I don't have the complete context,\
+    \ here's a more robust version that handles potential memory mapping scenarios:\n\
+    \n```cpp\n#include <cstdint>\n\nuint8_t ReadReg(uint8_t regAddress) {\n    //\
+    \ Read from a hardware register at the specified address\n    // This assumes\
+    \ a simple memory-mapped I/O approach\n    \n    // Using volatile to prevent\
+    \ compiler optimization issues\n    // with hardware registers that might change\
+    \ unexpectedly\n    volatile uint8_t* registerPtr = reinterpret_cast<volatile\
+    \ uint8_t*>(regAddress);\n    \n    // Read and return the register value\n  \
+    \  return *registerPtr;\n}"
+  tools-small: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n \
+    \   ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  workflow+sd+mi: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  workflow+sd+mi+rf: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  local: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  workflow-small-rf: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  local-small: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n \
+    \   ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  tools-long: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n  \
+    \  ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value, 1,\
+    \ 100));\n    return value;\n}"
+  graph-5-5: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n    esp_err_t\
+    \ result = i2c_master_transmit_receive(i2c_device_, &reg, 1, &value, 1, 100);\n\
+    \    if (result != ESP_OK) {\n        // In case of error, return 0 or handle\
+    \ according to error policy\n        return 0;\n    }\n    return value;\n}"
+  graph-small-5-5: "uint8_t I2cDevice::ReadReg(uint8_t reg_addr) {\n    uint8_t data;\n\
+    \    esp_err_t ret = i2c_master_transmit_receive(\n        i2c_device_,\n    \
+    \    &reg_addr,\n        1,\n        &data,\n        1,\n        100\n    );\n\
+    \    \n    ESP_ERROR_CHECK(ret);\n    return data;\n}"
+  Desc+without: "uint8_t ReadReg(uint8_t regAddr) {\n    uint8_t data = 0;\n    \n\
+    \    // Start I2C communication with device write address\n    I2C_Start();\n\
+    \    I2C_Write((deviceAddress << 1) | 0); // Write mode\n    \n    // Send register\
+    \ address\n    I2C_Write(regAddr);\n    \n    // Restart with device read address\n\
+    \    I2C_Start();\n    I2C_Write((deviceAddress << 1) | 1); // Read mode\n   \
+    \ \n    // Read data byte (with NACK since it's single byte)\n    data = I2C_Read(0);\
+    \ // 0 = NACK for last byte\n    \n    // Stop I2C communication\n    I2C_Stop();\n\
+    \    \n    return data;\n}"
+  Desc+local: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n  \
+    \  ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value, 1,\
+    \ 100));\n    return value;\n}"
+  Desc+graph-5-5: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  Desc+tools: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n  \
+    \  ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value, 1,\
+    \ 100));\n    return value;\n}"
+  Desc+graph-KG-5-5: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  Desc+workflow: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  Desc+without-small: "uint8_t ReadReg(uint8_t regAddr)\n{\n    uint8_t data;\n  \
+    \  \n    // Write register address\n    I2C_Write(deviceAddress, &regAddr, 1);\n\
+    \    \n    // Read data from register\n    I2C_Read(deviceAddress, &data, 1);\n\
+    \    \n    return data;\n}"
+  Desc+graph-SRP_KG-5-5-rf: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t\
+    \ value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1,\
+    \ &value, 1, 100));\n    return value;\n}"
+  Desc+graph-wt-SRP_KG-3-3: "uint8_t ReadReg(uint8_t reg) {\n    uint8_t temp = 0;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &temp,\
+    \ 1, 100));\n    return temp;\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "uint8_t I2cDevice::ReadReg(uint8_t reg)\
+    \ {\n    uint8_t value = 0;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "uint8_t I2cDevice::ReadReg(uint8_t\
+    \ reg)\n{\n    uint8_t value = 0;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "uint8_t I2CDevice::ReadReg(uint8_t reg_addr)\
+    \ {\n    uint8_t data = 0;\n    \n    // Send register address to the device\n\
+    \    esp_err_t ret = i2c_master_write_to_device(\n        this->port_,       \
+    \    // I2C port number\n        this->addr_,           // Device address\n  \
+    \      &reg_addr,             // Register address to write\n        1,       \
+    \              // Length of data to write\n        pdMS_TO_TICKS(1000)    // Timeout\n\
+    \    );\n    \n    if (ret != ESP_OK) {\n        ESP_LOGE(\"I2C\", \"Failed to\
+    \ write register address: %s\", esp_err_to_name(ret));\n        return 0xFF; //\
+    \ Return error value\n    }\n    \n    // Read data from the specified register\n\
+    \    ret = i2c_master_read_from_device(\n        this->port_,           // I2C\
+    \ port number\n        this->addr_,           // Device address\n        &data,\
+    \                 // Buffer to store read data\n        1,                   \
+    \  // Length of data to read\n        pdMS_TO_TICKS(1000)    // Timeout\n    );\n\
+    \    \n    if (ret != ESP_OK) {\n        ESP_LOGE(\"I2C\", \"Failed to read register\
+    \ data: %s\", esp_err_to_name(ret));\n        return 0xFF; // Return error value\n\
+    \    }\n    \n    return data;\n}"
+  graph-SRP_KG-it-small;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t\
+    \ value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1,\
+    \ &value, 1, 100));\n    return value;\n}"
+  graph-SRP_KG-it;: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  without-small;: "uint8_t ReadReg(uint8_t regAddr)\n{\n    uint8_t data;\n    \n\
+    \    // Write register address\n    I2C_Write(deviceAddress, &regAddr, 1);\n \
+    \   \n    // Read data from register\n    I2C_Read(deviceAddress, &data, 1);\n\
+    \    \n    return data;\n}"
+  local-small;: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  tools-small;: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t buffer[1];\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, buffer,\
+    \ 1, 100));\n    return buffer[0];\n}"
+  without;: "uint8_t ReadReg(uint8_t regAddr) {\n    uint8_t data = 0;\n    \n   \
+    \ // Start I2C communication with device write address\n    I2C_Start();\n   \
+    \ I2C_Write((deviceAddress << 1) | 0); // Write mode\n    \n    // Send register\
+    \ address\n    I2C_Write(regAddr);\n    \n    // Restart with device read address\n\
+    \    I2C_Start();\n    I2C_Write((deviceAddress << 1) | 1); // Read mode\n   \
+    \ \n    // Read data byte (with NACK since it's single byte)\n    data = I2C_Read(0);\
+    \ // 0 = NACK for last byte\n    \n    // Stop I2C communication\n    I2C_Stop();\n\
+    \    \n    return data;\n}"
+  local;: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  tools;: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value = 0;\n  \
+    \  ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value, 1,\
+    \ 100));\n    return value;\n}"
+  eg;: "#include \"driver/i2c.h\"\n\n// Assuming these are defined elsewhere or passed\
+    \ appropriately\nextern i2c_port_t _port;\nextern uint8_t _addr;\n\nuint8_t I2CDevice::ReadReg(uint8_t\
+    \ reg) {\n    uint8_t data = 0;\n    esp_err_t err;\n\n    // Send register address\
+    \ to be read\n    err = i2c_master_write_to_device(_port, _addr, &reg, 1, pdMS_TO_TICKS(1000));\n\
+    \    if (err != ESP_OK) {\n        // Log or handle error accordingly\n      \
+    \  return 0xFF; // Indicate failure\n    }\n\n    // Read the data from the register\n\
+    \    err = i2c_master_read_from_device(_port, _addr, &data, 1, pdMS_TO_TICKS(1000));\n\
+    \    if (err != ESP_OK) {\n        // Log or handle error accordingly\n      \
+    \  return 0xFF; // Indicate failure\n    }\n\n    return data;\n}"
+  a3;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  eg-small;: "uint8_t I2CDevice::ReadReg(uint8_t reg_addr) {\n    uint8_t data = 0;\n\
+    \    \n    // First, send the register address to the device\n    esp_err_t err\
+    \ = i2c_master_write_to_device(\n        this->i2c_port,\n        this->device_address,\n\
+    \        &reg_addr,\n        1,\n        I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS\n\
+    \    );\n    \n    if (err != ESP_OK) {\n        // Handle write error - could\
+    \ log or throw exception depending on design\n        return 0; // or some error\
+    \ indicator\n    }\n    \n    // Then read the data from the specified register\n\
+    \    err = i2c_master_read_from_device(\n        this->i2c_port,\n        this->device_address,\n\
+    \        &data,\n        1,\n        I2C_MASTER_TIMEOUT_MS / portTICK_RATE_MS\n\
+    \    );\n    \n    if (err != ESP_OK) {\n        // Handle read error\n      \
+    \  return 0; // or some error indicator\n    }\n    \n    return data;\n}"
+  a3-small;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  SRP-small;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n   \
+    \ ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value, 1,\
+    \ 100));\n    return value;\n}"
+  SRP;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"
+  eg-small-168;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  eg-168;: "uint8_t I2cDevice::ReadReg(uint8_t reg)\n{\n    uint8_t value = 0;\n \
+    \   ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  SRP-small-168;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n\
+    \    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, &value,\
+    \ 1, 100));\n    return value;\n}"
+  SRP-168;: "uint8_t I2cDevice::ReadReg(uint8_t reg) {\n    uint8_t value;\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_,\
+    \ &reg, 1, &value, 1, 100));\n    return value;\n}"

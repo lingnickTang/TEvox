@@ -1,0 +1,134 @@
+- query: complete the function SetupUI()()
+  file_path: main/display/lcd_display.cc
+  ground_truth: "void LcdDisplay::SetupUI() {\n    DisplayLockGuard lock(this);\n\n\
+    \    auto lvgl_theme = static_cast<LvglTheme*>(current_theme_);\n    auto text_font\
+    \ = lvgl_theme->text_font()->font();\n    auto icon_font = lvgl_theme->icon_font()->font();\n\
+    \    auto large_icon_font = lvgl_theme->large_icon_font()->font();\n\n    auto\
+    \ screen = lv_screen_active();\n    lv_obj_set_style_text_font(screen, text_font,\
+    \ 0);\n    lv_obj_set_style_text_color(screen, lvgl_theme->text_color(), 0);\n\
+    \    lv_obj_set_style_bg_color(screen, lvgl_theme->background_color(), 0);\n\n\
+    \    /* Container */\n    container_ = lv_obj_create(screen);\n    lv_obj_set_size(container_,\
+    \ LV_HOR_RES, LV_VER_RES);\n    lv_obj_set_style_radius(container_, 0, 0);\n \
+    \   lv_obj_set_flex_flow(container_, LV_FLEX_FLOW_COLUMN);\n    lv_obj_set_style_pad_all(container_,\
+    \ 0, 0);\n    lv_obj_set_style_border_width(container_, 0, 0);\n    lv_obj_set_style_pad_row(container_,\
+    \ 0, 0);\n    lv_obj_set_style_bg_color(container_, lvgl_theme->background_color(),\
+    \ 0);\n    lv_obj_set_style_border_color(container_, lvgl_theme->border_color(),\
+    \ 0);\n\n    /* Layer 1: Top bar - for status icons */\n    top_bar_ = lv_obj_create(container_);\n\
+    \    lv_obj_set_size(top_bar_, LV_HOR_RES, LV_SIZE_CONTENT);\n    lv_obj_set_style_radius(top_bar_,\
+    \ 0, 0);\n    lv_obj_set_style_bg_opa(top_bar_, LV_OPA_50, 0);  // 50% opacity\
+    \ background\n    lv_obj_set_style_bg_color(top_bar_, lvgl_theme->background_color(),\
+    \ 0);\n    lv_obj_set_style_border_width(top_bar_, 0, 0);\n    lv_obj_set_style_pad_all(top_bar_,\
+    \ 0, 0);\n    lv_obj_set_style_pad_top(top_bar_, lvgl_theme->spacing(2), 0);\n\
+    \    lv_obj_set_style_pad_bottom(top_bar_, lvgl_theme->spacing(2), 0);\n    lv_obj_set_style_pad_left(top_bar_,\
+    \ lvgl_theme->spacing(4), 0);\n    lv_obj_set_style_pad_right(top_bar_, lvgl_theme->spacing(4),\
+    \ 0);\n    lv_obj_set_flex_flow(top_bar_, LV_FLEX_FLOW_ROW);\n    lv_obj_set_flex_align(top_bar_,\
+    \ LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);\n\
+    \    lv_obj_set_scrollbar_mode(top_bar_, LV_SCROLLBAR_MODE_OFF);\n\n    // Left\
+    \ icon\n    network_label_ = lv_label_create(top_bar_);\n    lv_label_set_text(network_label_,\
+    \ \"\");\n    lv_obj_set_style_text_font(network_label_, icon_font, 0);\n    lv_obj_set_style_text_color(network_label_,\
+    \ lvgl_theme->text_color(), 0);\n\n    // Right icons container\n    lv_obj_t*\
+    \ right_icons = lv_obj_create(top_bar_);\n    lv_obj_set_size(right_icons, LV_SIZE_CONTENT,\
+    \ LV_SIZE_CONTENT);\n    lv_obj_set_style_bg_opa(right_icons, LV_OPA_TRANSP, 0);\n\
+    \    lv_obj_set_style_border_width(right_icons, 0, 0);\n    lv_obj_set_style_pad_all(right_icons,\
+    \ 0, 0);\n    lv_obj_set_flex_flow(right_icons, LV_FLEX_FLOW_ROW);\n    lv_obj_set_flex_align(right_icons,\
+    \ LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);\n\n    mute_label_\
+    \ = lv_label_create(right_icons);\n    lv_label_set_text(mute_label_, \"\");\n\
+    \    lv_obj_set_style_text_font(mute_label_, icon_font, 0);\n    lv_obj_set_style_text_color(mute_label_,\
+    \ lvgl_theme->text_color(), 0);\n\n    battery_label_ = lv_label_create(right_icons);\n\
+    \    lv_label_set_text(battery_label_, \"\");\n    lv_obj_set_style_text_font(battery_label_,\
+    \ icon_font, 0);\n    lv_obj_set_style_text_color(battery_label_, lvgl_theme->text_color(),\
+    \ 0);\n    lv_obj_set_style_margin_left(battery_label_, lvgl_theme->spacing(2),\
+    \ 0);\n\n    /* Layer 2: Status bar - for center text labels */\n    status_bar_\
+    \ = lv_obj_create(screen);\n    lv_obj_set_size(status_bar_, LV_HOR_RES, LV_SIZE_CONTENT);\n\
+    \    lv_obj_set_style_radius(status_bar_, 0, 0);\n    lv_obj_set_style_bg_opa(status_bar_,\
+    \ LV_OPA_TRANSP, 0);  // Transparent background\n    lv_obj_set_style_border_width(status_bar_,\
+    \ 0, 0);\n    lv_obj_set_style_pad_all(status_bar_, 0, 0);\n    lv_obj_set_style_pad_top(status_bar_,\
+    \ lvgl_theme->spacing(2), 0);\n    lv_obj_set_style_pad_bottom(status_bar_, lvgl_theme->spacing(2),\
+    \ 0);\n    lv_obj_set_scrollbar_mode(status_bar_, LV_SCROLLBAR_MODE_OFF);\n  \
+    \  lv_obj_set_style_layout(status_bar_, LV_LAYOUT_NONE, 0);  // Use absolute positioning\n\
+    \    lv_obj_align(status_bar_, LV_ALIGN_TOP_MID, 0, 0);  // Overlap with top_bar_\n\
+    \n    notification_label_ = lv_label_create(status_bar_);\n    lv_obj_set_width(notification_label_,\
+    \ LV_HOR_RES * 0.8);\n    lv_obj_set_style_text_align(notification_label_, LV_TEXT_ALIGN_CENTER,\
+    \ 0);\n    lv_obj_set_style_text_color(notification_label_, lvgl_theme->text_color(),\
+    \ 0);\n    lv_label_set_text(notification_label_, \"\");\n    lv_obj_align(notification_label_,\
+    \ LV_ALIGN_CENTER, 0, 0);\n    lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);\n\
+    \n    status_label_ = lv_label_create(status_bar_);\n    lv_obj_set_width(status_label_,\
+    \ LV_HOR_RES * 0.8);\n    lv_label_set_long_mode(status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);\n\
+    \    lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);\n  \
+    \  lv_obj_set_style_text_color(status_label_, lvgl_theme->text_color(), 0);\n\
+    \    lv_label_set_text(status_label_, Lang::Strings::INITIALIZING);\n    lv_obj_align(status_label_,\
+    \ LV_ALIGN_CENTER, 0, 0);\n    \n    /* Content - Chat area */\n    content_ =\
+    \ lv_obj_create(container_);\n    lv_obj_set_style_radius(content_, 0, 0);\n \
+    \   lv_obj_set_width(content_, LV_HOR_RES);\n    lv_obj_set_flex_grow(content_,\
+    \ 1);\n    lv_obj_set_style_pad_all(content_, lvgl_theme->spacing(4), 0);\n  \
+    \  lv_obj_set_style_border_width(content_, 0, 0);\n    lv_obj_set_style_bg_color(content_,\
+    \ lvgl_theme->chat_background_color(), 0); // Background for chat area\n\n   \
+    \ // Enable scrolling for chat content\n    lv_obj_set_scrollbar_mode(content_,\
+    \ LV_SCROLLBAR_MODE_OFF);\n    lv_obj_set_scroll_dir(content_, LV_DIR_VER);\n\
+    \    \n    // Create a flex container for chat messages\n    lv_obj_set_flex_flow(content_,\
+    \ LV_FLEX_FLOW_COLUMN);\n    lv_obj_set_flex_align(content_, LV_FLEX_ALIGN_START,\
+    \ LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);\n    lv_obj_set_style_pad_row(content_,\
+    \ lvgl_theme->spacing(4), 0); // Space between messages\n\n    // We'll create\
+    \ chat messages dynamically in SetChatMessage\n    chat_message_label_ = nullptr;\n\
+    \n    low_battery_popup_ = lv_obj_create(screen);\n    lv_obj_set_scrollbar_mode(low_battery_popup_,\
+    \ LV_SCROLLBAR_MODE_OFF);\n    lv_obj_set_size(low_battery_popup_, LV_HOR_RES\
+    \ * 0.9, text_font->line_height * 2);\n    lv_obj_align(low_battery_popup_, LV_ALIGN_BOTTOM_MID,\
+    \ 0, -lvgl_theme->spacing(4));\n    lv_obj_set_style_bg_color(low_battery_popup_,\
+    \ lvgl_theme->low_battery_color(), 0);\n    lv_obj_set_style_radius(low_battery_popup_,\
+    \ lvgl_theme->spacing(4), 0);\n    low_battery_label_ = lv_label_create(low_battery_popup_);\n\
+    \    lv_label_set_text(low_battery_label_, Lang::Strings::BATTERY_NEED_CHARGE);\n\
+    \    lv_obj_set_style_text_color(low_battery_label_, lv_color_white(), 0);\n \
+    \   lv_obj_center(low_battery_label_);\n    lv_obj_add_flag(low_battery_popup_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n\n    emoji_image_ = lv_img_create(screen);\n    lv_obj_align(emoji_image_,\
+    \ LV_ALIGN_TOP_MID, 0, text_font->line_height + lvgl_theme->spacing(8));\n\n \
+    \   // Display AI logo while booting\n    emoji_label_ = lv_label_create(screen);\n\
+    \    lv_obj_center(emoji_label_);\n    lv_obj_set_style_text_font(emoji_label_,\
+    \ large_icon_font, 0);\n    lv_obj_set_style_text_color(emoji_label_, lvgl_theme->text_color(),\
+    \ 0);\n    lv_label_set_text(emoji_label_, FONT_AWESOME_MICROCHIP_AI);\n}"
+  workflow: "void LcdDisplay::SetupUI()\n{\n    // Step 1: Initialize LVGL core library\n\
+    \    ESP_LOGI(TAG, \"Initializing LVGL library\");\n    lv_init();\n\n    // Step\
+    \ 2: Initialize LVGL port with configuration\n    ESP_LOGI(TAG, \"Initializing\
+    \ LVGL port\");\n    lvgl_port_cfg_t port_cfg = ESP_LVGL_PORT_INIT_CONFIG();\n\
+    \    port_cfg.task_priority = 1;\n#if CONFIG_SOC_CPU_CORES_NUM > 1\n    port_cfg.task_affinity\
+    \ = 1;\n#endif\n    port_cfg.timer_period_ms = 50;\n    lvgl_port_init(&port_cfg);\n\
+    \n    // Step 3: Configure and add RGB display\n    // Declare missing variables\
+    \ with default values\n    bool swap_xy = false;\n    bool mirror_x = false;\n\
+    \    bool mirror_y = false;\n\n    const lvgl_port_display_cfg_t display_cfg =\
+    \ {\n        .io_handle = panel_io_,\n        .panel_handle = panel_,\n      \
+    \  .buffer_size = static_cast<uint32_t>(width_ * 20),\n        .double_buffer\
+    \ = false,\n        .hres = static_cast<uint32_t>(width_),\n        .vres = static_cast<uint32_t>(height_),\n\
+    \        .rotation = {\n            .swap_xy = swap_xy,\n            .mirror_x\
+    \ = mirror_x,\n            .mirror_y = mirror_y,\n        },\n        .flags =\
+    \ {\n            .buff_dma = 1,\n            .swap_bytes = 0,\n            .full_refresh\
+    \ = 1,\n            .direct_mode = 1,\n        },\n    };\n\n    const lvgl_port_display_rgb_cfg_t\
+    \ rgb_cfg = {\n        .flags = {\n            .bb_mode = true,\n            .avoid_tearing\
+    \ = true,\n        }};\n\n    display_ = lvgl_port_add_disp_rgb(&display_cfg,\
+    \ &rgb_cfg);\n    if (display_ == nullptr)\n    {\n        ESP_LOGE(TAG, \"Failed\
+    \ to add RGB display\");\n        return;\n    }\n\n    // Step 4: Theme Management\
+    \ - Register built-in themes\n    auto text_font = std::make_shared<LvglBuiltInFont>(&BUILTIN_TEXT_FONT);\n\
+    \    auto icon_font = std::make_shared<LvglBuiltInFont>(&BUILTIN_ICON_FONT);\n\
+    \n    auto light_theme = new LvglTheme(\"light\");\n    light_theme->set_background_color(lv_color_hex(0xFFFFFF));\n\
+    \    light_theme->set_text_color(lv_color_hex(0x000000));\n    light_theme->set_text_font(text_font);\n\
+    \    light_theme->set_icon_font(icon_font);\n\n    auto dark_theme = new LvglTheme(\"\
+    dark\");\n    dark_theme->set_background_color(lv_color_hex(0x000000));\n    dark_theme->set_text_color(lv_color_hex(0xFFFFFF));\n\
+    \    dark_theme->set_text_font(text_font);\n    dark_theme->set_icon_font(icon_font);\n\
+    \n    auto &theme_manager = LvglThemeManager::GetInstance();\n    theme_manager.RegisterTheme(\"\
+    light\", light_theme);\n    theme_manager.RegisterTheme(\"dark\", dark_theme);\n\
+    \n    // Apply initial theme (example: light) - Fix method name typo\n    theme_manager.GetTheme(\"\
+    light\"); // Step 5: Create base screen and apply standard styles    \n    lv_obj_t\
+    \ *screen = lv_scr_act();\n    lv_obj_set_style_bg_color(screen, light_theme->background_color(),\
+    \ 0);\n    lv_obj_set_style_pad_all(screen, 0, 0);\n    lv_obj_set_style_border_width(screen,\
+    \ 0, 0);\n\n    // Step 6: Use Flex Layout for Top Bar Example\n    top_bar_ =\
+    \ lv_obj_create(screen);\n    lv_obj_set_size(top_bar_, LV_HOR_RES, LV_SIZE_CONTENT);\n\
+    \    lv_obj_set_flex_flow(top_bar_, LV_FLEX_FLOW_ROW);\n    lv_obj_set_flex_align(top_bar_,\
+    \ LV_FLEX_ALIGN_SPACE_BETWEEN,\n                          LV_FLEX_ALIGN_CENTER,\
+    \ LV_FLEX_ALIGN_CENTER);\n    lv_obj_set_scrollbar_mode(top_bar_, LV_SCROLLBAR_MODE_OFF);\n\
+    \n    // Step 7: Create standardized UI components\n    chat_message_label_ =\
+    \ lv_label_create(screen);\n    lv_label_set_text(chat_message_label_, \"\");\n\
+    \    lv_obj_set_style_text_font(chat_message_label_, icon_font->font(), 0);\n\
+    \    lv_obj_set_style_text_color(chat_message_label_, light_theme->text_color(),\
+    \ 0);\n    lv_obj_set_style_margin_left(chat_message_label_, light_theme->spacing(2),\
+    \ 0);\n\n    preview_image_ = lv_img_create(screen);\n    lv_img_set_src(preview_image_,\
+    \ NULL); // Placeholder image source\n    lv_obj_center(preview_image_);\n\n \
+    \   // Optional: Lock mechanism initialized in class constructor elsewhere\n \
+    \   ESP_LOGI(TAG, \"UI setup completed successfully.\");\n}"

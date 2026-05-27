@@ -1,0 +1,178 @@
+complete the function XL9555(i2c_master_bus_handle_t, uint8_t)():
+  functions:
+  - WriteReg
+  - I2cDevice
+  variables:
+  - i2c_bus
+  - addr
+complete the function SetOutputState(uint8_t, uint8_t)():
+  functions:
+  - ReadReg(0x02)
+  - ReadReg(0x03)
+  - WriteReg(0x02, data)
+  - WriteReg(0x03, data)
+  variables:
+  - bit
+  - level
+  - data
+  - index
+complete the function InitializeI2c()():
+  functions:
+  - ESP_ERROR_CHECK
+  - i2c_new_master_bus
+  - new XL9555
+  variables:
+  - i2c_bus_cfg
+  - i2c_port
+  - sda_io_num
+  - scl_io_num
+  - clk_source
+  - glitch_ignore_cnt
+  - intr_priority
+  - trans_queue_depth
+  - flags
+  - enable_internal_pullup
+  - i2c_bus_
+  - xl9555_
+  - I2C_NUM_0
+  - AUDIO_CODEC_I2C_SDA_PIN
+  - AUDIO_CODEC_I2C_SCL_PIN
+  - I2C_CLK_SRC_DEFAULT
+complete the function InitializeSpi()():
+  functions:
+  - ESP_ERROR_CHECK
+  - spi_bus_initialize
+  variables:
+  - spi_bus_config_t
+  - buscfg
+  - LCD_MOSI_PIN
+  - GPIO_NUM_NC
+  - LCD_SCLK_PIN
+  - DISPLAY_WIDTH
+  - DISPLAY_HEIGHT
+  - uint16_t
+  - SPI2_HOST
+  - SPI_DMA_CH_AUTO
+complete the function InitializeButtons()():
+  functions:
+  - Application::GetInstance()
+  - app.GetDeviceState()
+  - EnterWifiConfigMode()
+  - app.ToggleChatState()
+  - boot_button_.OnClick()
+  variables:
+  - boot_button_
+  - app
+  - kDeviceStateStarting
+complete the function InitializeSt7789Display()():
+  functions:
+  - ESP_LOGD
+  - esp_lcd_new_panel_io_spi
+  - esp_lcd_new_panel_st7789
+  - esp_lcd_panel_reset
+  - xl9555_->SetOutputState
+  - esp_lcd_panel_init
+  - esp_lcd_panel_invert_color
+  - esp_lcd_panel_swap_xy
+  - esp_lcd_panel_mirror
+  - new SpiLcdDisplay
+  variables:
+  - panel_io
+  - panel
+  - TAG
+  - io_config
+  - LCD_CS_PIN
+  - LCD_DC_PIN
+  - SPI2_HOST
+  - panel_config
+  - GPIO_NUM_NC
+  - LCD_RGB_ELEMENT_ORDER_RGB
+  - LCD_RGB_DATA_ENDIAN_BIG
+  - xl9555_
+  - DISPLAY_BACKLIGHT_OUTPUT_INVERT
+  - DISPLAY_SWAP_XY
+  - DISPLAY_MIRROR_X
+  - DISPLAY_MIRROR_Y
+  - display_
+  - DISPLAY_WIDTH
+  - DISPLAY_HEIGHT
+  - DISPLAY_OFFSET_X
+  - DISPLAY_OFFSET_Y
+complete the function InitializeCamera()():
+  functions:
+  - xl9555_->SetOutputState
+  - vTaskDelay
+  - pdMS_TO_TICKS
+  - new Esp32Camera
+  variables:
+  - xl9555_
+  - OV_PWDN_IO
+  - OV_RESET_IO
+  - dvp_pin_config
+  - data_width
+  - data_io
+  - vsync_io
+  - de_io
+  - pclk_io
+  - xclk_io
+  - CAM_PIN_D0
+  - CAM_PIN_D1
+  - CAM_PIN_D2
+  - CAM_PIN_D3
+  - CAM_PIN_D4
+  - CAM_PIN_D5
+  - CAM_PIN_D6
+  - CAM_PIN_D7
+  - CAM_PIN_VSYNC
+  - CAM_PIN_HREF
+  - CAM_PIN_PCLK
+  - CAM_PIN_XCLK
+  - sccb_config
+  - init_sccb
+  - i2c_config
+  - port
+  - scl_pin
+  - sda_pin
+  - CAM_PIN_SIOC
+  - CAM_PIN_SIOD
+  - freq
+  - dvp_config
+  - reset_pin
+  - pwdn_pin
+  - dvp_pin
+  - xclk_freq
+  - video_config
+  - dvp
+  - camera_
+complete the function atk_dnesp32s3()():
+  functions:
+  - InitializeI2c()
+  - InitializeSpi()
+  - InitializeSt7789Display()
+  - InitializeButtons()
+  - InitializeCamera()
+  variables:
+  - boot_button_
+  - BOOT_BUTTON_GPIO
+complete the function GetLed()():
+  functions:
+  - SingleLed()
+  variables:
+  - led
+  - BUILTIN_LED_GPIO
+complete the function GetAudioCodec()():
+  functions:
+  - Es8388AudioCodec()
+  variables:
+  - i2c_bus_
+  - I2C_NUM_0
+  - AUDIO_INPUT_SAMPLE_RATE
+  - AUDIO_OUTPUT_SAMPLE_RATE
+  - AUDIO_I2S_GPIO_MCLK
+  - AUDIO_I2S_GPIO_BCLK
+  - AUDIO_I2S_GPIO_WS
+  - AUDIO_I2S_GPIO_DOUT
+  - AUDIO_I2S_GPIO_DIN
+  - GPIO_NUM_NC
+  - AUDIO_CODEC_ES8388_ADDR
+  - audio_codec

@@ -1,0 +1,175 @@
+complete the function ~CustomWakeWord()():
+  functions:
+  - multinet_->destroy()
+  - heap_caps_free()
+  - esp_srmodel_deinit()
+  variables:
+  - multinet_model_data_
+  - multinet_
+  - wake_word_encode_task_stack_
+  - wake_word_encode_task_buffer_
+  - models_
+complete the function ParseWakenetModelConfig()():
+  functions:
+  - Assets::GetInstance
+  - assets.GetAssetData
+  - ESP_LOGE
+  - cJSON_ParseWithLength
+  - cJSON_GetObjectItem
+  - cJSON_IsObject
+  - cJSON_IsString
+  - cJSON_IsNumber
+  - cJSON_IsArray
+  - cJSON_GetArraySize
+  - cJSON_GetArrayItem
+  - commands_.push_back
+  - ESP_LOGI
+  - cJSON_Delete
+  variables:
+  - assets
+  - ptr
+  - size
+  - TAG
+  - root
+  - multinet_model
+  - language
+  - duration
+  - threshold
+  - commands
+  - language_
+  - duration_
+  - threshold_
+  - command
+  - command_name
+  - text
+  - action
+  - commands_
+  - i
+complete the function Initialize(AudioCodec *, srmodel_list_t *)():
+  functions:
+  - commands_.clear()
+  - esp_srmodel_init()
+  - commands_.push_back()
+  - ParseWakenetModelConfig()
+  - ESP_LOGE()
+  - ESP_LOGW()
+  - ESP_LOGI()
+  - esp_srmodel_filter()
+  - esp_mn_handle_from_name()
+  - multinet_->create()
+  - multinet_->set_det_threshold()
+  - esp_mn_commands_clear()
+  - esp_mn_commands_add()
+  - esp_mn_commands_update()
+  - multinet_->print_active_speech_commands()
+  variables:
+  - codec_
+  - commands_
+  - models_list
+  - language_
+  - models_
+  - CONFIG_CUSTOM_WAKE_WORD_THRESHOLD
+  - CONFIG_CUSTOM_WAKE_WORD
+  - CONFIG_CUSTOM_WAKE_WORD_DISPLAY
+  - TAG
+  - models_
+  - num
+  - mn_name_
+  - ESP_MN_PREFIX
+  - multinet_
+  - multinet_model_data_
+  - duration_
+  - threshold_
+  - i
+  - commands_.size()
+  - commands_[i].command
+complete the function Feed(const std::vector<int16_t>&)():
+  functions:
+  - codec_->input_channels()
+  - StoreWakeWordData()
+  - multinet_->detect()
+  - multinet_->get_results()
+  - ESP_LOGI()
+  - wake_word_detected_callback_()
+  - multinet_->clean()
+  - ESP_LOGD()
+  variables:
+  - multinet_model_data_
+  - running_
+  - esp_mn_state_t mn_state
+  - data
+  - codec_
+  - mono_data
+  - i
+  - j
+  - multinet_
+  - mn_result
+  - TAG
+  - commands_
+  - command_id
+  - string
+  - prob
+  - command
+  - action
+  - text
+  - last_detected_wake_word_
+  - wake_word_detected_callback_
+  - num
+complete the function GetFeedSize()():
+  functions:
+  - multinet_->get_samp_chunksize()
+  variables:
+  - multinet_model_data_
+  - multinet_
+complete the function StoreWakeWordData(const std::vector<int16_t>&)():
+  functions:
+  - wake_word_pcm_.push_back()
+  - wake_word_pcm_.size()
+  - wake_word_pcm_.pop_front()
+  variables:
+  - wake_word_pcm_
+  - data
+complete the function GetWakeWordOpus(std::vector<uint8_t>&)():
+  functions:
+  - std::unique_lock<std::mutex>
+  - wake_word_cv_.wait
+  - opus.swap
+  - wake_word_opus_.front
+  - wake_word_opus_.pop_front
+  - opus.empty
+  variables:
+  - wake_word_mutex_
+  - wake_word_cv_
+  - wake_word_opus_
+  - opus
+complete the function EncodeWakeWordData()():
+  functions:
+  - wake_word_opus_.clear
+  - heap_caps_malloc
+  - assert
+  - xTaskCreateStatic
+  - esp_timer_get_time
+  - std::make_unique
+  - encoder->SetComplexity
+  - encoder->Encode
+  - std::lock_guard
+  - wake_word_cv_.notify_all
+  - wake_word_pcm_.clear
+  - ESP_LOGI
+  - wake_word_opus_.push_back
+  - vTaskDelete
+  variables:
+  - stack_size
+  - wake_word_opus_
+  - wake_word_encode_task_stack_
+  - wake_word_encode_task_buffer_
+  - wake_word_encode_task_
+  - this_
+  - start_time
+  - encoder
+  - packets
+  - pcm
+  - opus
+  - lock
+  - end_time
+  - TAG

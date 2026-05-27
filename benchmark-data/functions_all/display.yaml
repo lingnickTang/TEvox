@@ -1,0 +1,988 @@
+file_path: main/display/display.cc
+benchmark:
+- query: complete the function SetChatMessage(const char *, const char *)()
+  ground_truth: "void Display::SetChatMessage(const char* role, const char* content)\
+    \ {\n    ESP_LOGW(TAG, \"Role:%s\", role);\n    ESP_LOGW(TAG, \"     %s\", content);\n\
+    }"
+  workflow: ''
+  cursor: ''
+  without: "void SetChatMessage(const char *sender, const char *content)\n{\n    g_msg.SetSender(sender);\n\
+    \    g_msg.SetContent(content);\n    g_msg.SetTimestamp();\n}"
+  tools: "ESP_LOGW(TAG, \"SetChatMessage role: %s, content: %s\", role, content);\n\
+    ```\n\nThis helps during development and troubleshooting by providing visibility\
+    \ into which messages are being received and processed.\n\n---\n\n#### 2. **Inheritance\
+    \ & Override Behavior**\nThe function is defined as `virtual` in the base class\
+    \ and overridden in derived classes. Some implementations (like `EmojiWidget`)\
+    \ have empty overrides, while others perform actual work (like `EmoteDisplay`).\
+    \ Therefore, even minimal implementations must include the override keyword and\
+    \ possibly delegate functionality.\n\nWe’ll structure our version so it can serve\
+    \ as either a complete or placeholder implementation depending on subclass needs.\n\
+    \n---\n\n#### 3. **String Handling**\nUse standard string handling techniques\
+    \ — copy or wrap with `std::string` if necessary, especially when caching or manipulating\
+    \ data internally.\n\nFor example:\n```cpp\nstd::string roleStr(role);\nstd::string\
+    \ contentStr(content);\n```\n\nIf further processing or conditional rendering\
+    \ is required (e.g., displaying user vs assistant differently), this is where\
+    \ that logic would begin.\n\n---\n\n#### 4. **Thread Safety**\nIf the function\
+    \ might be called from non-GUI threads (common in embedded systems with asynchronous\
+    \ callbacks), acquiring a lock before modifying shared resources ensures safety.\n\
+    \nCheck whether the parent class provides `Lock()` / `Unlock()` methods. If available,\
+    \ they should be used like this:\n\n```cpp\nbool locked = Lock(100); // Timeout\
+    \ in ms\nif (!locked) {\n    ESP_LOGE(TAG, \"Failed to acquire display lock\"\
+    );\n    return;\n}\n...\nUnlock();\n```\n\n---\n\n#### 5. **Integration With Display\
+    \ Logic**\nDepending on how the system renders chat messages, this could involve\
+    \ calling internal drawing routines or storing the message for later rendering.\n\
+    \nSince we don’t know the exact display backend (LVGL, custom LCD/OLED driver,\
+    \ etc.), we keep the core behavior generic but structured for extensibility.\n\
+    \n---\n\n## Final Implementation\n\nHere is the full C++ function body implementing\
+    \ all the above considerations:\n\n```cpp\nvoid Display::SetChatMessage(const\
+    \ char* role, const char* content) {\n    // Log input for debugging\n    ESP_LOGW(TAG,\
+    \ \"SetChatMessage role: %s, content: %s\", role ? role : \"(null)\", content\
+    \ ? content : \"(null)\");\n\n    // Validate inputs\n    if (!role || !content)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid arguments: role or content is null\");\n\
+    \        return;\n    }\n\n    // Optional: Acquire lock if thread-safe access\
+    \ is needed\n    bool locked = true;  // Assume success unless Lock() exists\n\
+    #ifdef DISPLAY_USE_LOCKING\n    locked = Lock(100);\n    if (!locked) {\n    \
+    \    ESP_LOGE(TAG, \"Failed to acquire display lock\");\n        return;\n   \
+    \ }\n#endif\n\n    // Example: Store internally for rendering\n    m_lastRole\
+    \ = std::string(role);\n    m_lastContent = std::string(content);\n\n    // TODO:\
+    \ Add platform-specific rendering logic here\n    // e.g., update GUI label/text\
+    \ area, call lv_label_set_text(), etc.\n\n#ifdef DISPLAY_USE_LOCKING\n    Unlock();\
+    \  // Release lock after operation\n#endif\n}"
+  without-small: "#include <cstring>\n#include <cstdlib>\n\n// Assuming these are\
+    \ global variables or class members that would typically exist\n// in a real implementation\n\
+    static char* g_chatSender = nullptr;\nstatic char* g_chatMessage = nullptr;\n\n\
+    bool SetChatMessage(const char* sender, const char* message) {\n    // Input validation\n\
+    \    if (!sender || !message) {\n        return false;\n    }\n    \n    // Free\
+    \ existing memory if any\n    if (g_chatSender) {\n        free(g_chatSender);\n\
+    \        g_chatSender = nullptr;\n    }\n    \n    if (g_chatMessage) {\n    \
+    \    free(g_chatMessage);\n        g_chatMessage = nullptr;\n    }\n    \n   \
+    \ // Allocate memory for sender and message\n    size_t senderLen = strlen(sender);\n\
+    \    size_t messageLen = strlen(message);\n    \n    g_chatSender = (char*)malloc(senderLen\
+    \ + 1);\n    g_chatMessage = (char*)malloc(messageLen + 1);\n    \n    // Check\
+    \ if allocation was successful\n    if (!g_chatSender || !g_chatMessage) {\n \
+    \       // Clean up in case of allocation failure\n        if (g_chatSender) {\n\
+    \            free(g_chatSender);\n            g_chatSender = nullptr;\n      \
+    \  }\n        if (g_chatMessage) {\n            free(g_chatMessage);\n       \
+    \     g_chatMessage = nullptr;\n        }\n        return false;\n    }\n    \n\
+    \    // Copy the strings\n    strcpy(g_chatSender, sender);\n    strcpy(g_chatMessage,\
+    \ message);\n    \n    return true;\n}"
+  tools-small: "void EmoteDisplay::SetChatMessage(const char* const role, const char*\
+    \ const content)\n{\n    if (!engine_) {\n        return;\n    }\n\n    DisplayLockGuard\
+    \ lock(this);\n    if (content && strlen(content) > 0) {\n        gfx_label_set_text(g_obj_label_toast,\
+    \ content);\n        SetUIDisplayMode(UIDisplayMode::SHOW_TIPS, this);\n    }\n\
+    }"
+  workflow+sd+mi: "void LcdDisplay::SetChatMessage(const char* role, const char* content)\
+    \ {\n    DisplayLockGuard lock(this);\n    \n    // Ensure content container exists\n\
+    \    if (content_ == nullptr) {\n        ESP_LOGE(TAG, \"Content container not\
+    \ initialized\");\n        return;\n    }\n\n    // Limit total messages to avoid\
+    \ memory issues\n    uint32_t child_count = lv_obj_get_child_cnt(content_);\n\
+    \    if (child_count >= MAX_MESSAGES) {\n        lv_obj_t* first_child = lv_obj_get_child(content_,\
+    \ 0);\n        if (first_child != nullptr) {\n            lv_obj_del(first_child);\n\
+    \        }\n    }\n\n    // Skip empty messages\n    if (strlen(content) == 0)\
+    \ {\n        return;\n    }\n\n    // Get theme and font info\n    auto lvgl_theme\
+    \ = static_cast<LvglTheme*>(current_theme_);\n    auto text_font = lvgl_theme->text_font()->font();\n\
+    \n    // Create message bubble container\n    lv_obj_t* msg_bubble = lv_obj_create(content_);\n\
+    \    lv_obj_set_style_radius(msg_bubble, 8, 0);\n    lv_obj_set_scrollbar_mode(msg_bubble,\
+    \ LV_SCROLLBAR_MODE_OFF);\n    lv_obj_set_style_border_width(msg_bubble, 0, 0);\n\
+    \    lv_obj_set_style_pad_all(msg_bubble, lvgl_theme->spacing(4), 0);\n\n    //\
+    \ Create label inside bubble\n    lv_obj_t* msg_text = lv_label_create(msg_bubble);\n\
+    \    lv_label_set_text(msg_text, content);\n\n    // Compute width constraints\n\
+    \    lv_coord_t text_width = lv_txt_get_width(content, strlen(content), text_font,\
+    \ 0);\n    lv_coord_t max_width = LV_HOR_RES * 85 / 100 - 16; // Max 85% screen\
+    \ width minus padding\n    lv_coord_t min_width = 20;\n    lv_coord_t bubble_width\
+    \ = (text_width < min_width) ? min_width :\n                              (text_width\
+    \ > max_width) ? max_width : text_width;\n\n    // Apply sizing\n    lv_obj_set_width(msg_text,\
+    \ bubble_width);\n    lv_label_set_long_mode(msg_text, LV_LABEL_LONG_WRAP);\n\
+    \    lv_obj_set_width(msg_bubble, bubble_width);\n    lv_obj_set_height(msg_bubble,\
+    \ LV_SIZE_CONTENT);\n\n    // Apply styles based on role\n    if (strcmp(role,\
+    \ \"user\") == 0) {\n        lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->user_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_bg_opa(msg_bubble, LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble,\
+    \ (void*)\"user\");\n\n        // Right-align user message by wrapping in container\n\
+    \        lv_obj_t* container = lv_obj_create(content_);\n        lv_obj_set_width(container,\
+    \ LV_HOR_RES);\n        lv_obj_set_height(container, LV_SIZE_CONTENT);\n     \
+    \   lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP, 0);\n        lv_obj_set_style_border_width(container,\
+    \ 0, 0);\n        lv_obj_set_style_pad_all(container, 0, 0);\n        lv_obj_set_parent(msg_bubble,\
+    \ container);\n        lv_obj_align(msg_bubble, LV_ALIGN_RIGHT_MID, -25, 0);\n\
+    \        lv_obj_scroll_to_view_recursive(container, LV_ANIM_ON);\n    } else if\
+    \ (strcmp(role, \"assistant\") == 0) {\n        lv_obj_set_style_bg_color(msg_bubble,\
+    \ lvgl_theme->assistant_bubble_color(), 0);\n        lv_obj_set_style_bg_opa(msg_bubble,\
+    \ LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"assistant\"\
+    );\n\n        // Left align assistant message\n        lv_obj_align(msg_bubble,\
+    \ LV_ALIGN_LEFT_MID, 0, 0);\n        lv_obj_scroll_to_view_recursive(msg_bubble,\
+    \ LV_ANIM_ON);\n    } else if (strcmp(role, \"system\") == 0) {\n        lv_obj_set_style_bg_color(msg_bubble,\
+    \ lvgl_theme->system_bubble_color(), 0);\n        lv_obj_set_style_bg_opa(msg_bubble,\
+    \ LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"system\");\n\
+    \n        // Center system message\n        lv_obj_t* container = lv_obj_create(content_);\n\
+    \        lv_obj_set_width(container, LV_HOR_RES);\n        lv_obj_set_height(container,\
+    \ LV_SIZE_CONTENT);\n        lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP,\
+    \ 0);\n        lv_obj_set_style_border_width(container, 0, 0);\n        lv_obj_set_style_pad_all(container,\
+    \ 0, 0);\n        lv_obj_set_parent(msg_bubble, container);\n        lv_obj_align(msg_bubble,\
+    \ LV_ALIGN_CENTER, 0, 0);\n        lv_obj_scroll_to_view_recursive(container,\
+    \ LV_ANIM_ON);\n    } else {\n        ESP_LOGW(TAG, \"Unknown message role: %s\"\
+    , role);\n        lv_obj_del(msg_bubble); // Clean up unhandled case\n       \
+    \ return;\n    }\n\n    // Update reference to last message label\n    chat_message_label_\
+    \ = msg_text;\n}"
+  workflow+sd+mi+rf: "void LcdDisplay::SetChatMessage(const char* role, const char*\
+    \ content) {\n    DisplayLockGuard lock(this);\n    \n    // Ensure content container\
+    \ exists\n    if (content_ == nullptr) {\n        ESP_LOGE(TAG, \"Content container\
+    \ not initialized\");\n        return;\n    }\n\n    // Limit total messages to\
+    \ avoid memory issues\n    uint32_t child_count = lv_obj_get_child_cnt(content_);\n\
+    \    if (child_count >= MAX_MESSAGES) {\n        lv_obj_t* first_child = lv_obj_get_child(content_,\
+    \ 0);\n        if (first_child != nullptr) {\n            lv_obj_del(first_child);\n\
+    \        }\n    }\n\n    // Skip empty messages\n    if (strlen(content) == 0)\
+    \ {\n        return;\n    }\n\n    // Get theme and font info\n    if (current_theme_\
+    \ == nullptr) {\n        ESP_LOGE(TAG, \"Theme not initialized\");\n        return;\n\
+    \    }\n    \n    auto lvgl_theme = static_cast<LvglTheme*>(current_theme_);\n\
+    \    if (lvgl_theme->text_font() == nullptr) {\n        ESP_LOGE(TAG, \"Text font\
+    \ not available\");\n        return;\n    }\n    \n    auto text_font = lvgl_theme->text_font()->font();\n\
+    \n    // Create message bubble container\n    lv_obj_t* msg_bubble = lv_obj_create(content_);\n\
+    \    lv_obj_set_style_radius(msg_bubble, 8, 0);\n    lv_obj_set_scrollbar_mode(msg_bubble,\
+    \ LV_SCROLLBAR_MODE_OFF);\n    lv_obj_set_style_border_width(msg_bubble, 0, 0);\n\
+    \    lv_obj_set_style_pad_all(msg_bubble, lvgl_theme->spacing(4), 0);\n\n    //\
+    \ Create label inside bubble\n    lv_obj_t* msg_text = lv_label_create(msg_bubble);\n\
+    \    lv_label_set_text(msg_text, content);\n\n    // Compute width constraints\n\
+    \    lv_coord_t text_width = lv_txt_get_width(content, strlen(content), text_font,\
+    \ 0);\n    lv_coord_t max_width = (LV_HOR_RES * 85) / 100 - (lvgl_theme->spacing(4)\
+    \ * 2); // Account for padding on both sides\n    lv_coord_t min_width = 20;\n\
+    \    lv_coord_t bubble_width = (text_width < min_width) ? min_width :\n      \
+    \                        (text_width > max_width) ? max_width : text_width;\n\n\
+    \    // Apply sizing\n    lv_obj_set_width(msg_text, bubble_width);\n    lv_label_set_long_mode(msg_text,\
+    \ LV_LABEL_LONG_WRAP);\n    lv_obj_set_width(msg_bubble, bubble_width);\n    lv_obj_set_height(msg_bubble,\
+    \ LV_SIZE_CONTENT);\n\n    // Apply styles based on role\n    if (strcmp(role,\
+    \ \"user\") == 0) {\n        lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->user_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_bg_opa(msg_bubble, LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble,\
+    \ (void*)\"user\");\n\n        // Right-align user message using consistent container\
+    \ approach\n        lv_obj_t* container = lv_obj_create(content_);\n        lv_obj_set_width(container,\
+    \ LV_HOR_RES);\n        lv_obj_set_height(container, LV_SIZE_CONTENT);\n     \
+    \   lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP, 0);\n        lv_obj_set_style_border_width(container,\
+    \ 0, 0);\n        lv_obj_set_style_pad_all(container, 0, 0);\n        lv_obj_set_parent(msg_bubble,\
+    \ container);\n        lv_obj_align(msg_bubble, LV_ALIGN_RIGHT_MID, -lvgl_theme->spacing(4),\
+    \ 0);\n        lv_obj_scroll_to_view_recursive(container, LV_ANIM_ON);\n    }\
+    \ else if (strcmp(role, \"assistant\") == 0) {\n        lv_obj_set_style_bg_color(msg_bubble,\
+    \ lvgl_theme->assistant_bubble_color(), 0);\n        lv_obj_set_style_bg_opa(msg_bubble,\
+    \ LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"assistant\"\
+    );\n\n        // Left align assistant message using consistent container approach\n\
+    \        lv_obj_t* container = lv_obj_create(content_);\n        lv_obj_set_width(container,\
+    \ LV_HOR_RES);\n        lv_obj_set_height(container, LV_SIZE_CONTENT);\n     \
+    \   lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP, 0);\n        lv_obj_set_style_border_width(container,\
+    \ 0, 0);\n        lv_obj_set_style_pad_all(container, 0, 0);\n        lv_obj_set_parent(msg_bubble,\
+    \ container);\n        lv_obj_align(msg_bubble, LV_ALIGN_LEFT_MID, lvgl_theme->spacing(4),\
+    \ 0);\n        lv_obj_scroll_to_view_recursive(container, LV_ANIM_ON);\n    }\
+    \ else if (strcmp(role, \"system\") == 0) {\n        lv_obj_set_style_bg_color(msg_bubble,\
+    \ lvgl_theme->system_bubble_color(), 0);\n        lv_obj_set_style_bg_opa(msg_bubble,\
+    \ LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"system\");\n\
+    \n        // Center system message\n        lv_obj_t* container = lv_obj_create(content_);\n\
+    \        lv_obj_set_width(container, LV_HOR_RES);\n        lv_obj_set_height(container,\
+    \ LV_SIZE_CONTENT);\n        lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP,\
+    \ 0);\n        lv_obj_set_style_border_width(container, 0, 0);\n        lv_obj_set_style_pad_all(container,\
+    \ 0, 0);\n        lv_obj_set_parent(msg_bubble, container);\n        lv_obj_center(msg_bubble);\n\
+    \        lv_obj_scroll_to_view_recursive(container, LV_ANIM_ON);\n    } else {\n\
+    \        ESP_LOGW(TAG, \"Unknown message role: %s\", role);\n        lv_obj_del(msg_bubble);\
+    \ // Clean up unhandled case\n        return;\n    }\n\n    // Update reference\
+    \ to last message label\n    chat_message_label_ = msg_text;\n}"
+  local: "void Display::SetChatMessage(const char *role, const char *content)\n  ```\n\
+    - It is a member of the `Display` class.\n- Currently, the implementation is empty:\n\
+    \  ```cpp\n  void Display::SetChatMessage(const char *role, const char *content)\n\
+    \  {\n  }\n  ```\n\n#### Purpose (Inferred):\nThis function likely updates the\
+    \ display to show a chat message. It takes two parameters:\n- `role`: Typically\
+    \ indicates who sent the message, e.g., `\"user\"` or `\"assistant\"`.\n- `content`:\
+    \ The actual text content of the message.\n\nSince other methods like `SetEmotion`,\
+    \ `ShowNotification`, etc., currently only log their inputs using `ESP_LOGW`,\
+    \ we can assume that this project may be in an early development stage where UI\
+    \ rendering logic isn't fully implemented yet. However, for completion purposes,\
+    \ we should implement it meaningfully — perhaps by logging both arguments clearly\
+    \ and simulating future behavior with placeholder comments or optional actions.\n\
+    \n---\n\n### Implementation Plan\n\nWe will do the following inside the function\
+    \ body:\n1. Log both `role` and `content` using `ESP_LOGI` (info level) for visibility\
+    \ during runtime.\n2. Add placeholder comment indicating where future screen-rendering\
+    \ logic would go.\n3. Optionally check for null pointers to prevent crashes.\n\
+    \n---\n\n### Final Code\n\n```cpp\nvoid Display::SetChatMessage(const char *role,\
+    \ const char *content)\n{\n    if (role == nullptr || content == nullptr) {\n\
+    \        ESP_LOGE(TAG, \"SetChatMessage called with null role or content\");\n\
+    \        return;\n    }\n\n    ESP_LOGI(TAG, \"Chat Message - Role: %s, Content:\
+    \ %s\", role, content);\n\n    // TODO: Implement actual UI update here, such\
+    \ as displaying the message on screen\n    // Example: render_text_on_display(role,\
+    \ content);\n}"
+  workflow-small-rf: "#include \"display.h\"\n#include \"lvgl.h\"\n#include \"lvgl_theme.h\"\
+    \n\n#if CONFIG_IDF_TARGET_ESP32P4\n#define MAX_MESSAGES 40\n#else\n#define MAX_MESSAGES\
+    \ 20\n#endif\n\nvoid LcdDisplay::SetChatMessage(const char *role, const char *content)\n\
+    {\n    DisplayLockGuard lock(this);\n\n    // Null check for main container\n\
+    \    if (content_ == nullptr)\n    {\n        return;\n    }\n\n    // Limit total\
+    \ messages displayed\n    uint32_t child_count = lv_obj_get_child_cnt(content_);\n\
+    \    if (child_count >= MAX_MESSAGES)\n    {\n        lv_obj_t *first_child =\
+    \ lv_obj_get_child(content_, 0);\n        if (first_child != nullptr)\n      \
+    \  {\n            lv_obj_del(first_child);\n        }\n    }\n\n    // Skip empty\
+    \ messages\n    if (content == nullptr || strlen(content) == 0)\n    {\n     \
+    \   return;\n    }\n\n    // Get current theme settings\n    auto lvgl_theme =\
+    \ static_cast<LvglTheme *>(current_theme_);\n    if (lvgl_theme == nullptr) {\n\
+    \        return;\n    }\n    \n    auto text_font = lvgl_theme->text_font();\n\
+    \    if (text_font == nullptr) {\n        return;\n    }\n    auto font = text_font->font();\n\
+    \n    // Create message bubble container\n    lv_obj_t *msg_bubble = lv_obj_create(content_);\n\
+    \    lv_obj_set_style_radius(msg_bubble, 8, 0);\n    lv_obj_set_scrollbar_mode(msg_bubble,\
+    \ LV_SCROLLBAR_MODE_OFF);\n    lv_obj_set_style_border_width(msg_bubble, 0, 0);\n\
+    \    lv_obj_set_style_pad_all(msg_bubble, lvgl_theme->spacing(4), 0);\n\n    //\
+    \ Create text label inside bubble\n    lv_obj_t *msg_text = lv_label_create(msg_bubble);\n\
+    \    lv_label_set_text(msg_text, content);\n\n    // Calculate dimensions for\
+    \ responsive sizing\n    lv_coord_t text_width = lv_txt_get_width(content, strlen(content),\
+    \ font, 0);\n    lv_coord_t max_width = LV_HOR_RES * 85 / 100 - 16; // Max 85%\
+    \ screen width minus padding\n    lv_coord_t min_width = 20;\n    lv_coord_t bubble_width\
+    \ = (text_width < min_width) ? min_width : (text_width < max_width) ? text_width\n\
+    \                                                                            \
+    \                 : max_width;\n\n    lv_obj_set_width(msg_text, bubble_width);\n\
+    \    lv_label_set_long_mode(msg_text, LV_LABEL_LONG_WRAP);\n    lv_obj_set_width(msg_bubble,\
+    \ bubble_width);\n    lv_obj_set_height(msg_bubble, LV_SIZE_CONTENT);\n\n    //\
+    \ Apply styles based on role\n    if (strcmp(role, \"user\") == 0)\n    {\n  \
+    \      lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->user_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_bg_opa(msg_bubble, LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble,\
+    \ reinterpret_cast<void *>(1)); // Use integer instead of string literal\n\n \
+    \       // Right-align user messages using container approach\n        lv_obj_t\
+    \ *container = lv_obj_create(content_);\n        lv_obj_set_width(container, LV_HOR_RES);\n\
+    \        lv_obj_set_height(container, LV_SIZE_CONTENT);\n        lv_obj_set_style_bg_opa(container,\
+    \ LV_OPA_TRANSP, 0);\n        lv_obj_set_style_border_width(container, 0, 0);\n\
+    \        lv_obj_set_style_pad_all(container, 0, 0);\n        lv_obj_move_to_index(msg_bubble,\
+    \ -1); // Move to end\n        lv_obj_set_parent(msg_bubble, container);\n   \
+    \     lv_obj_align(msg_bubble, LV_ALIGN_RIGHT_MID, -25, 0);\n        lv_obj_scroll_to_view_recursive(container,\
+    \ LV_ANIM_ON);\n    }\n    else if (strcmp(role, \"assistant\") == 0)\n    {\n\
+    \        lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->assistant_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_bg_opa(msg_bubble, LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble,\
+    \ reinterpret_cast<void *>(2));\n\n        // Left align assistant messages\n\
+    \        lv_obj_align(msg_bubble, LV_ALIGN_LEFT_MID, 25, 0);\n        lv_obj_scroll_to_view_recursive(msg_bubble,\
+    \ LV_ANIM_ON);\n    }\n    else if (strcmp(role, \"system\") == 0)\n    {\n  \
+    \      lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->system_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_bg_opa(msg_bubble, LV_OPA_70, 0);\n        lv_obj_set_user_data(msg_bubble,\
+    \ reinterpret_cast<void *>(3));\n\n        // Center-align system messages using\
+    \ container approach\n        lv_obj_t *container = lv_obj_create(content_);\n\
+    \        lv_obj_set_width(container, LV_HOR_RES);\n        lv_obj_set_height(container,\
+    \ LV_SIZE_CONTENT);\n        lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP,\
+    \ 0);\n        lv_obj_set_style_border_width(container, 0, 0);\n        lv_obj_set_style_pad_all(container,\
+    \ 0, 0);\n        lv_obj_move_to_index(msg_bubble, -1); // Move to end\n     \
+    \   lv_obj_set_parent(msg_bubble, container);\n        lv_obj_align(msg_bubble,\
+    \ LV_ALIGN_CENTER, 0, 0);\n        lv_obj_scroll_to_view_recursive(container,\
+    \ LV_ANIM_ON);\n    }\n\n    // Keep reference to last created message label\n\
+    \    chat_message_label_ = msg_text;\n}"
+  local-small: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    ESP_LOGW(TAG, \"SetChatMessage - Role: %s, Content: %s\", role, content);\n\
+    }"
+  tools-long: "void SetChatMessage(const char *role, const char *content) {\n    DisplayLockGuard\
+    \ lock(this);\n\n    uint32_t child_count = lv_obj_get_child_cnt(content_);\n\n\
+    \    // Collapse system messages (avoid duplicates)\n    if (strcmp(role, \"system\"\
+    ) == 0 && child_count > 0) {\n        lv_obj_t* last_container = lv_obj_get_child(content_,\
+    \ child_count - 1);\n        if (last_container != nullptr && lv_obj_get_child_cnt(last_container)\
+    \ > 0) {\n            lv_obj_t* last_bubble = lv_obj_get_child(last_container,\
+    \ 0);\n            if (last_bubble != nullptr) {\n                void* bubble_type_ptr\
+    \ = lv_obj_get_user_data(last_bubble);\n                if (bubble_type_ptr !=\
+    \ nullptr && strcmp((const char*)bubble_type_ptr, \"system\") == 0) {\n      \
+    \              lv_obj_del(last_container);\n                    child_count--;\
+    \ // Adjust count since one was removed\n                }\n            }\n  \
+    \      }\n    }\n\n    // Limit enforcement: remove oldest message if needed\n\
+    \    if (child_count >= MAX_MESSAGES) {\n        lv_obj_t* first_child = lv_obj_get_child(content_,\
+    \ 0);\n        if (first_child != nullptr) {\n            lv_obj_del(first_child);\n\
+    \        }\n        child_count--;\n    }\n\n    // Create message container\n\
+    \    lv_obj_t* msg_container = lv_obj_create(content_);\n    lv_obj_set_size(msg_container,\
+    \ LV_PCT(100), LV_SIZE_CONTENT);\n    lv_obj_set_style_pad_all(msg_container,\
+    \ 0, 0);\n    lv_obj_set_style_border_width(msg_container, 0, 0);\n    lv_obj_set_scrollbar_mode(msg_container,\
+    \ LV_SCROLLBAR_MODE_OFF);\n\n    // Create message bubble\n    lv_obj_t* msg_bubble\
+    \ = lv_obj_create(msg_container);\n    lv_obj_set_style_radius(msg_bubble, 8,\
+    \ 0);\n    lv_obj_set_style_pad_all(msg_bubble, lvgl_theme->spacing(4), 0);\n\
+    \    lv_obj_set_style_border_width(msg_bubble, 0, 0);\n    lv_obj_set_scrollbar_mode(msg_bubble,\
+    \ LV_SCROLLBAR_MODE_OFF);\n\n    // Create message text\n    lv_obj_t* msg_text\
+    \ = lv_label_create(msg_bubble);\n    lv_label_set_text(msg_text, content);\n\
+    \    lv_label_set_long_mode(msg_text, LV_LABEL_LONG_WRAP);\n\n    // Calculate\
+    \ text width and set bubble dimensions\n    lv_coord_t text_width = lv_txt_get_width(content,\
+    \ strlen(content), text_font, 0);\n    lv_coord_t max_width = LV_HOR_RES * 85\
+    \ / 100 - 16;\n    lv_coord_t min_width = 20;\n    lv_coord_t bubble_width = (text_width\
+    \ < min_width) ? min_width : text_width;\n    if (bubble_width > max_width) bubble_width\
+    \ = max_width;\n\n    lv_obj_set_width(msg_text, bubble_width);\n    lv_obj_set_width(msg_bubble,\
+    \ bubble_width);\n    lv_obj_set_height(msg_bubble, LV_SIZE_CONTENT);\n\n    //\
+    \ Apply styles based on role\n    if (strcmp(role, \"user\") == 0) {\n       \
+    \ lv_obj_align(msg_bubble, LV_ALIGN_RIGHT_MID, 0, 0);\n        lv_obj_set_style_bg_color(msg_bubble,\
+    \ lvgl_theme->user_bubble_color(), 0);\n        lv_obj_set_style_text_color(msg_text,\
+    \ lvgl_theme->text_color(), 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"\
+    user\");\n    } else if (strcmp(role, \"assistant\") == 0) {\n        lv_obj_align(msg_bubble,\
+    \ LV_ALIGN_LEFT_MID, 0, 0);\n        lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->assistant_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_text_color(msg_text, lvgl_theme->text_color(),\
+    \ 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"assistant\");\n    }\
+    \ else if (strcmp(role, \"system\") == 0) {\n        lv_obj_center(msg_bubble);\n\
+    \        lv_obj_set_style_bg_color(msg_bubble, lvgl_theme->system_bubble_color(),\
+    \ 0);\n        lv_obj_set_style_text_color(msg_text, lvgl_theme->system_text_color(),\
+    \ 0);\n        lv_obj_set_user_data(msg_bubble, (void*)\"system\");\n    }\n\n\
+    \    // Layout adjustment for container height\n    lv_obj_update_layout(msg_bubble);\n\
+    \    lv_coord_t bubble_height = lv_obj_get_height(msg_bubble);\n    lv_obj_set_height(msg_container,\
+    \ bubble_height + lvgl_theme->spacing(4));\n\n    // Auto-scroll to new message\n\
+    \    lv_obj_scroll_to_view_recursive(msg_bubble, LV_ANIM_ON);\n}"
+  graph-5-5: "void SetChatMessage(const char *sender, const char *content) {\n   \
+    \ DisplayLockGuard lock;\n    \n    // Handle null or empty content\n    if (content\
+    \ == nullptr || strlen(content) == 0) {\n        // Hide the chat message label\
+    \ when no content\n        if (chat_message_label_) {\n            lv_obj_add_flag(chat_message_label_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n        }\n        \n        // Hide content_right_ if\
+    \ it exists\n        if (content_right_) {\n            lv_obj_add_flag(content_right_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n        }\n        return;\n    }\n    \n    // Process\
+    \ content - replace newlines with spaces\n    std::string processed_content =\
+    \ content;\n    std::replace(processed_content.begin(), processed_content.end(),\
+    \ '\\n', ' ');\n    std::replace(processed_content.begin(), processed_content.end(),\
+    \ '\\r', ' ');\n    \n    // Show the chat message label\n    if (chat_message_label_)\
+    \ {\n        lv_obj_clear_flag(chat_message_label_, LV_OBJ_FLAG_HIDDEN);\n   \
+    \     \n        // Format the message with sender if provided\n        std::string\
+    \ full_message;\n        if (sender != nullptr && strlen(sender) > 0) {\n    \
+    \        full_message = std::string(sender) + \": \" + processed_content;\n  \
+    \      } else {\n            full_message = processed_content;\n        }\n  \
+    \      \n        lv_label_set_text(chat_message_label_, full_message.c_str());\n\
+    \    }\n    \n    // Show content_right_ if it exists and we have content\n  \
+    \  if (content_right_) {\n        lv_obj_clear_flag(content_right_, LV_OBJ_FLAG_HIDDEN);\n\
+    \    }\n}"
+  graph-small-5-5: "void OledDisplay::SetChatMessage(const char* role, const char*\
+    \ content) {\n    // Acquire display lock to ensure thread safety when updating\
+    \ UI\n    DisplayLockGuard lock(display_mutex_);\n    \n    // Handle null pointer\
+    \ cases\n    if (role == nullptr || content == nullptr) {\n        return;\n \
+    \   }\n    \n    // Create a copy of content to modify (replace newlines with\
+    \ spaces)\n    std::string modified_content = content;\n    \n    // Replace newline\
+    \ characters with spaces for proper rendering\n    size_t pos = 0;\n    while\
+    \ ((pos = modified_content.find('\\n', pos)) != std::string::npos) {\n       \
+    \ modified_content.replace(pos, 1, \" \");\n        pos++;\n    }\n    \n    //\
+    \ Update the main chat message label with the role and content\n    lv_label_set_text_fmt(chat_message_label_,\
+    \ \"%s: %s\", role, modified_content.c_str());\n    \n    // Check if we have\
+    \ a secondary content object (content_right_)\n    if (content_right_ != nullptr)\
+    \ {\n        // If content is empty, hide the secondary label\n        if (modified_content.empty())\
+    \ {\n            lv_obj_add_flag(content_right_, LV_OBJ_FLAG_HIDDEN);\n      \
+    \  } else {\n            // Otherwise show the secondary label\n            lv_obj_remove_flag(content_right_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n        }\n    }\n    \n    // Ensure the main chat message\
+    \ label is visible\n    lv_obj_remove_flag(chat_message_label_, LV_OBJ_FLAG_HIDDEN);\n\
+    }"
+  Desc+without: "void Display::SetChatMessage(const char* role, const char* message)\
+    \ {\n    // Log the chat message to console for debugging purposes\n    // Format:\
+    \ [ROLE] Message content\n    if (role != nullptr && message != nullptr) {\n \
+    \       printf(\"[%s] %s\\n\", role, message);\n    } else if (role != nullptr)\
+    \ {\n        printf(\"[%s] (null message)\\n\", role);\n    } else if (message\
+    \ != nullptr) {\n        printf(\"[Unknown] %s\\n\", message);\n    } else {\n\
+    \        printf(\"[Unknown] (null message)\\n\");\n    }\n    \n    // Flush the\
+    \ output to ensure immediate visibility in console\n    fflush(stdout);\n}"
+  Desc+local: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    // Handle potential null pointers gracefully\n    const char *safe_role\
+    \ = role ? role : \"<null>\";\n    const char *safe_content = content ? content\
+    \ : \"<null>\";\n\n    ESP_LOGD(TAG, \"ChatMessage - Role: %s, Content: %s\",\
+    \ safe_role, safe_content);\n}"
+  Desc+graph-5-5: "void OledDisplay::SetChatMessage(const char* role, const char*\
+    \ content) {\n    DisplayLockGuard lock(this);\n    if (chat_message_label_ ==\
+    \ nullptr) {\n        return;\n    }\n\n    // Replace all newlines with spaces\n\
+    \    std::string content_str = content ? content : \"\";\n    std::replace(content_str.begin(),\
+    \ content_str.end(), '\\n', ' ');\n\n    if (content_right_ == nullptr) {\n  \
+    \      lv_label_set_text(chat_message_label_, content_str.c_str());\n    } else\
+    \ {\n        if (content == nullptr || content[0] == '\\0') {\n            lv_obj_add_flag(content_right_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n        } else {\n            lv_label_set_text(chat_message_label_,\
+    \ content_str.c_str());\n            lv_obj_remove_flag(content_right_, LV_OBJ_FLAG_HIDDEN);\n\
+    \        }\n    }\n}"
+  Desc+tools: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    if (role == nullptr) role = \"\";\n    if (content == nullptr) content\
+    \ = \"\";\n    ESP_LOGI(TAG, \"[%s]: %s\", role, content);\n}"
+  Desc+graph-KG-5-5: "void OledDisplay::SetChatMessage(const char* role, const char*\
+    \ content) {\n    DisplayLockGuard lock(this);\n    \n    // Basic null check\
+    \ for required parameters\n    if (role == nullptr) {\n        return;\n    }\n\
+    \    \n    // Handle null content gracefully\n    if (content == nullptr) {\n\
+    \        content = \"\";\n    }\n    \n    // Replace all newlines with spaces\
+    \ for consistent formatting\n    std::string content_str = content;\n    std::replace(content_str.begin(),\
+    \ content_str.end(), '\\n', ' ');\n    \n    // For debugging/logging purposes,\
+    \ we simply process and potentially log the message\n    // In a real implementation,\
+    \ this might send to a log system or serial output\n    // For now, we'll just\
+    \ ensure the function properly handles the data as expected\n    \n    // If there\
+    \ was a label object in the full implementation, we would update it here\n   \
+    \ // But since this is for debugging, we'll just ensure proper handling without\
+    \ UI updates\n    \n    // Example logging approach (uncomment if logging is desired):\n\
+    \    // printf(\"Chat Message - %s: %s\\n\", role, content_str.c_str());\n   \
+    \ \n    // In the minimal implementation for debugging, we just ensure proper\
+    \ processing\n    // without actually rendering to any display components\n}"
+  Desc+workflow: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    ESP_LOGW(TAG, \"SetChatMessage: role=%s, content=%s\", role, content);\n\
+    }"
+  Desc+without-small: "void Display::SetChatMessage(const char* role, const char*\
+    \ message)\n{\n    // Check for valid input parameters\n    if (role == nullptr\
+    \ || message == nullptr) {\n        return;\n    }\n    \n    // Log the chat\
+    \ message to console with role prefix\n    printf(\"[%s] %s\\n\", role, message);\n\
+    \    \n    // Alternative implementation using std::cout if preferred\n    //\
+    \ std::cout << \"[\" << role << \"] \" << message << std::endl;\n}"
+  Desc+graph-SRP_KG-5-5-rf: "void Display::SetChatMessage(const char* role, const\
+    \ char* content) {\n    // Handle null pointers gracefully\n    if (role == nullptr)\
+    \ {\n        role = \"system\";\n    }\n    \n    if (content == nullptr) {\n\
+    \        content = \"\";\n    }\n    \n    // Log the chat message for debugging\n\
+    \    ESP_LOGD(TAG, \"SetChatMessage role: %s, content: %s\", role, content);\n\
+    \    \n    // TODO: Implement actual display logic based on the specific display\
+    \ type\n    // This is a base class implementation that can be overridden by derived\
+    \ classes\n    \n    // If this were a concrete display implementation, it would:\n\
+    \    // 1. Process the role (system, user, assistant) to determine styling\n \
+    \   // 2. Handle content formatting (replace newlines, truncate if needed)\n \
+    \   // 3. Update the appropriate UI elements\n    // 4. Refresh the display\n\
+    \    \n    // Example processing that could be done in derived classes:\n    /*\n\
+    \    std::string processed_content = content;\n    // Replace newlines with spaces\
+    \ for single-line display or handle appropriately\n    // std::replace(processed_content.begin(),\
+    \ processed_content.end(), '\\n', ' ');\n    \n    // Truncate if too long for\
+    \ display\n    // if (processed_content.length() > MAX_DISPLAY_LENGTH) {\n   \
+    \ //     processed_content = processed_content.substr(0, MAX_DISPLAY_LENGTH -\
+    \ 3) + \"...\";\n    // }\n    \n    // Update display based on role\n    // if\
+    \ (strcmp(role, \"user\") == 0) {\n    //     // Handle user message display (different\
+    \ color/style)\n    // } else if (strcmp(role, \"assistant\") == 0) {\n    //\
+    \     // Handle assistant message display\n    // } else {\n    //     // Handle\
+    \ system message display (default)\n    // }\n    */\n}"
+  Desc+graph-wt-SRP_KG-3-3: "void Display::SetChatMessage(const char* role, const\
+    \ char* content) {\n    ESP_LOGW(TAG, \"SetChatMessage: role=%s, content=%s\"\
+    , role, content);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Display::SetChatMessage(const char*\
+    \ role, const char* content) {\n    ESP_LOGW(TAG, \"SetChatMessage - Role: %s,\
+    \ Message: %s\", role, content);\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Display::SetChatMessage(const\
+    \ char* role, const char* content) {\n    ESP_LOGW(TAG, \"SetChatMessage - Role:\
+    \ %s, Message: %s\", role, content);\n}"
+  Desc+graph-SRP_KG-5-5-query-decompose: "#include \"display.h\"\n#include \"esp_log.h\"\
+    \n\nstatic const char* TAG = \"Display\";\n\nvoid Display::SetChatMessage(const\
+    \ char* role, const char* content) {\n    // Log the chat message to console for\
+    \ debugging purposes\n    if (role != nullptr && content != nullptr) {\n     \
+    \   ESP_LOGI(TAG, \"[Chat] %s: %s\", role, content);\n    } else if (role != nullptr)\
+    \ {\n        ESP_LOGI(TAG, \"[Chat] %s: (empty message)\", role);\n    } else\
+    \ {\n        ESP_LOGI(TAG, \"[Chat] (unknown): %s\", content ? content : \"(empty\
+    \ message)\");\n    }\n}"
+  graph-SRP_KG-it-small;: "void Display::SetChatMessage(const char* role, const char*\
+    \ content) {\n    // Log chat messages to console for debugging purposes\n   \
+    \ // This serves as a placeholder for chat message handling in the system\n  \
+    \  if (role != nullptr && content != nullptr) {\n        ESP_LOGI(TAG, \"Chat\
+    \ Message - Role: %s, Content: %s\", role, content);\n    } else if (role != nullptr)\
+    \ {\n        ESP_LOGI(TAG, \"Chat Message - Role: %s, Content: (null)\", role);\n\
+    \    } else if (content != nullptr) {\n        ESP_LOGI(TAG, \"Chat Message -\
+    \ Role: (null), Content: %s\", content);\n    } else {\n        ESP_LOGI(TAG,\
+    \ \"Chat Message - Role: (null), Content: (null)\");\n    }\n}"
+  graph-SRP_KG-it;: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    ESP_LOGW(TAG, \"Chat [%s]: %s\", role, content ? content : \"\");\n}"
+  without-small;: "void Display::SetChatMessage(const char* role, const char* message)\n\
+    {\n    // Check for valid input parameters\n    if (role == nullptr || message\
+    \ == nullptr) {\n        return;\n    }\n    \n    // Log the chat message to\
+    \ console with role prefix\n    printf(\"[%s] %s\\n\", role, message);\n    \n\
+    \    // Alternative implementation using std::cout if preferred\n    // std::cout\
+    \ << \"[\" << role << \"] \" << message << std::endl;\n}"
+  local-small;: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    ESP_LOGW(TAG, \"SetChatMessage - Role: %s, Content: %s\", role, content);\n\
+    }"
+  tools-small;: "void Display::SetChatMessage(const char *role, const char *content)\n\
+    {\n    ESP_LOGW(TAG, \"SetChatMessage - Role: %s, Content: %s\", role, content);\n\
+    }"
+  without;: "void Display::SetChatMessage(const char* role, const char* message) {\n\
+    \    // Log the chat message to console for debugging purposes\n    // Format:\
+    \ [ROLE] Message content\n    if (role != nullptr && message != nullptr) {\n \
+    \       printf(\"[%s] %s\\n\", role, message);\n    } else if (role != nullptr)\
+    \ {\n        printf(\"[%s] (null message)\\n\", role);\n    } else if (message\
+    \ != nullptr) {\n        printf(\"[Unknown] %s\\n\", message);\n    } else {\n\
+    \        printf(\"[Unknown] (null message)\\n\");\n    }\n    \n    // Flush the\
+    \ output to ensure immediate visibility in console\n    fflush(stdout);\n}"
+  local;: "void Display::SetChatMessage(const char *role, const char *content)\n{\n\
+    \    // Handle potential null pointers gracefully\n    const char *safe_role =\
+    \ role ? role : \"<null>\";\n    const char *safe_content = content ? content\
+    \ : \"<null>\";\n\n    ESP_LOGD(TAG, \"ChatMessage - Role: %s, Content: %s\",\
+    \ safe_role, safe_content);\n}"
+  tools;: "void Display::SetChatMessage(const char *role, const char *content)\n{\n\
+    \    if (role == nullptr) {\n        role = \"(null)\";\n    }\n    if (content\
+    \ == nullptr) {\n        content = \"(null)\";\n    }\n    ESP_LOGW(TAG, \"SetChatMessage\
+    \ - Role: %s, Content: %s\", role, content);\n}"
+  eg;: "#include \"display.h\"\n#include \"esp_log.h\"\n\nstatic const char* TAG =\
+    \ \"Display\";\n\nvoid Display::SetChatMessage(const char *role, const char *message)\
+    \ {\n    if (role == nullptr || message == nullptr) {\n        ESP_LOGW(TAG, \"\
+    Invalid input: null pointer passed to SetChatMessage\");\n        return;\n  \
+    \  }\n\n    // Log the chat message with role for debugging\n    ESP_LOGI(TAG,\
+    \ \"[Chat] %s: %s\", role, message);\n}"
+  a3;: "void Display::SetChatMessage(const char* role, const char* content) {\n  \
+    \  if (role == nullptr && content == nullptr) {\n        ESP_LOGI(TAG, \"Chat\
+    \ message: [null] [null]\");\n    } else if (role == nullptr) {\n        ESP_LOGI(TAG,\
+    \ \"Chat message: [null] %s\", content);\n    } else if (content == nullptr) {\n\
+    \        ESP_LOGI(TAG, \"Chat message: %s [null]\", role);\n    } else {\n   \
+    \     ESP_LOGI(TAG, \"Chat message - Role: %s, Content: %s\", role, content);\n\
+    \    }\n}"
+  eg-small;: "void Display::SetChatMessage(const char* role, const char* message)\
+    \ {\n    // Input validation - check for null pointers\n    if (role == nullptr\
+    \ || message == nullptr) {\n        return;\n    }\n    \n    // Log the chat\
+    \ message to console with role prefix\n    // This serves as a debugging aid during\
+    \ development/testing\n    std::cout << \"[CHAT][\" << role << \"] \" << message\
+    \ << std::endl;\n}"
+  a3-small;: "void Display::SetChatMessage(const char* role, const char* content)\
+    \ {\n    ESP_LOGW(TAG, \"SetChatMessage - Role: %s, Content: %s\", role ? role\
+    \ : \"NULL\", content ? content : \"NULL\");\n}"
+  SRP-small;: "void Display::SetChatMessage(const char* role, const char* content)\
+    \ {\n    ESP_LOGI(TAG, \"Chat message - Role: %s, Message: %s\", role, content);\n\
+    }"
+  SRP;: "void Display::SetChatMessage(const char* role, const char* content) {\n \
+    \   // Log the chat message to console for debugging purposes\n    if (role !=\
+    \ nullptr && content != nullptr) {\n        ESP_LOGI(TAG, \"[%s] %s\", role, content);\n\
+    \    } else if (role != nullptr) {\n        ESP_LOGI(TAG, \"[%s] (null content)\"\
+    , role);\n    } else if (content != nullptr) {\n        ESP_LOGI(TAG, \"[unknown]\
+    \ %s\", content);\n    } else {\n        ESP_LOGI(TAG, \"[unknown] (null content)\"\
+    );\n    }\n}"
+  eg-small-168;: "void Display::SetChatMessage(const char* role, const char* content)\
+    \ {\n    // Validate input parameters\n    if (role == nullptr || content == nullptr)\
+    \ {\n        ESP_LOGW(TAG, \"SetChatMessage: Invalid input parameters (role or\
+    \ content is null)\");\n        return;\n    }\n\n    // Log the chat message\
+    \ with role and content\n    ESP_LOGW(TAG, \"SetChatMessage: [%s] %s\", role,\
+    \ content);\n}"
+  eg-168;: "void Display::SetChatMessage(const char* role, const char* content) {\n\
+    \    if (role == nullptr || content == nullptr) {\n        ESP_LOGW(TAG, \"SetChatMessage\
+    \ called with null role or content\");\n        return;\n    }\n    ESP_LOGD(TAG,\
+    \ \"Chat Message - Role: %s, Content: %s\", role, content);\n}"
+  SRP-small-168;: "void Display::SetChatMessage(const char* role, const char* content)\
+    \ {\n    // This is a base class implementation that just logs the message\n \
+    \   // Actual implementation will be in derived classes\n    ESP_LOGI(TAG, \"\
+    Chat message [%s]: %s\", role ? role : \"unknown\", content ? content : \"\");\n\
+    }"
+  SRP-168;: "void Display::SetChatMessage(const char* role, const char* content) {\n\
+    \    // Log chat messages to console for debugging purposes\n    // Format: [role]:\
+    \ content\n    if (role != nullptr && content != nullptr) {\n        ESP_LOGI(TAG,\
+    \ \"[%s]: %s\", role, content);\n    } else if (role != nullptr) {\n        ESP_LOGI(TAG,\
+    \ \"[%s]: (null)\", role);\n    } else {\n        ESP_LOGI(TAG, \"[null]: %s\"\
+    , content ? content : \"(null)\");\n    }\n}"
+- query: complete the function SetTheme(Theme *)()
+  ground_truth: "void Display::SetTheme(Theme* theme) {\n    current_theme_ = theme;\n\
+    \    Settings settings(\"display\", true);\n    settings.SetString(\"theme\",\
+    \ theme->name());\n}"
+  workflow: ''
+  cursor: ''
+  without: "void SetTheme(Theme* theme)\n{\n    // Check if the provided theme pointer\
+    \ is valid\n    if (theme == nullptr) {\n        return;\n    }\n    \n    //\
+    \ Assuming there's a global/static current theme variable\n    // Replace this\
+    \ with the actual variable name in your codebase\n    static Theme* currentTheme\
+    \ = nullptr;\n    \n    // If there's an existing theme that needs cleanup, handle\
+    \ it\n    // This depends on your memory management strategy\n    if (currentTheme\
+    \ != nullptr) {\n        // Potentially notify about theme change or clean up\
+    \ resources\n        // depending on your application's requirements\n    }\n\
+    \    \n    // Set the new theme as current\n    currentTheme = theme;\n    \n\
+    \    // Optionally trigger UI updates or theme application\n    // ApplyTheme();\
+    \ // Uncomment if you have such a function\n    \n    // Notify observers or trigger\
+    \ callbacks about theme change\n    // NotifyThemeChange(); // Uncomment if you\
+    \ have such a function\n}"
+  tools: "void Display::SetTheme(Theme *theme)\n{\n    if (!theme)\n    {\n      \
+    \  ESP_LOGE(TAG, \"Invalid theme provided to SetTheme\");\n        return;\n \
+    \   }\n\n    bool locked = Lock(100); // Timeout in ms\n    if (!locked)\n   \
+    \ {\n        ESP_LOGE(TAG, \"Failed to acquire display lock in SetTheme\");\n\
+    \        return;\n    }\n\n    ESP_LOGW(TAG, \"SetTheme: %s\", theme->name());\n\
+    \n    current_theme_ = theme;\n\n    Settings settings(\"display\", true);\n \
+    \   settings.SetString(\"theme\", theme->name());\n\n    Unlock();\n}"
+  without-small: "```cpp\nvoid SetTheme(Theme* theme) {\n    if (theme != nullptr)\
+    \ {\n        // Store the new theme\n        currentTheme = theme;\n        \n\
+    \        // Apply theme properties to UI elements\n        // This would typically\
+    \ involve:\n        // - Setting colors\n        // - Applying fonts\n       \
+    \ // - Configuring styles\n        // - Updating visual appearance\n        \n\
+    \        // Example theme application logic:\n        backgroundColor = theme->GetBackgroundColor();\n\
+    \        textColor = theme->GetTextColor();\n        accentColor = theme->GetAccentColor();\n\
+    \        \n        // Trigger redraw or refresh of UI components\n        OnThemeChanged();\n\
+    \    }\n}"
+  tools-small: "void Display::SetTheme(Theme *theme)\n{\n    if (theme != nullptr)\
+    \ {\n        ESP_LOGI(TAG, \"Setting theme: %s\", theme->name().c_str());\n  \
+    \      current_theme_ = theme;\n    } else {\n        ESP_LOGW(TAG, \"Attempted\
+    \ to set null theme\");\n    }\n}"
+  workflow+sd+mi: "void Display::SetTheme(Theme* theme)\n{\n    DisplayLockGuard lock(this);\n\
+    \n    // Cast to LvglTheme to access LVGL-specific properties\n    auto lvgl_theme\
+    \ = static_cast<LvglTheme*>(theme);\n\n    // Retrieve fonts from the theme\n\
+    \    auto text_font = lvgl_theme->text_font()->font();\n    auto icon_font = lvgl_theme->icon_font()->font();\n\
+    \    auto large_icon_font = lvgl_theme->large_icon_font()->font();\n\n    // Apply\
+    \ global text font and color to main screen/container\n    lv_obj_set_style_text_font(screen_,\
+    \ text_font, 0);\n    lv_obj_set_style_text_color(screen_, lvgl_theme->text_color(),\
+    \ 0);\n\n    // Set background: prefer image over solid color\n    if (lvgl_theme->background_image()\
+    \ != nullptr) {\n        lv_obj_set_style_bg_img_src(container_, lvgl_theme->background_image()->image_dsc(),\
+    \ 0);\n    } else {\n        lv_obj_set_style_bg_img_src(container_, nullptr,\
+    \ 0);\n        lv_obj_set_style_bg_color(container_, lvgl_theme->background_color(),\
+    \ 0);\n    }\n\n    // Update common label elements with themed text color\n \
+    \   lv_obj_set_style_text_color(network_label_, lvgl_theme->text_color(), 0);\n\
+    \    lv_obj_set_style_text_color(status_label_, lvgl_theme->text_color(), 0);\n\
+    \    lv_obj_set_style_text_color(notification_label_, lvgl_theme->text_color(),\
+    \ 0);\n    lv_obj_set_style_text_color(mute_label_, lvgl_theme->text_color(),\
+    \ 0);\n    lv_obj_set_style_text_color(battery_label_, lvgl_theme->text_color(),\
+    \ 0);\n    lv_obj_set_style_text_color(emoji_label_, lvgl_theme->text_color(),\
+    \ 0);\n\n    // Update message bubbles - example assumes existence of multiple\
+    \ bubble types\n    // Each would require similar treatment depending on their\
+    \ styling needs\n    // Example:\n    // lv_obj_set_style_bg_color(incoming_bubble_,\
+    \ lvgl_theme->incoming_message_color(), 0);\n    // lv_obj_set_style_text_color(incoming_bubble_,\
+    \ lvgl_theme->incoming_text_color(), 0);\n\n    // Update low battery popup\n\
+    \    lv_obj_set_style_bg_color(low_battery_popup_, lvgl_theme->low_battery_color(),\
+    \ 0);\n\n    // Optional: update border, shadow, radius, opacity, etc.\n    //\
+    \ e.g., lv_obj_set_style_border_color(screen_, lvgl_theme->border_color(), 0);\n\
+    \n    // Save the theme after successful application\n    Display::SetTheme(lvgl_theme);\n\
+    }"
+  workflow+sd+mi+rf: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid theme parameter\");\n        return;\n  \
+    \  }\n\n    DisplayLockGuard lock(this);\n\n    // Cast to LvglTheme to access\
+    \ LVGL-specific properties\n    LvglTheme* lvgl_theme = dynamic_cast<LvglTheme*>(theme);\n\
+    \    if (lvgl_theme == nullptr) {\n        ESP_LOGE(TAG, \"Failed to cast theme\
+    \ to LvglTheme\");\n        return;\n    }\n\n    // Retrieve fonts from the theme\n\
+    \    lv_font_t* text_font = lvgl_theme->text_font()->font();\n    lv_font_t* icon_font\
+    \ = lvgl_theme->icon_font()->font();\n    lv_font_t* large_icon_font = lvgl_theme->large_icon_font()->font();\n\
+    \n    // Apply global text font and color to main screen/container\n    if (screen_\
+    \ != nullptr) {\n        lv_obj_set_style_text_font(screen_, text_font, LV_PART_MAIN);\n\
+    \        lv_obj_set_style_text_color(screen_, lvgl_theme->text_color(), LV_PART_MAIN);\n\
+    \    }\n\n    // Set background: prefer image over solid color\n    if (container_\
+    \ != nullptr) {\n        if (lvgl_theme->background_image() != nullptr) {\n  \
+    \          lv_obj_set_style_bg_img_src(container_, lvgl_theme->background_image()->image_dsc(),\
+    \ LV_PART_MAIN);\n        } else {\n            lv_obj_set_style_bg_img_src(container_,\
+    \ nullptr, LV_PART_MAIN);\n            lv_obj_set_style_bg_color(container_, lvgl_theme->background_color(),\
+    \ LV_PART_MAIN);\n        }\n    }\n\n    // Update common label elements with\
+    \ themed text color\n    if (network_label_ != nullptr) {\n        lv_obj_set_style_text_color(network_label_,\
+    \ lvgl_theme->text_color(), LV_PART_MAIN);\n    }\n    if (status_label_ != nullptr)\
+    \ {\n        lv_obj_set_style_text_color(status_label_, lvgl_theme->text_color(),\
+    \ LV_PART_MAIN);\n    }\n    if (notification_label_ != nullptr) {\n        lv_obj_set_style_text_color(notification_label_,\
+    \ lvgl_theme->text_color(), LV_PART_MAIN);\n    }\n    if (mute_label_ != nullptr)\
+    \ {\n        lv_obj_set_style_text_color(mute_label_, lvgl_theme->text_color(),\
+    \ LV_PART_MAIN);\n    }\n    if (battery_label_ != nullptr) {\n        lv_obj_set_style_text_color(battery_label_,\
+    \ lvgl_theme->text_color(), LV_PART_MAIN);\n    }\n    if (emoji_label_ != nullptr)\
+    \ {\n        lv_obj_set_style_text_color(emoji_label_, lvgl_theme->text_color(),\
+    \ LV_PART_MAIN);\n    }\n\n    // Update low battery popup\n    if (low_battery_popup_\
+    \ != nullptr) {\n        lv_obj_set_style_bg_color(low_battery_popup_, lvgl_theme->low_battery_color(),\
+    \ LV_PART_MAIN);\n    }\n\n    // Save the theme reference\n    current_theme_\
+    \ = lvgl_theme;\n    \n    ESP_LOGI(TAG, \"Theme applied successfully\");\n}"
+  local: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr) {\n \
+    \       ESP_LOGE(TAG, \"SetTheme called with null theme\");\n        return;\n\
+    \    }\n\n    // Assuming there's a member variable: Theme* current_theme_;\n\
+    \    current_theme_ = theme;\n\n    ESP_LOGI(TAG, \"Theme set to %p\", static_cast<void*>(theme));\n\
+    \n    // Optional: Trigger UI refresh or apply styles here once supported\n}"
+  workflow-small-rf: "void Display::SetTheme(Theme *theme)\n{\n    if (!theme) {\n\
+    \        ESP_LOGE(TAG, \"Invalid theme provided\");\n        return;\n    }\n\n\
+    \    DisplayLockGuard lock(this);\n\n    auto lvgl_theme = static_cast<LvglTheme\
+    \ *>(theme);\n\n    // Validate required theme components\n    if (!lvgl_theme->text_font())\
+    \ {\n        ESP_LOGE(TAG, \"Theme missing text font\");\n        return;\n  \
+    \  }\n\n    // Get fonts from the theme\n    auto text_font = lvgl_theme->text_font()->font();\n\
+    \    auto icon_font = lvgl_theme->icon_font() ? lvgl_theme->icon_font()->font()\
+    \ : nullptr;\n    auto large_icon_font = lvgl_theme->large_icon_font() ? lvgl_theme->large_icon_font()->font()\
+    \ : nullptr;\n\n    // Apply global text font and color to main screen (if exists)\n\
+    \    if (screen_) {\n        lv_obj_set_style_text_font(screen_, text_font, 0);\n\
+    \        lv_obj_set_style_text_color(screen_, lvgl_theme->text_color(), 0);\n\
+    \    }\n\n    // Set background: image takes precedence over solid color (if container\
+    \ exists)\n    if (container_) {\n        if (lvgl_theme->background_image() !=\
+    \ nullptr) {\n            lv_obj_set_style_bg_img_src(container_, lvgl_theme->background_image()->image_dsc(),\
+    \ 0);\n        } else {\n            lv_obj_set_style_bg_img_src(container_, nullptr,\
+    \ 0);\n            lv_obj_set_style_bg_color(container_, lvgl_theme->background_color(),\
+    \ 0);\n        }\n    }\n\n    // Update common labels with themed text color\
+    \ (only if they exist)\n    if (network_label_) lv_obj_set_style_text_color(network_label_,\
+    \ lvgl_theme->text_color(), 0);\n    if (status_label_) lv_obj_set_style_text_color(status_label_,\
+    \ lvgl_theme->text_color(), 0);\n    if (notification_label_) lv_obj_set_style_text_color(notification_label_,\
+    \ lvgl_theme->text_color(), 0);\n    if (mute_label_) lv_obj_set_style_text_color(mute_label_,\
+    \ lvgl_theme->text_color(), 0);\n    if (battery_label_) lv_obj_set_style_text_color(battery_label_,\
+    \ lvgl_theme->text_color(), 0);\n    if (emoji_label_) lv_obj_set_style_text_color(emoji_label_,\
+    \ lvgl_theme->text_color(), 0);\n\n    // Update low battery warning popup (if\
+    \ exists)\n    if (low_battery_popup_) {\n        lv_obj_set_style_bg_color(low_battery_popup_,\
+    \ lvgl_theme->low_battery_color(), 0);\n    }\n\n    // Store the theme reference\
+    \ for future use (avoiding recursion)\n    current_theme_ = lvgl_theme;\n    \n\
+    \    ESP_LOGI(TAG, \"Theme applied successfully\");\n}"
+  local-small: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr)\
+    \ {\n        ESP_LOGW(TAG, \"SetTheme: NULL theme pointer\");\n        return;\n\
+    \    }\n    \n    ESP_LOGW(TAG, \"SetTheme: Setting new theme\");\n    // In a\
+    \ real implementation, we would store the theme pointer\n    // for use by other\
+    \ display functions\n    // m_current_theme = theme;\n}"
+  tools-long: "void LcdDisplay::SetTheme(Theme* theme) {\n    DisplayLockGuard lock(this);\n\
+    \n    // Cast to LvglTheme to access LVGL-specific attributes\n    auto lvgl_theme\
+    \ = static_cast<LvglTheme*>(theme);\n    if (!lvgl_theme) return;\n\n    // Get\
+    \ current active screen\n    lv_obj_t* screen = lv_screen_active();\n\n    //\
+    \ Apply base theme styles globally\n    lv_obj_set_style_bg_color(screen, lvgl_theme->background_color(),\
+    \ 0);\n    lv_obj_set_style_text_color(screen, lvgl_theme->text_color(), 0);\n\
+    \    lv_obj_set_style_text_font(screen, lvgl_theme->text_font(), 0);\n\n    //\
+    \ Update main static widgets\n    if (label_) {\n        lv_obj_set_style_text_color(label_,\
+    \ lvgl_theme->text_color(), 0);\n        lv_obj_set_style_text_font(label_, lvgl_theme->text_font(),\
+    \ 0);\n    }\n\n    if (container_) {\n        lv_obj_set_style_bg_color(container_,\
+    \ lvgl_theme->background_color(), 0);\n        lv_obj_set_style_border_color(container_,\
+    \ lvgl_theme->border_color(), 0);\n    }\n\n    // Handle conditional UI layouts\n\
+    #if CONFIG_USE_WECHAT_MESSAGE_STYLE\n    // Traverse chat container children to\
+    \ update message bubble styles\n    if (parent_object_) {\n        uint32_t child_count\
+    \ = lv_obj_get_child_cnt(parent_object_);\n        for (uint32_t i = 0; i < child_count;\
+    \ ++i) {\n            lv_obj_t* obj = lv_obj_get_child(parent_object_, i);\n \
+    \           if (obj != nullptr) {\n                // Assume each child is a message\
+    \ bubble container\n                lv_obj_set_style_bg_color(obj, lvgl_theme->message_bubble_color(),\
+    \ 0);\n                lv_obj_set_style_text_color(obj, lvgl_theme->message_text_color(),\
+    \ 0);\n            }\n        }\n    }\n#else\n    // Simple list or other non-chat\
+    \ UI – could include icon/button recoloring\n    if (button_list_.size() > 0)\
+    \ {\n        for (auto& btn : button_list_) {\n            lv_obj_set_style_bg_color(btn,\
+    \ lvgl_theme->button_background_color(), 0);\n            lv_obj_set_style_text_color(btn,\
+    \ lvgl_theme->button_text_color(), 0);\n        }\n    }\n#endif\n\n    // Save\
+    \ selected theme persistently\n    Settings settings(\"display\", false);\n  \
+    \  settings.SetString(\"theme\", theme->name());\n    settings.Save();\n}"
+  graph-5-5: "void Display::SetTheme(Theme *theme) {\n    // Acquire lock for thread\
+    \ safety during UI updates\n    DisplayLockGuard lock;\n    \n    // Store the\
+    \ provided theme\n    current_theme_ = theme;\n    \n    // If we have a valid\
+    \ theme, cast it to LvglTheme for LVGL-specific operations\n    if (theme != nullptr)\
+    \ {\n        LvglTheme* lvgl_theme = static_cast<LvglTheme*>(theme);\n       \
+    \ \n        // Apply LVGL theme settings (example implementation)\n        //\
+    \ This would typically involve setting styles on LVGL objects\n        // For\
+    \ example:\n        // lv_obj_set_style_text_font(screen_, lvgl_theme->GetFont(),\
+    \ LV_PART_MAIN);\n        // lv_obj_set_style_bg_color(screen_, lvgl_theme->GetBackgroundColor(),\
+    \ LV_PART_MAIN);\n        \n        // Register or update the theme in the global\
+    \ registry\n        LvglThemeRegistry::RegisterTheme(lvgl_theme->GetName(), lvgl_theme);\n\
+    \        \n        // Save theme settings for persistence\n        SaveThemeSettings(lvgl_theme->GetName());\n\
+    \    }\n}"
+  graph-small-5-5: "void Display::SetTheme(Theme* theme) {\n    // Base class implementation\
+    \ - this is typically a virtual function\n    // that derived classes will override\
+    \ with specific implementations\n    \n    // In a typical embedded system with\
+    \ LVGL integration, we would:\n    // 1. Cast the generic Theme to a specific\
+    \ LVGL theme type\n    // 2. Extract font information from the theme\n    // 3.\
+    \ Apply the font to the active screen or UI elements\n    \n    // For now, this\
+    \ serves as a placeholder/base implementation\n    // Actual implementation would\
+    \ be in derived classes like OledDisplay\n    \n    // Thread safety consideration\
+    \ - if multiple threads access display,\n    // we might need to lock a mutex\
+    \ here before modifying UI elements\n    \n    // Example of what a derived implementation\
+    \ might do:\n    /*\n    LvglTheme* lvglTheme = dynamic_cast<LvglTheme*>(theme);\n\
+    \    if (lvglTheme != nullptr) {\n        lv_obj_t* scr = lv_screen_active();\n\
+    \        if (scr != nullptr) {\n            lv_obj_set_style_text_font(scr, lvglTheme->GetFont(),\
+    \ LV_PART_MAIN);\n        }\n    }\n    */\n    \n    // This is a no-op in base\
+    \ class - derived classes should implement\n    // the actual theme application\
+    \ logic\n}"
+  Desc+without: "void Display::SetTheme(Theme* theme)\n{\n    // Validate input parameter\n\
+    \    if (theme == nullptr)\n    {\n        return;\n    }\n    \n    // Update\
+    \ internal theme reference\n    mCurrentTheme = theme;\n    \n    // Apply the\
+    \ theme to the display\n    ApplyTheme(*theme);\n    \n    // Persist the theme\
+    \ name to settings storage\n    SettingsStorage& settings = GetSettingsStorage();\n\
+    \    settings.SaveString(\"display.theme\", theme->GetName());\n    \n    // Optionally\
+    \ flush settings to ensure persistence\n    settings.Commit();\n}"
+  Desc+local: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr)\
+    \ {\n        ESP_LOGE(TAG, \"Invalid theme provided\");\n        return;\n   \
+    \ }\n\n    // Assuming 'current_theme_' is a member variable holding the current\
+    \ theme\n    current_theme_ = theme;\n\n    // Persist theme name - assuming Theme\
+    \ has a GetName() method\n    Settings::Set(\"theme_name\", theme->GetName());\n\
+    \n    // Apply the theme immediately (assuming ApplyTheme() updates visuals accordingly)\n\
+    \    ApplyTheme();\n\n    ESP_LOGI(TAG, \"Theme set to: %s\", theme->GetName());\n\
+    }"
+  Desc+graph-5-5: "void OledDisplay::SetTheme(Theme* theme) {\n    DisplayLockGuard\
+    \ lock(this);\n\n    // Cast generic Theme pointer to LvglTheme for accessing\
+    \ LVGL-specific resources\n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n\
+    \n    // Extract required fonts from the theme\n    auto text_font = lvgl_theme->text_font()->font();\n\
+    \    auto icon_font = lvgl_theme->icon_font()->font();\n    auto large_icon_font\
+    \ = lvgl_theme->large_icon_font()->font();\n\n    // Get reference to the active\
+    \ screen\n    auto screen = lv_screen_active();\n\n    // Conditionally apply\
+    \ icon fonts based on text font size\n    if (text_font->line_height >= 40) {\n\
+    \        lv_obj_set_style_text_font(mute_label_, large_icon_font, 0);\n      \
+    \  lv_obj_set_style_text_font(battery_label_, large_icon_font, 0);\n        lv_obj_set_style_text_font(network_label_,\
+    \ large_icon_font, 0);\n    } else {\n        lv_obj_set_style_text_font(mute_label_,\
+    \ icon_font, 0);\n        lv_obj_set_style_text_font(battery_label_, icon_font,\
+    \ 0);\n        lv_obj_set_style_text_font(network_label_, icon_font, 0);\n   \
+    \ }\n\n    // Apply the main text font globally to the screen\n    lv_obj_set_style_text_font(screen,\
+    \ text_font, 0);\n\n    // Persist theme setting by calling base class method\n\
+    \    Display::SetTheme(lvgl_theme);\n}"
+  Desc+tools: "void Display::SetTheme(Theme* theme) {\n    if (theme == nullptr ||\
+    \ theme == current_theme_) {\n        return; // No change or invalid input\n\
+    \    }\n\n    {\n        DisplayLockGuard guard(this); // Ensure thread-safe access\
+    \ to display resources\n\n        current_theme_ = theme;\n\n        // Save the\
+    \ theme name for persistence across reboots\n        Settings settings(\"display\"\
+    , true);\n        settings.SetString(\"theme\", theme->name());\n\n        //\
+    \ Apply the new theme to update visual appearance\n        ApplyTheme();\n   \
+    \ }\n}"
+  Desc+graph-KG-5-5: "void Display::SetTheme(Theme* theme) {\n    DisplayLockGuard\
+    \ lock(this);\n\n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n    auto\
+    \ text_font = lvgl_theme->text_font()->font();\n\n    auto screen = lv_screen_active();\n\
+    \    lv_obj_set_style_text_font(screen, text_font, 0);\n}"
+  Desc+workflow: "void Display::SetTheme(Theme* theme) {\n    // Step 1: Null check\
+    \ for safety\n    if (theme == nullptr) {\n        ESP_LOGE(TAG, \"Invalid theme\
+    \ provided\");\n        return;\n    }\n\n    // Step 2: Log entry for debugging/tracing\n\
+    \    ESP_LOGW(TAG, \"SetTheme: %s\", theme->name);\n\n    // Step 3: Store the\
+    \ selected theme internally\n    current_theme_ = theme;\n\n    // Step 4: Apply\
+    \ theme visually (example assumes LVGL usage)\n    lv_theme_t* lv_theme = static_cast<lv_theme_t*>(theme->data);\n\
+    \    if (lv_theme != nullptr && display_handle_ != nullptr) {\n        lv_disp_set_theme(display_handle_,\
+    \ lv_theme);\n    } else {\n        ESP_LOGE(TAG, \"Failed to apply theme: invalid\
+    \ data or display handle\");\n    }\n\n    // Step 5: Persist theme selection\
+    \ in settings\n    Settings::GetInstance()->SetValue(\"display.theme\", theme->name);\n\
+    }"
+  Desc+without-small: "bool Display::SetTheme(Theme* theme)\n{\n    // Validate input\
+    \ parameter\n    if (theme == nullptr)\n    {\n        return false;\n    }\n\
+    \    \n    // Update internal theme reference\n    mCurrentTheme = theme;\n  \
+    \  \n    // Persist the theme name to settings storage\n    // Assuming there's\
+    \ a settings manager or similar mechanism\n    try\n    {\n        // Save theme\
+    \ name to persistent storage\n        SettingsManager::SaveSetting(\"display.theme\"\
+    , theme->GetName());\n        \n        // Optionally trigger theme change event\
+    \ or notification\n        OnThemeChanged(*theme);\n        \n        return true;\n\
+    \    }\n    catch (const std::exception& e)\n    {\n        // Handle storage\
+    \ failure - could log error or revert changes\n        // For now, we'll return\
+    \ false to indicate failure\n        return false;\n    }\n}"
+  Desc+graph-SRP_KG-5-5-rf: '> private:
+
+    >     Theme* current_theme_ = nullptr;
+
+    >'
+  Desc+graph-wt-SRP_KG-3-3: "void Display::SetTheme(Theme* theme) {\n    // Validate\
+    \ input parameter\n    if (theme == nullptr) {\n        ESP_LOGE(TAG, \"SetTheme:\
+    \ Attempted to set null theme\");\n        return;\n    }\n    \n    // Acquire\
+    \ display lock for thread safety\n    DisplayLockGuard lock(this);\n    \n   \
+    \ // Log the theme setting operation\n    ESP_LOGI(TAG, \"SetTheme: Setting theme\
+    \ '%s' (address: %p)\", theme->name(), theme);\n    \n    // Update internal theme\
+    \ reference\n    current_theme_ = theme;\n    \n    // Persist theme name to settings\
+    \ storage\n    Settings::GetInstance().SetThemeName(theme->name());\n    \n  \
+    \  // Log successful completion\n    ESP_LOGI(TAG, \"SetTheme: Successfully set\
+    \ theme '%s'\", theme->name());\n}"
+  Desc+graph-wt-SRP_KG-3-3-direct_return: "void Display::SetTheme(Theme* theme) {\n\
+    \    DisplayLockGuard lock(this);\n    \n    if (theme == nullptr) {\n       \
+    \ ESP_LOGW(TAG, \"SetTheme: Attempting to set null theme\");\n        return;\n\
+    \    }\n    \n    // Update the internal theme reference\n    current_theme_ =\
+    \ theme;\n    \n    // Persist the theme name to settings storage\n    Settings::GetInstance().SetStringValue(\"\
+    display_theme\", theme->name());\n    \n    ESP_LOGI(TAG, \"SetTheme: %s\", theme->name().c_str());\n\
+    }"
+  Desc+graph-wt-SRP_KG-3-3-direct_return-small: "void Display::SetTheme(Theme* theme)\
+    \ {\n    DisplayLockGuard lock(this);\n    \n    if (theme == nullptr) {\n   \
+    \     ESP_LOGW(TAG, \"SetTheme: Attempting to set null theme\");\n        return;\n\
+    \    }\n    \n    // Update the internal theme reference\n    current_theme_ =\
+    \ theme;\n    \n    // Persist the theme name to settings storage\n    Settings::GetInstance().SetStringValue(\"\
+    display_theme\", theme->name());\n    \n    ESP_LOGI(TAG, \"SetTheme: %s\", theme->name().c_str());\n\
+    }"
+  Desc+graph-SRP_KG-5-5-query-decompose: "void Display::SetTheme(Theme* theme) {\n\
+    \    if (theme == nullptr) {\n        return;\n    }\n    \n    // Step 1: Update\
+    \ internal theme reference with the provided Theme object\n    current_theme_\
+    \ = theme;\n    \n    // Step 2: Serialize and persist the theme name to non-volatile\
+    \ settings storage\n    Settings settings(\"display\", true);\n    settings.SetString(\"\
+    theme\", theme->name());\n    \n    // Step 3: Trigger UI refresh or redraw to\
+    \ apply the new theme visually\n    // This would typically involve refreshing\
+    \ the LVGL display\n    RefreshUI();\n    \n    // Step 4: Notify other subsystems\
+    \ or listeners about the theme change event\n    // This could be implemented\
+    \ through an event system or callback mechanism\n    NotifyThemeChanged(theme);\n\
+    }"
+  graph-SRP_KG-it-small;: "void Display::SetTheme(Theme* theme) {\n    if (theme ==\
+    \ nullptr) {\n        ESP_LOGE(TAG, \"Cannot set null theme\");\n        return;\n\
+    \    }\n    \n    // Store the theme reference internally\n    // Note: This assumes\
+    \ current_theme_ member variable exists\n    // If not, we'll need to handle this\
+    \ differently\n    \n    // Persist the theme name to settings storage\n    Settings\
+    \ display_settings(\"display\", true);\n    display_settings.SetString(\"theme\"\
+    , theme->name());\n    \n    ESP_LOGI(TAG, \"Theme set to: %s\", theme->name().c_str());\n\
+    }"
+  graph-SRP_KG-it;: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr)\
+    \ {\n        ESP_LOGW(TAG, \"SetTheme: null theme provided\");\n        return;\n\
+    \    }\n    \n    DisplayLockGuard lock(this);\n    \n    // Update internal theme\
+    \ reference\n    current_theme_ = theme;\n    \n    // Cast to LVGL theme for\
+    \ style application\n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n \
+    \   \n    // Apply the theme styles - set text font for active screen\n    if\
+    \ (lvgl_theme->text_font()) {\n        auto text_font = lvgl_theme->text_font()->font();\n\
+    \        auto screen = lv_screen_active();\n        lv_obj_set_style_text_font(screen,\
+    \ text_font, 0);\n    }\n    \n    // Set background image or color\n    if (lvgl_theme->background_image()\
+    \ != nullptr) {\n        // Assuming container_ exists in derived class, this\
+    \ would be called in that context\n        // lv_obj_set_style_bg_image_src(container_,\
+    \ lvgl_theme->background_image()->image_dsc(), 0);\n    } else {\n        // Assuming\
+    \ container_ exists in derived class\n        // lv_obj_set_style_bg_color(container_,\
+    \ lvgl_theme->background_color(), 0);\n    }\n    \n    // Persist theme name\
+    \ to settings storage\n    Settings::GetInstance()->SetString(\"display.theme\"\
+    , theme->name());\n    \n    ESP_LOGI(TAG, \"Theme set to: %s\", theme->name().c_str());\n\
+    }"
+  without-small;: "bool Display::SetTheme(Theme* theme)\n{\n    // Validate input\
+    \ parameter\n    if (theme == nullptr)\n    {\n        return false;\n    }\n\
+    \    \n    // Update internal theme reference\n    mCurrentTheme = theme;\n  \
+    \  \n    // Persist the theme name to settings storage\n    // Assuming there's\
+    \ a settings manager or similar mechanism\n    try\n    {\n        // Save theme\
+    \ name to persistent storage\n        SettingsManager::SaveSetting(\"display.theme\"\
+    , theme->GetName());\n        \n        // Optionally trigger theme change event\
+    \ or notification\n        OnThemeChanged(*theme);\n        \n        return true;\n\
+    \    }\n    catch (const std::exception& e)\n    {\n        // Handle storage\
+    \ failure - could log error or revert changes\n        // For now, we'll return\
+    \ false to indicate failure\n        return false;\n    }\n}"
+  local-small;: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr)\
+    \ {\n        ESP_LOGW(TAG, \"SetTheme: Attempted to set null theme\");\n     \
+    \   return;\n    }\n    \n    // Store the theme reference (assuming there's a\
+    \ member variable like m_theme)\n    // Since we don't see member variables in\
+    \ the provided code, we'll assume\n    // the theme is stored somewhere or just\
+    \ log the operation\n    \n    // Log the theme change\n    ESP_LOGI(TAG, \"SetTheme:\
+    \ Setting theme to %s\", theme->name);\n    \n    // Persist the theme name to\
+    \ settings storage\n    // This assumes there's a settings API available to save\
+    \ the theme name\n    // settings_save_theme(theme->name);\n}"
+  tools-small;: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr)\
+    \ {\n        ESP_LOGW(TAG, \"Cannot set null theme\");\n        return;\n    }\n\
+    \    \n    // Update the internal theme reference\n    current_theme_ = theme;\n\
+    \    \n    // Persist the theme name to settings storage\n    Settings settings(\"\
+    display\", true);  // Using \"display\" namespace with read/write access\n   \
+    \ settings.SetString(\"theme_name\", theme->name());\n    settings.EraseAll();\
+    \  // This might not be needed, but ensures settings are properly saved\n    \n\
+    \    ESP_LOGI(TAG, \"Theme set to: %s\", theme->name().c_str());\n}"
+  without;: "void Display::SetTheme(Theme* theme)\n{\n    // Validate input parameter\n\
+    \    if (theme == nullptr)\n    {\n        return;\n    }\n    \n    // Update\
+    \ internal theme reference\n    mCurrentTheme = theme;\n    \n    // Apply the\
+    \ theme to the display\n    ApplyTheme(*theme);\n    \n    // Persist the theme\
+    \ name to settings storage\n    SettingsStorage& settings = GetSettingsStorage();\n\
+    \    settings.SaveString(\"display.theme\", theme->GetName());\n    \n    // Optionally\
+    \ flush settings to ensure persistence\n    settings.Commit();\n}"
+  local;: "void Display::SetTheme(Theme *theme)\n{\n    current_theme_ = theme;\n\
+    \    Settings settings(\"display\", true);\n    settings.SetString(\"theme\",\
+    \ theme->name());\n    ESP_LOGI(TAG, \"Theme set to: %s\", theme->name());\n}"
+  tools;: "void Display::SetTheme(Theme *theme)\n{\n    if (theme == nullptr) {\n\
+    \        return;\n    }\n    \n    // Update internal theme reference\n    current_theme_\
+    \ = theme;\n    \n    // Persist theme name to settings storage\n    Settings\
+    \ settings(\"display\", true);\n    settings.SetString(\"theme\", theme->name());\n\
+    }"
+  eg;: "void Display::SetTheme(Theme* theme) {\n    // Step 1: Update internal theme\
+    \ reference with the provided Theme object\n    if (theme == nullptr) {\n    \
+    \    return; // Do not proceed with null theme\n    }\n    current_theme_ = theme;\n\
+    \n    // Step 2: Serialize and persist the theme name to non-volatile settings\
+    \ storage\n    const char* theme_name = theme->GetName(); // Assume Theme provides\
+    \ GetName()\n    settings_storage_->Write(\"display.theme\", theme_name); // Mocked\
+    \ abstraction\n\n    // Step 3: Trigger UI refresh or redraw to apply the new\
+    \ theme visually\n    RefreshUI(); // Hypothetical function to redraw screen/UI\
+    \ with new theme\n\n    // Step 4: Notify other subsystems or listeners about\
+    \ the theme change event\n    event_notifier_->Publish(\"ThemeChanged\", theme_name);\
+    \ // Notifying others\n}"
+  a3;: "void Display::SetTheme(Theme* theme) {\n    DisplayLockGuard lock(this);\n\
+    \    \n    if (theme == nullptr) {\n        ESP_LOGW(TAG, \"Attempted to set null\
+    \ theme\");\n        return;\n    }\n    \n    // Cast to LvglTheme to access\
+    \ font properties\n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n   \
+    \ auto text_font = lvgl_theme->text_font()->font();\n    \n    // Apply the theme\
+    \ visually by setting the text font\n    auto screen = lv_screen_active();\n \
+    \   lv_obj_set_style_text_font(screen, text_font, 0);\n    \n    // Store the\
+    \ theme reference (assuming there's a member variable to hold it)\n    // This\
+    \ would typically be something like: current_theme_ = theme;\n    \n    // Persist\
+    \ the theme name to settings storage\n    const char* theme_name = theme->name();\n\
+    \    Settings::GetInstance().SetString(\"display.theme\", theme_name);\n    \n\
+    \    ESP_LOGI(TAG, \"Theme set to: %s\", theme_name);\n}"
+  eg-small;: "void Display::SetTheme(Theme *theme) {\n    // Validate the theme pointer\
+    \ and handle null case\n    if (theme == nullptr) {\n        return;\n    }\n\
+    \    \n    // Update the internal theme reference in the Display class\n    current_theme_\
+    \ = theme;\n    \n    // Persist the theme name to the settings storage\n    Settings::GetInstance()->SaveThemeName(theme->GetName());\n\
+    \    \n    // Trigger UI refresh to apply the new theme\n    ui_renderer_->Refresh();\n\
+    }"
+  a3-small;: "void Display::SetTheme(Theme* theme) {\n    if (theme == nullptr) {\n\
+    \        ESP_LOGE(TAG, \"Cannot set null theme\");\n        return;\n    }\n \
+    \   \n    // Store the theme reference\n    current_theme_ = theme;\n    \n  \
+    \  // Get theme name for persistence\n    std::string theme_name = theme->name();\n\
+    \    \n    // Persist theme name to settings storage\n    Settings::GetInstance().SetStringValue(\"\
+    display_theme\", theme_name);\n    \n    // Apply theme to display (assuming LVGL-based\
+    \ implementation)\n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n   \
+    \ auto text_font = lvgl_theme->text_font()->font();\n    \n    auto screen = lv_screen_active();\n\
+    \    lv_obj_set_style_text_font(screen, text_font, 0);\n    \n    ESP_LOGI(TAG,\
+    \ \"Theme set to: %s\", theme_name.c_str());\n}"
+  SRP-small;: "void Display::SetTheme(Theme* theme) {\n    if (theme == nullptr) {\n\
+    \        ESP_LOGE(TAG, \"Cannot set null theme\");\n        return;\n    }\n \
+    \   \n    // Update the internal theme reference\n    current_theme_ = theme;\n\
+    \    \n    // Persist the theme name to settings storage\n    // This follows\
+    \ the pattern seen in SaveThemeSettings function\n    Settings::GetInstance().SetStringValue(\"\
+    display_theme\", theme->GetName());\n    \n    // Apply the theme to the display\n\
+    \    // In a real implementation, this would typically involve:\n    // - Setting\
+    \ colors, fonts, etc. on the LVGL objects\n    // - Updating UI elements to match\
+    \ the new theme\n    \n    ESP_LOGI(TAG, \"Theme set to: %s\", theme->GetName().c_str());\n\
+    }"
+  SRP;: "void Display::SetTheme(Theme* theme) {\n    DisplayLockGuard lock(this);\n\
+    \n    // Update internal theme reference\n    current_theme_ = theme;\n\n    //\
+    \ Cast to LvglTheme for LVGL-specific operations\n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n\
+    \    \n    // Apply the theme to the active screen\n    auto screen = lv_screen_active();\n\
+    \    \n    // Apply main text font to screen\n    auto text_font = lvgl_theme->text_font()->font();\n\
+    \    lv_obj_set_style_text_font(screen, text_font, 0);\n    \n    // Save theme\
+    \ name to settings for persistence\n    Settings::GetInstance()->SetString(\"\
+    display.theme\", theme->name());\n}"
+  eg-small-168;: "cpp\nvoid Display::SetTheme(Theme *theme)\n{\n    // Validate the\
+    \ theme pointer\n    if (theme == nullptr) {\n        ESP_LOGE(TAG, \"Cannot set\
+    \ null theme\");\n        return;\n    }\n    \n    // Update the internal theme\
+    \ reference\n    current_theme_ = theme;\n    \n    // Persist the theme name\
+    \ to settings storage\n    Settings settings(\"display\", true);\n    settings.SetString(\"\
+    theme\", theme->name());\n    \n    // Trigger UI refresh to apply the new theme\n\
+    \    // This would typically involve redrawing the display with new theme colors/fonts\n\
+    \    UpdateStatusBar(true);\n}"
+  eg-168;: "void Display::SetTheme(Theme* theme) {\n    if (theme == nullptr) {\n\
+    \        ESP_LOGE(TAG, \"Invalid theme pointer passed to SetTheme\");\n      \
+    \  return;\n    }\n\n    // Step 1: Update internal theme reference\n    current_theme_\
+    \ = theme;\n\n    // Step 2: Persist theme name to settings storage\n    const\
+    \ char* theme_name = theme->GetName(); // assuming Theme has a GetName() method\n\
+    \    if (theme_name != nullptr) {\n        Settings::GetInstance()->SetValue(\"\
+    display.theme\", theme_name);\n    } else {\n        ESP_LOGW(TAG, \"Theme name\
+    \ is null, skipping persistence\");\n    }\n\n    // Step 3: Refresh UI to apply\
+    \ new theme\n    Invalidate(); // assuming there's a method to trigger redraw/redisplay\n\
+    \n    // Step 4: Notify other subsystems about theme change\n    Application::GetInstance()->PostEvent(EVENT_THEME_CHANGED,\
+    \ reinterpret_cast<void*>(theme));\n\n    ESP_LOGI(TAG, \"Theme set to '%s'\"\
+    , theme_name ? theme_name : \"Unknown\");\n}"
+  SRP-small-168;: "void Display::SetTheme(Theme* theme) {\n    DisplayLockGuard lock(this);\n\
+    \    \n    auto lvgl_theme = static_cast<LvglTheme*>(theme);\n    auto text_font\
+    \ = lvgl_theme->text_font()->font();\n    \n    auto screen = lv_screen_active();\n\
+    \    lv_obj_set_style_text_font(screen, text_font, 0);\n    \n    // Save theme\
+    \ name to settings\n    Settings settings(\"display\", true);\n    settings.SetString(\"\
+    theme\", theme->name());\n}"
+  SRP-168;: "void Display::SetTheme(Theme* theme) {\n    if (theme == nullptr) {\n\
+    \        return;\n    }\n    \n    // Update internal theme reference\n    current_theme_\
+    \ = theme;\n    \n    // Persist theme name to settings storage\n    Settings\
+    \ settings(\"display\", true);  // Open display namespace for read/write\n   \
+    \ settings.SetString(\"theme\", theme->name());\n    \n    // Apply theme - this\
+    \ would typically involve updating LVGL styles\n    // Since this is the base\
+    \ Display class, specific implementation \n    // would be in derived classes,\
+    \ but we can log the theme change\n    ESP_LOGI(TAG, \"Theme set to: %s\", theme->name().c_str());\n\
+    }"

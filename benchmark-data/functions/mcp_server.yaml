@@ -1,0 +1,7 @@
+- query: complete the function ~McpServer()()
+  file_path: main/mcp_server.cc
+  ground_truth: "McpServer::~McpServer() {\n    for (auto tool : tools_) {\n     \
+    \   delete tool;\n    }\n    tools_.clear();\n}"
+  workflow: "McpServer::~McpServer()\n{\n    for (auto *tool : tools_)\n    {\n  \
+    \      if (tool != nullptr)\n        {\n            delete tool;\n        }\n\
+    \    }\n    tools_.clear();\n}"

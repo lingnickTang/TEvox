@@ -1,0 +1,6 @@
+- query: complete the function GetTemperature(float &)()
+  file_path: main/boards/common/board.cc
+  ground_truth: |-
+    bool Board::GetTemperature(float& esp32temp){
+        return false;
+    }

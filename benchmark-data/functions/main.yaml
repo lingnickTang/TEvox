@@ -1,0 +1,35 @@
+file_path: main/main.cc
+benchmark:
+- query: complete the function app_main(void)()
+  ground_truth: "void app_main(void)\n{\n    // Initialize NVS flash for WiFi configuration\n\
+    \    esp_err_t ret = nvs_flash_init();\n    if (ret == ESP_ERR_NVS_NO_FREE_PAGES\
+    \ || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        ESP_LOGW(TAG, \"Erasing\
+    \ NVS flash to fix corruption\");\n        ESP_ERROR_CHECK(nvs_flash_erase());\n\
+    \        ret = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(ret);\n\n    // Initialize\
+    \ and run the application\n    auto& app = Application::GetInstance();\n    app.Initialize();\n\
+    \    app.Run();  // This function runs the main event loop and never returns\n\
+    }"
+  workflow: "extern \"C\" void app_main(void)\n{\n    // Initialize NVS\n    esp_err_t\
+    \ err = nvs_flash_init();\n    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err ==\
+    \ ESP_ERR_NVS_NEW_VERSION_FOUND) {\n        // NVS partition was truncated and\
+    \ needs to be erased\n        ESP_ERROR_CHECK(nvs_flash_erase());\n        err\
+    \ = nvs_flash_init();\n    }\n    ESP_ERROR_CHECK(err);\n\n    // Initialize TCP/IP\
+    \ network stack\n    ESP_ERROR_CHECK(esp_netif_init());\n\n    // Initialize event\
+    \ loop\n    ESP_ERROR_CHECK(esp_event_loop_create_default());\n\n    // Initialize\
+    \ system components\n    initialize_system_info();\n\n    // Initialize application\n\
+    \    application_init();\n\n    // Main application loop or task creation\n  \
+    \  // xTaskCreate(app_task, \"app_task\", 4096, NULL, 5, NULL);\n}"
+  cursor: 'extern "C" void app_main(void) { ESP_LOGI(TAG, "Starting application...");
+
+    // Initialize NVS flash (required for Settings) esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    { // NVS partition was truncated and needs to be erased ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init(); } ESP_ERROR_CHECK(ret);
+
+    // Initialize the default event loop (required for network and other ESP-IDF components)
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    // Get Application instance and initialize auto& app = Application::GetInstance();
+    app.Initialize();
+
+    // Run the main event loop (this never returns) app.Run(); }'

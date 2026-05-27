@@ -1,0 +1,130 @@
+  - query: "complete the function AfeWakeWord::AudioDetectionTask()"
+    file_path: "main/audio/wake_words/afe_wake_word.cc"
+    ground_truth: |
+        void AfeWakeWord::AudioDetectionTask() {
+            auto fetch_size = afe_iface_->get_fetch_chunksize(afe_data_);
+            auto feed_size = afe_iface_->get_feed_chunksize(afe_data_);
+            ESP_LOGI(TAG, "Audio detection task started, feed size: %d fetch size: %d",
+                feed_size, fetch_size);
+
+            while (true) {
+                xEventGroupWaitBits(event_group_, DETECTION_RUNNING_EVENT, pdFALSE, pdTRUE, portMAX_DELAY);
+
+                auto res = afe_iface_->fetch_with_delay(afe_data_, portMAX_DELAY);
+                if (res == nullptr || res->ret_value == ESP_FAIL) {
+                    continue;;
+                }
+
+                // Store the wake word data for voice recognition, like who is speaking
+                StoreWakeWordData(res->data, res->data_size / sizeof(int16_t));
+
+                if (res->wakeup_state == WAKENET_DETECTED) {
+                    Stop();
+                    last_detected_wake_word_ = wake_words_[res->wakenet_model_index - 1];
+
+                    if (wake_word_detected_callback_) {
+                        wake_word_detected_callback_(last_detected_wake_word_);
+                    }
+                }
+            } 
+        }   
+    workflow: |
+        void AfeWakeWord::AudioDetectionTask()
+        {
+            // Initialize AFE configuration and interface
+            const char *input_format = "i2s"; // Or dynamic as needed
+            afe_config_t *afe_config = afe_config_init(input_format, models_, AFE_TYPE_SR, AFE_MODE_HIGH_PERF);
+            if (!afe_config)
+            {
+                // Log error and terminate
+                vTaskDelete(NULL);
+                return;
+            }
+
+            afe_iface_ = esp_afe_handle_from_config(afe_config);
+            if (!afe_iface_)
+            {
+                // Log error and terminate
+                vTaskDelete(NULL);
+                return;
+            }
+
+            afe_data_ = afe_iface_->create_from_config(afe_config);
+            if (!afe_data_)
+            {
+                // Log error and terminate
+                vTaskDelete(NULL);
+                return;
+            }
+
+            constexpr size_t kChunkSamples = 480; // 30ms @ 16kHz
+            int16_t audio_buffer[kChunkSamples];
+
+            while (true)
+            {
+                // Wait until detection is enabled
+                EventBits_t bits = xEventGroupWaitBits(
+                    event_group_,
+                    DETECTION_RUNNING_EVENT,
+                    pdFALSE,
+                    pdTRUE,
+                    portMAX_DELAY);
+
+                if (!(bits & DETECTION_RUNNING_EVENT))
+                {
+                    continue;
+                }
+
+                // Simulate reading audio data — replace with actual I2S read or queue pop
+                // In real scenario you'd be pulling from mic or ringbuffer
+                // e.g., i2s_read(..., audio_buffer, sizeof(audio_buffer), ...);
+                memset(audio_buffer, 0, sizeof(audio_buffer)); // placeholder
+
+                // Feed audio into AFE
+                // Feed audio into AFE
+                afe_iface_->feed(afe_data_, reinterpret_cast<const int16_t *>(audio_buffer));
+
+                // Detect wake word
+                void *result = afe_iface_->fetch(afe_data_);
+                if (result != nullptr)
+                {
+                    // Wake word detected!
+
+                    // Store buffered audio around detection moment
+                    StoreWakeWordData(audio_buffer, kChunkSamples);
+
+                    // Start encoding task if not already running
+                    if (wake_word_encode_task_ == nullptr)
+                    {
+                        const size_t stack_size = 4096 * 7;
+
+                        wake_word_encode_task_stack_ = (StackType_t *)heap_caps_malloc(stack_size, MALLOC_CAP_SPIRAM);
+                        wake_word_encode_task_buffer_ = (StaticTask_t *)heap_caps_malloc(sizeof(StaticTask_t), MALLOC_CAP_INTERNAL);
+
+                        if (wake_word_encode_task_stack_ && wake_word_encode_task_buffer_)
+                        {
+                            wake_word_encode_task_ = xTaskCreateStatic(
+                                [](void *arg)
+                                {
+                                    auto this_ = (AfeWakeWord *)arg;
+                                    // Encoding logic would go here
+                                    // Placeholder: simulate completion
+                                    vTaskDelete(NULL);
+                                },
+                                "encode_wake_word",
+                                stack_size,
+                                this,
+                                2,
+                                wake_word_encode_task_stack_,
+                                wake_word_encode_task_buffer_);
+                        }
+                    }
+                }
+
+                // Optional: Add small delay to prevent busy-waiting too aggressively
+                vTaskDelay(pdMS_TO_TICKS(10));
+            }
+
+            // Should never reach here due to infinite loop + self-delete in lambda tasks
+            vTaskDelete(NULL);
+        }

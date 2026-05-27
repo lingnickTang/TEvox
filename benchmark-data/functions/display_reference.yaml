@@ -1,0 +1,6 @@
+complete the function SetStatus(const char *)():
+  functions:
+  - ESP_LOGW
+  variables:
+  - TAG
+  - status

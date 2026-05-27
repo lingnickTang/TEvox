@@ -1,0 +1,22 @@
+- query: complete the function SetStatus(const char *)()
+  file_path: main/display/display.cc
+  ground_truth: "void Display::SetStatus(const char* status) {\n    ESP_LOGW(TAG,\
+    \ \"SetStatus: %s\", status);\n}"
+  workflow: "void Display::SetStatus(const char *status)\n{\n    // Null check with\
+    \ logging\n    if (!status)\n    {\n        ESP_LOGE(TAG, \"SetStatus: status\
+    \ is nullptr\");\n        return;\n    }\n\n    // Ensure thread safety using\
+    \ lock guard\n    DisplayLockGuard lock(this);\n\n    // Update last status update\
+    \ time\n    last_status_update_time_ = std::chrono::system_clock::now();\n\n \
+    \   // Handle special status cases with font icons\n    if (strcmp(status, Lang::Strings::LISTENING)\
+    \ == 0)\n    {\n        lv_obj_set_style_text_font(status_label_, &font_awesome_symbols,\
+    \ 0);\n        lv_label_set_text(status_label_, \"\\xEF\\x84\\xB0\"); // U+F130\
+    \ Microphone Icon\n    }\n    else if (strcmp(status, Lang::Strings::SPEAKING)\
+    \ == 0)\n    {\n        lv_obj_set_style_text_font(status_label_, &font_awesome_symbols,\
+    \ 0);\n        lv_label_set_text(status_label_, \"\\xEF\\x80\\xA3\"); // Speaker\
+    \ icon example\n    }\n    else\n    {\n        // Default case: use normal font\
+    \ and display actual string\n        lv_obj_set_style_text_font(status_label_,\
+    \ &lv_font_montserrat_14, 0);\n        lv_label_set_text(status_label_, status);\n\
+    \    }\n\n    // Make sure the status label is visible\n    lv_obj_remove_flag(status_label_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n\n    // Hide related UI elements during status display\n\
+    \    lv_obj_add_flag(network_label_, LV_OBJ_FLAG_HIDDEN);\n    lv_obj_add_flag(battery_label_,\
+    \ LV_OBJ_FLAG_HIDDEN);\n}"

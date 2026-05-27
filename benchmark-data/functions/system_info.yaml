@@ -1,0 +1,12 @@
+- query: complete the function GetChipModelName()()
+  file_path: main/system_info.cc
+  ground_truth: "std::string SystemInfo::GetChipModelName() {\n    return std::string(CONFIG_IDF_TARGET);\n\
+    }"
+  workflow: "std::string SystemInfo::GetChipModelName()\n{\n    esp_chip_info_t chip_info;\n\
+    \    esp_chip_info(&chip_info);\n\n    switch (chip_info.model)\n    {\n    case\
+    \ ESP_CHIP_MODEL_ESP32:\n        return \"ESP32\";\n    case ESP_CHIP_MODEL_ESP32S2:\n\
+    \        return \"ESP32-S2\";\n    case ESP_CHIP_MODEL_ESP32S3:\n        return\
+    \ \"ESP32-S3\";\n    case ESP_CHIP_MODEL_ESP32C3:\n        return \"ESP32-C3\"\
+    ;\n    case ESP_CHIP_MODEL_ESP32H2:\n        return \"ESP32-H2\";\n    case ESP_CHIP_MODEL_ESP32P4:\n\
+    \        return \"ESP32-P4\";\n    default:\n        return \"Unknown Chip Model\"\
+    ;\n    }\n}"

@@ -1,0 +1,7 @@
+- query: complete the function ReadRegs(uint8_t, uint8_t *, size_t)()
+  file_path: main/boards/common/i2c_device.cc
+  ground_truth: "void I2cDevice::ReadRegs(uint8_t reg, uint8_t* buffer, size_t length)\
+    \ {\n    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, buffer,\
+    \ length, 100));\n}"
+  workflow: "ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_device_, &reg, 1, buffer,\
+    \ length, 100));"

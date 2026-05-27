@@ -1,0 +1,71 @@
+complete the function GetFlashSize()():
+  functions:
+  - esp_flash_get_size
+  - ESP_LOGE
+  variables:
+  - flash_size
+  - null
+  - TAG
+complete the function GetMacAddress()():
+  functions:
+  - esp_wifi_get_mac
+  - esp_read_mac
+  - snprintf
+  variables:
+  - mac
+  - mac_str
+  - WIFI_IF_STA
+  - ESP_MAC_WIFI_STA
+complete the function GetUserAgent()():
+  functions:
+  - esp_app_get_description()
+  variables:
+  - app_desc
+  - user_agent
+  - BOARD_NAME
+  - version
+complete the function PrintTaskCpuUsage(TickType_t)():
+  functions:
+  - uxTaskGetNumberOfTasks()
+  - malloc()
+  - uxTaskGetSystemState()
+  - vTaskDelay()
+  - printf()
+  - free()
+  variables:
+  - xTicksToWait
+  - ARRAY_SIZE_OFFSET
+  - start_array
+  - end_array
+  - start_array_size
+  - end_array_size
+  - start_run_time
+  - end_run_time
+  - ret
+  - total_elapsed_time
+  - i
+  - j
+  - k
+  - task_elapsed_time
+  - percentage_time
+  - CONFIG_FREERTOS_NUMBER_OF_CORES
+  - TaskStatus_t::xHandle
+  - TaskStatus_t::ulRunTimeCounter
+  - TaskStatus_t::pcTaskName
+complete the function PrintTaskList()():
+  functions:
+  - vTaskList
+  - ESP_LOGI
+  variables:
+  - buffer
+  - TAG
+complete the function PrintHeapStats()():
+  functions:
+  - heap_caps_get_free_size
+  - heap_caps_get_minimum_free_size
+  - ESP_LOGI
+  variables:
+  - free_sram
+  - min_free_sram
+  - MALLOC_CAP_INTERNAL
+  - TAG

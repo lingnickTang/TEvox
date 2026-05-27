@@ -1,0 +1,1604 @@
+{
+  "metadata": {
+    "generated_at": "2026-03-01 16:09:11",
+    "total_files": 3,
+    "total_cases": 30,
+    "total_valid_cases": 18,
+    "total_tokens": 420334,
+    "total_cost": 0.0,
+    "total_time": 494.8107786178589,
+    "benchmark_dir": "D:\\Download\\github\\evox-ai\\evox-server\\.rag\\benchmark"
+  },
+  "global_statistics": {
+    "avg_function_reuse_rate": 46.86748436748437,
+    "avg_variable_reuse_rate": 39.29584251423332,
+    "avg_correctly_reused_functions": 7.222222222222221,
+    "avg_correctly_reused_variables": 5.7407407407407405,
+    "avg_incorrectly_constructed_functions": 4.2592592592592595,
+    "avg_incorrectly_constructed_variables": 7.148148148148148,
+    "avg_semantic_score": 49.074074074074076,
+    "avg_structure_score": 48.51851851851851,
+    "avg_completeness_score": 45.555555555555564,
+    "avg_overall_score": 47.71604938271605,
+    "total_tokens": 420334,
+    "total_cost": 0.0,
+    "total_time": 494.8107786178589,
+    "avg_tokens_per_case": 14011.133333333333,
+    "avg_time_per_case": 16.493692620595297
+  },
+  "statistics_by_test_type": {
+    "a3-small-10;": {
+      "count": 1,
+      "avg_function_reuse_rate": 67.20432345432346,
+      "avg_variable_reuse_rate": 57.83256334980474,
+      "avg_correctly_reused_functions": 10.666666666666666,
+      "avg_correctly_reused_variables": 8.777777777777779,
+      "avg_incorrectly_constructed_functions": 6.0,
+      "avg_incorrectly_constructed_variables": 10.333333333333334,
+      "avg_semantic_score": 71.66666666666667,
+      "avg_structure_score": 71.66666666666667,
+      "avg_completeness_score": 65.0,
+      "avg_overall_score": 69.44444444444444,
+      "total_tokens": 127378,
+      "total_cost": 0.0,
+      "total_time": 58.61589312553406,
+      "avg_tokens_per_case": 12737.8,
+      "avg_time_per_case": 5.861589312553406
+    },
+    "SRP-small-10;": {
+      "count": 2,
+      "avg_function_reuse_rate": 36.69906482406483,
+      "avg_variable_reuse_rate": 30.027482096447613,
+      "avg_correctly_reused_functions": 5.5,
+      "avg_correctly_reused_variables": 4.222222222222222,
+      "avg_incorrectly_constructed_functions": 3.388888888888889,
+      "avg_incorrectly_constructed_variables": 5.555555555555555,
+      "avg_semantic_score": 37.77777777777778,
+      "avg_structure_score": 36.94444444444444,
+      "avg_completeness_score": 35.833333333333336,
+      "avg_overall_score": 36.851851851851855,
+      "total_tokens": 292956,
+      "total_cost": 0.0,
+      "total_time": 436.19488549232483,
+      "avg_tokens_per_case": 14647.8,
+      "avg_time_per_case": 21.809744274616243
+    }
+  },
+  "summaries": [
+    {
+      "file_name": "a3-small-10;_results_03_01_15_44.json",
+      "test_type": "a3-small-10;",
+      "date": "03_01_15_44",
+      "model_name": "qwen3-coder-30b-a3b-instruct",
+      "total_cases": 10,
+      "valid_cases": 9,
+      "tokens": {
+        "total_tokens": 127378,
+        "total_prompt_tokens": 114432,
+        "total_completion_tokens": 12946,
+        "total_cost": 0.0,
+        "avg_tokens_per_case": 12737.8,
+        "avg_cost_per_case": 0.0
+      },
+      "timing": {
+        "total_time": 58.61589312553406,
+        "avg_time_per_case": 5.861589312553406,
+        "breakdown": {
+          "knowledge_extraction": 13.337657451629639,
+          "code_generation": 24.95516538619995,
+          "debugging": 0.0,
+          "evaluation": 20.323070287704468
+        }
+      },
+      "quantitative": {
+        "function_reuse_rate": 67.20432345432346,
+        "variable_reuse_rate": 57.83256334980474,
+        "avg_correctly_reused_functions": 10.666666666666666,
+        "avg_incorrectly_constructed_functions": 6.0,
+        "avg_total_reference_functions": 17.0,
+        "avg_correctly_reused_variables": 8.777777777777779,
+        "avg_incorrectly_constructed_variables": 10.333333333333334,
+        "avg_total_reference_variables": 19.22222222222222
+      },
+      "qualitative": {
+        "semantic_score": 71.66666666666667,
+        "structure_score": 71.66666666666667,
+        "completeness_score": 65.0,
+        "overall_average": 69.44444444444444
+      }
+    },
+    {
+      "file_name": "SRP-small-10;_results_03_01_15_46.json",
+      "test_type": "SRP-small-10;",
+      "date": "03_01_15_46",
+      "model_name": "qwen3-coder-30b-a3b-instruct",
+      "total_cases": 10,
+      "valid_cases": 0,
+      "tokens": {
+        "total_tokens": 3271,
+        "total_prompt_tokens": 1663,
+        "total_completion_tokens": 1608,
+        "total_cost": 0.0,
+        "avg_tokens_per_case": 327.1,
+        "avg_cost_per_case": 0.0
+      },
+      "timing": {
+        "total_time": 0.0,
+        "avg_time_per_case": 0.0,
+        "breakdown": {
+          "knowledge_extraction": 0.0,
+          "code_generation": 0.0,
+          "debugging": 0.0,
+          "evaluation": 0.0
+        }
+      },
+      "quantitative": {
+        "function_reuse_rate": 0,
+        "variable_reuse_rate": 0,
+        "avg_correctly_reused_functions": 0,
+        "avg_incorrectly_constructed_functions": 0,
+        "avg_total_reference_functions": 0,
+        "avg_correctly_reused_variables": 0,
+        "avg_incorrectly_constructed_variables": 0,
+        "avg_total_reference_variables": 0
+      },
+      "qualitative": {
+        "semantic_score": 0,
+        "structure_score": 0,
+        "completeness_score": 0,
+        "overall_average": 0
+      }
+    },
+    {
+      "file_name": "SRP-small-10;_results_03_01_15_51.json",
+      "test_type": "SRP-small-10;",
+      "date": "03_01_15_51",
+      "model_name": "qwen3-coder-30b-a3b-instruct",
+      "total_cases": 10,
+      "valid_cases": 9,
+      "tokens": {
+        "total_tokens": 289685,
+        "total_prompt_tokens": 248024,
+        "total_completion_tokens": 41661,
+        "total_cost": 0.0,
+        "avg_tokens_per_case": 28968.5,
+        "avg_cost_per_case": 0.0
+      },
+      "timing": {
+        "total_time": 436.19488549232483,
+        "avg_time_per_case": 43.619488549232486,
+        "breakdown": {
+          "knowledge_extraction": 267.7354736328125,
+          "code_generation": 96.56677579879761,
+          "debugging": 0.0,
+          "evaluation": 71.89263606071472
+        }
+      },
+      "quantitative": {
+        "function_reuse_rate": 73.39812964812965,
+        "variable_reuse_rate": 60.05496419289523,
+        "avg_correctly_reused_functions": 11.0,
+        "avg_incorrectly_constructed_functions": 6.777777777777778,
+        "avg_total_reference_functions": 17.0,
+        "avg_correctly_reused_variables": 8.444444444444445,
+        "avg_incorrectly_constructed_variables": 11.11111111111111,
+        "avg_total_reference_variables": 19.22222222222222
+      },
+      "qualitative": {
+        "semantic_score": 75.55555555555556,
+        "structure_score": 73.88888888888889,
+        "completeness_score": 71.66666666666667,
+        "overall_average": 73.70370370370371
+      }
+    }
+  ],
+  "detailed_analyses": {
+    "a3-small-10;_results_03_01_15_44": {
+      "metadata": {
+        "test_type": "a3-small-10;",
+        "date": "03_01_15_44",
+        "model_name": "qwen3-coder-30b-a3b-instruct"
+      },
+      "total_cases": 10,
+      "valid_cases": 9,
+      "average_quantitative": {
+        "correctly_reused_functions": 10.666666666666666,
+        "correctly_reused_variables": 8.777777777777779,
+        "incorrectly_constructed_functions": 6.0,
+        "incorrectly_constructed_variables": 10.333333333333334,
+        "total_reference_functions": 17.0,
+        "total_reference_variables": 19.22222222222222,
+        "function_reuse_rate": 67.20432345432346,
+        "variable_reuse_rate": 57.83256334980474
+      },
+      "average_qualitative": {
+        "semantic_score": 71.66666666666667,
+        "structure_score": 71.66666666666667,
+        "completeness_score": 65.0
+      },
+      "file_statistics": {
+        "main/display/lcd_display.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 21.0,
+            "correctly_reused_variables": 14.0,
+            "incorrectly_constructed_functions": 11.0,
+            "incorrectly_constructed_variables": 19.0,
+            "total_reference_functions": 30.0,
+            "total_reference_variables": 33.0,
+            "function_reuse_rate": 70.0,
+            "variable_reuse_rate": 42.42424242424242
+          },
+          "qualitative": {
+            "semantic_score": 60.0,
+            "structure_score": 55.0,
+            "completeness_score": 40.0
+          },
+          "query_count": 1
+        },
+        "main/application.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 5.0,
+            "correctly_reused_variables": 4.0,
+            "incorrectly_constructed_functions": 6.0,
+            "incorrectly_constructed_variables": 6.0,
+            "total_reference_functions": 12.0,
+            "total_reference_variables": 10.0,
+            "function_reuse_rate": 41.25874125874126,
+            "variable_reuse_rate": 43.956043956043956
+          },
+          "qualitative": {
+            "semantic_score": 60.0,
+            "structure_score": 62.5,
+            "completeness_score": 60.0
+          },
+          "query_count": 2
+        },
+        "main/protocols/websocket_protocol.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 8.0,
+            "correctly_reused_variables": 7.0,
+            "incorrectly_constructed_functions": 0.0,
+            "incorrectly_constructed_variables": 0.0,
+            "total_reference_functions": 8.0,
+            "total_reference_variables": 7.0,
+            "function_reuse_rate": 100.0,
+            "variable_reuse_rate": 100.0
+          },
+          "qualitative": {
+            "semantic_score": 100.0,
+            "structure_score": 100.0,
+            "completeness_score": 100.0
+          },
+          "query_count": 1
+        },
+        "main/audio/audio_service.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 15.5,
+            "correctly_reused_variables": 17.0,
+            "incorrectly_constructed_functions": 0.5,
+            "incorrectly_constructed_variables": 0.0,
+            "total_reference_functions": 16.0,
+            "total_reference_variables": 17.0,
+            "function_reuse_rate": 96.875,
+            "variable_reuse_rate": 100.0
+          },
+          "qualitative": {
+            "semantic_score": 92.5,
+            "structure_score": 95.0,
+            "completeness_score": 87.5
+          },
+          "query_count": 2
+        },
+        "main/ota.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 8.0,
+            "correctly_reused_variables": 4.0,
+            "incorrectly_constructed_functions": 2.0,
+            "incorrectly_constructed_variables": 7.0,
+            "total_reference_functions": 10.0,
+            "total_reference_variables": 11.0,
+            "function_reuse_rate": 80.0,
+            "variable_reuse_rate": 36.36363636363637
+          },
+          "qualitative": {
+            "semantic_score": 60.0,
+            "structure_score": 55.0,
+            "completeness_score": 50.0
+          },
+          "query_count": 1
+        },
+        "main/assets.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 15.0,
+            "correctly_reused_variables": 8.0,
+            "incorrectly_constructed_functions": 24.0,
+            "incorrectly_constructed_variables": 49.0,
+            "total_reference_functions": 42.0,
+            "total_reference_variables": 58.0,
+            "function_reuse_rate": 35.714285714285715,
+            "variable_reuse_rate": 13.793103448275861
+          },
+          "qualitative": {
+            "semantic_score": 40.0,
+            "structure_score": 35.0,
+            "completeness_score": 30.0
+          },
+          "query_count": 1
+        },
+        "main/protocols/mqtt_protocol.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 3.0,
+            "correctly_reused_variables": 4.0,
+            "incorrectly_constructed_functions": 4.0,
+            "incorrectly_constructed_variables": 6.0,
+            "total_reference_functions": 7.0,
+            "total_reference_variables": 10.0,
+            "function_reuse_rate": 42.857142857142854,
+            "variable_reuse_rate": 40.0
+          },
+          "qualitative": {
+            "semantic_score": 80.0,
+            "structure_score": 85.0,
+            "completeness_score": 70.0
+          },
+          "query_count": 1
+        }
+      },
+      "all_quantitative_stats": [
+        {
+          "correctly_reused_functions": 21,
+          "correctly_reused_variables": 14,
+          "incorrectly_constructed_functions": 11,
+          "incorrectly_constructed_variables": 19,
+          "total_reference_functions": 30,
+          "total_reference_variables": 33,
+          "function_reuse_rate": 70.0,
+          "variable_reuse_rate": 42.42424242424242,
+          "correctly_reused_functions_list": [
+            "DisplayLockGuard",
+            "lv_obj_get_child_cnt",
+            "lv_obj_get_child",
+            "lv_obj_del",
+            "lv_obj_scroll_to_view_recursive",
+            "strcmp",
+            "lv_obj_create",
+            "lv_obj_set_style_radius",
+            "lv_obj_set_scrollbar_mode",
+            "lv_obj_set_style_border_width",
+            "lv_obj_set_style_pad_all",
+            "lv_label_create",
+            "lv_label_set_text",
+            "lv_obj_set_width",
+            "lv_label_set_long_mode",
+            "lv_obj_set_style_bg_color",
+            "lv_obj_set_user_data",
+            "lv_obj_set_style_flex_grow",
+            "lv_obj_align",
+            "lv_obj_set_style_text_color",
+            "lv_obj_add_flag"
+          ],
+          "correctly_reused_variables_list": [
+            "content_",
+            "MAX_MESSAGES",
+            "emoji_label_",
+            "current_theme_",
+            "LV_OBJ_FLAG_HIDDEN",
+            "LV_HOR_RES",
+            "LV_SCROLLBAR_MODE_OFF",
+            "LV_ALIGN_RIGHT_MID",
+            "LV_ALIGN_LEFT_MID",
+            "LV_ANIM_ON",
+            "role",
+            "content",
+            "child_count",
+            "first_child"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "lv_obj_get_user_data",
+            "strlen",
+            "lv_txt_get_width",
+            "lv_obj_set_height",
+            "lv_obj_set_style_bg_opa",
+            "lv_obj_set_parent",
+            "lv_obj_set_style_border_width",
+            "lv_obj_set_style_pad_all",
+            "lv_obj_set_style_bg_opa",
+            "lv_obj_set_style_border_width",
+            "lv_obj_set_style_pad_all"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "LV_ANIM_OFF",
+            "LV_OPA_70",
+            "LV_OPA_TRANSP",
+            "LV_ALIGN_CENTER",
+            "LV_SIZE_CONTENT",
+            "chat_message_label_",
+            "msg_bubble",
+            "msg_text",
+            "container",
+            "text_font",
+            "lvgl_theme",
+            "last_child",
+            "last_container",
+            "last_bubble",
+            "bubble_type_ptr",
+            "text_width",
+            "max_width",
+            "min_width",
+            "bubble_width"
+          ]
+        },
+        {
+          "correctly_reused_functions": 6,
+          "correctly_reused_variables": 4,
+          "incorrectly_constructed_functions": 7,
+          "incorrectly_constructed_variables": 9,
+          "total_reference_functions": 13,
+          "total_reference_variables": 13,
+          "function_reuse_rate": 46.15384615384615,
+          "variable_reuse_rate": 30.76923076923077,
+          "correctly_reused_functions_list": [
+            "GetDeviceState",
+            "ESP_LOGI",
+            "GetInstance",
+            "GetDisplay",
+            "UpdateStatusBar",
+            "SetDeviceState"
+          ],
+          "correctly_reused_variables_list": [
+            "state",
+            "TAG",
+            "Board",
+            "display"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "CloseAudioChannel",
+            "PrintHeapStats",
+            "HasServerTime",
+            "GetCurrentVersion",
+            "ShowNotification",
+            "SetChatMessage",
+            "c_str"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "kDeviceStateConnecting",
+            "kDeviceStateListening",
+            "kDeviceStateSpeaking",
+            "protocol_",
+            "SystemInfo",
+            "has_server_time_",
+            "ota_",
+            "message",
+            "Lang::Strings::VERSION"
+          ]
+        },
+        {
+          "correctly_reused_functions": 8,
+          "correctly_reused_variables": 7,
+          "incorrectly_constructed_functions": 0,
+          "incorrectly_constructed_variables": 0,
+          "total_reference_functions": 8,
+          "total_reference_variables": 7,
+          "function_reuse_rate": 100.0,
+          "variable_reuse_rate": 100.0,
+          "correctly_reused_functions_list": [
+            "cJSON_CreateObject",
+            "cJSON_AddStringToObject",
+            "cJSON_AddNumberToObject",
+            "cJSON_AddBoolToObject",
+            "cJSON_AddItemToObject",
+            "cJSON_PrintUnformatted",
+            "cJSON_free",
+            "cJSON_Delete"
+          ],
+          "correctly_reused_variables_list": [
+            "root",
+            "version_",
+            "features",
+            "audio_params",
+            "json_str",
+            "message",
+            "OPUS_FRAME_DURATION_MS"
+          ],
+          "incorrectly_constructed_functions_list": [],
+          "incorrectly_constructed_variables_list": []
+        },
+        {
+          "correctly_reused_functions": 15,
+          "correctly_reused_variables": 13,
+          "incorrectly_constructed_functions": 1,
+          "incorrectly_constructed_variables": 0,
+          "total_reference_functions": 16,
+          "total_reference_variables": 13,
+          "function_reuse_rate": 93.75,
+          "variable_reuse_rate": 100.0,
+          "correctly_reused_functions_list": [
+            "std::unique_lock<std::mutex>",
+            "audio_queue_cv_.wait",
+            "std::move",
+            "audio_playback_queue_.front",
+            "audio_playback_queue_.pop_front",
+            "audio_queue_cv_.notify_all",
+            "lock.unlock",
+            "codec_->output_enabled",
+            "esp_timer_stop",
+            "esp_timer_start_periodic",
+            "codec_->EnableOutput",
+            "codec_->OutputData",
+            "std::chrono::steady_clock::now",
+            "timestamp_queue_.push_back",
+            "ESP_LOGW"
+          ],
+          "correctly_reused_variables_list": [
+            "audio_queue_mutex_",
+            "audio_queue_cv_",
+            "audio_playback_queue_",
+            "service_stopped_",
+            "task",
+            "codec_",
+            "audio_power_timer_",
+            "AUDIO_POWER_CHECK_INTERVAL_MS",
+            "last_output_time_",
+            "debug_statistics_",
+            "playback_count",
+            "timestamp_queue_",
+            "TAG"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "lock.lock"
+          ],
+          "incorrectly_constructed_variables_list": []
+        },
+        {
+          "correctly_reused_functions": 16,
+          "correctly_reused_variables": 21,
+          "incorrectly_constructed_functions": 0,
+          "incorrectly_constructed_variables": 0,
+          "total_reference_functions": 16,
+          "total_reference_variables": 21,
+          "function_reuse_rate": 100.0,
+          "variable_reuse_rate": 100.0,
+          "correctly_reused_functions_list": [
+            "codec_->Start",
+            "std::make_unique<OpusDecoderWrapper>",
+            "codec->output_sample_rate",
+            "std::make_unique<OpusEncoderWrapper>",
+            "opus_encoder_->SetComplexity",
+            "codec->input_sample_rate",
+            "input_resampler_.Configure",
+            "reference_resampler_.Configure",
+            "std::make_unique<AfeAudioProcessor>",
+            "std::make_unique<NoAudioProcessor>",
+            "audio_processor_->OnOutput",
+            "PushTaskToEncodeQueue",
+            "audio_processor_->OnVadStateChange",
+            "callbacks_.on_vad_change",
+            "esp_timer_create",
+            "CheckAndUpdateAudioPowerState"
+          ],
+          "correctly_reused_variables_list": [
+            "codec_",
+            "opus_decoder_",
+            "opus_encoder_",
+            "input_resampler_",
+            "reference_resampler_",
+            "audio_processor_",
+            "voice_detected_",
+            "callbacks_",
+            "on_vad_change",
+            "esp_timer_create_args_t",
+            "audio_power_timer_args",
+            "callback",
+            "arg",
+            "dispatch_method",
+            "name",
+            "skip_unhandled_events",
+            "ESP_TIMER_TASK",
+            "audio_power_timer_",
+            "kAudioTaskTypeEncodeToSendQueue",
+            "data",
+            "speaking"
+          ],
+          "incorrectly_constructed_functions_list": [],
+          "incorrectly_constructed_variables_list": []
+        },
+        {
+          "correctly_reused_functions": 8,
+          "correctly_reused_variables": 4,
+          "incorrectly_constructed_functions": 2,
+          "incorrectly_constructed_variables": 7,
+          "total_reference_functions": 10,
+          "total_reference_variables": 11,
+          "function_reuse_rate": 80.0,
+          "variable_reuse_rate": 36.36363636363637,
+          "correctly_reused_functions_list": [
+            "esp_hmac_calculate",
+            "esp_err_to_name",
+            "cJSON_CreateObject",
+            "cJSON_AddStringToObject",
+            "cJSON_PrintUnformatted",
+            "cJSON_free",
+            "cJSON_Delete",
+            "ESP_LOGE"
+          ],
+          "correctly_reused_variables_list": [
+            "has_serial_number_",
+            "activation_challenge_",
+            "serial_number_",
+            "TAG"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "sprintf",
+            "cJSON_PrintUnformatted"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "hmac_hex",
+            "hmac_result",
+            "ret",
+            "buffer",
+            "payload",
+            "json_str",
+            "json"
+          ]
+        },
+        {
+          "correctly_reused_functions": 15,
+          "correctly_reused_variables": 8,
+          "incorrectly_constructed_functions": 24,
+          "incorrectly_constructed_variables": 49,
+          "total_reference_functions": 42,
+          "total_reference_variables": 58,
+          "function_reuse_rate": 35.714285714285715,
+          "variable_reuse_rate": 13.793103448275861,
+          "correctly_reused_functions_list": [
+            "GetAssetData",
+            "ESP_LOGE",
+            "cJSON_ParseWithLength",
+            "cJSON_GetObjectItem",
+            "cJSON_IsString",
+            "cJSON_IsArray",
+            "cJSON_GetArraySize",
+            "cJSON_GetArrayItem",
+            "cJSON_IsObject",
+            "cJSON_Delete",
+            "Application::GetInstance",
+            "Board::GetInstance",
+            "GetDisplay",
+            "dynamic_cast",
+            "ESP_LOGI"
+          ],
+          "correctly_reused_variables_list": [
+            "ptr",
+            "size",
+            "TAG",
+            "root",
+            "version",
+            "valuestring",
+            "display",
+            "board"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "cJSON_IsNumber",
+            "esp_srmodel_deinit",
+            "srmodel_load",
+            "GetAudioService",
+            "SetModelsList",
+            "LvglThemeManager::GetInstance",
+            "std::make_shared",
+            "set_text_font",
+            "AddEmoji",
+            "set_emoji_collection",
+            "ParseColor",
+            "set_text_color",
+            "set_background_color",
+            "set_chat_background_color",
+            "set_background_image",
+            "GetTheme",
+            "SetTheme",
+            "cJSON_IsBool",
+            "cJSON_IsTrue",
+            "SetHideSubtitle",
+            "AddTextFont",
+            "AddEmojiData",
+            "AddIconData",
+            "AddLayoutData"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "valuedouble",
+            "valueint",
+            "srmodels",
+            "srmodels_file",
+            "models_list_",
+            "theme_manager",
+            "light_theme",
+            "dark_theme",
+            "font",
+            "fonts_text_file",
+            "text_font",
+            "emoji_collection",
+            "custom_emoji_collection",
+            "emoji_count",
+            "i",
+            "emoji",
+            "name",
+            "file",
+            "eaf",
+            "skin",
+            "light_skin",
+            "dark_skin",
+            "text_color",
+            "background_color",
+            "background_image",
+            "current_theme",
+            "hide_subtitle",
+            "hide",
+            "lcd_display",
+            "emote_display",
+            "icon_collection",
+            "icon_count",
+            "icon",
+            "layout_json",
+            "layout_count",
+            "layout_item",
+            "align",
+            "x",
+            "y",
+            "width",
+            "height",
+            "width_val",
+            "height_val",
+            "lack",
+            "loop",
+            "fps",
+            "lack_value",
+            "loop_value",
+            "fps_value"
+          ]
+        },
+        {
+          "correctly_reused_functions": 4,
+          "correctly_reused_variables": 4,
+          "incorrectly_constructed_functions": 5,
+          "incorrectly_constructed_variables": 3,
+          "total_reference_functions": 11,
+          "total_reference_variables": 7,
+          "function_reuse_rate": 36.36363636363637,
+          "variable_reuse_rate": 57.14285714285714,
+          "correctly_reused_functions_list": [
+            "Board::GetInstance",
+            "board.GetDisplay",
+            "protocol_->IsAudioChannelOpened",
+            "protocol_->CloseAudioChannel"
+          ],
+          "correctly_reused_variables_list": [
+            "board",
+            "display",
+            "audio_service_",
+            "protocol_"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "audio_service_.EnableDeviceAec",
+            "display->ShowNotification",
+            "Schedule",
+            "audio_service_.PlaySound",
+            "protocol_.reset"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "aec_mode_",
+            "sound",
+            "mode"
+          ]
+        },
+        {
+          "correctly_reused_functions": 3,
+          "correctly_reused_variables": 4,
+          "incorrectly_constructed_functions": 4,
+          "incorrectly_constructed_variables": 6,
+          "total_reference_functions": 7,
+          "total_reference_variables": 10,
+          "function_reuse_rate": 42.857142857142854,
+          "variable_reuse_rate": 40.0,
+          "correctly_reused_functions_list": [
+            "xEventGroupCreate",
+            "esp_timer_create",
+            "StartMqttClient"
+          ],
+          "correctly_reused_variables_list": [
+            "event_group_handle_",
+            "reconnect_timer_",
+            "arg",
+            "callback"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "Application::GetInstance",
+            "app.GetDeviceState",
+            "ESP_LOGI",
+            "app.Schedule"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "reconnect_timer_args",
+            "protocol",
+            "app",
+            "kDeviceStateIdle",
+            "TAG",
+            "alive"
+          ]
+        }
+      ],
+      "all_qualitative_stats": [
+        {
+          "semantic_score": 60,
+          "structure_score": 55,
+          "completeness_score": 40,
+          "analysis": "Semantic Correctness (60/100):\nThe generated code captures the basic idea of displaying chat messages with different styles based on roles (user, assistant, system). However, there are several semantic differences:\n- It doesn't properly handle message containers for alignment (no separate container creation for user/system messages)\n- Message limiting logic is simplified and happens after adding new message rather than before\n- No proper collapsing of consecutive system messages\n- Text width calculation and bubble sizing logic is missing\n- Font handling is less sophisticated\n\nStructure Similarity (55/100):\nWhile both codes follow a similar overall flow (lock, validate input, create objects, style them, add to display), there are significant structural differences:\n- Function signature matches but internal organization differs\n- Different approach to theme access (direct vs casted pointer)\n- Missing DisplayLockGuard usage pattern consistency\n- Different ordering of operations (e.g., styling applied earlier in GT)\n- Control flow diverges significantly in how messages are handled and aligned\n\nFunctional Completeness (40/100):\nThe generated code misses multiple important functionalities:\n- No message count management before insertion\n- No proper handling of consecutive system message collapse\n- Missing detailed text width calculations and adaptive bubble sizing\n- No dedicated container creation for proper alignment of user/system messages\n- Lacks proper emoji label handling for all cases\n- Missing fine-grained styling controls (padding adjustments, flex properties)\n- No reference storage to latest message label (chat_message_label_)\n\nKey missing elements include MAX_MESSAGES enforcement timing, proper text wrapping logic, and sophisticated layout management present in the ground truth."
+        },
+        {
+          "semantic_score": 30,
+          "structure_score": 40,
+          "completeness_score": 25,
+          "analysis": "The generated code does not align well semantically with the ground truth. The ground truth handles a network disconnection event (`HandleNetworkDisconnectedEvent`), focusing on closing audio channels and updating the UI status bar. In contrast, the generated code implements a network connection event handler (`HandleNetworkConnectedEvent`) that starts an activation process, which is logically different.\n\nStructurally, both snippets interact with device states, logging, task management, and display updates, showing some similarity in used APIs and control flow patterns like state checking and UI updates. However, the core logic differs significantly—ground truth cleans up resources while the generated code initiates new processes.\n\nRegarding functional completeness, the generated code misses critical parts present in the ground truth such as handling specific device states related to audio (e.g., `kDeviceStateConnecting`, `kDeviceStateListening`) or explicitly closing audio channels. It also introduces unrelated functionality (activation task creation), making it incomplete for the intended disconnection use case."
+        },
+        {
+          "semantic_score": 100,
+          "structure_score": 100,
+          "completeness_score": 100,
+          "analysis": "The generated code is identical to the ground truth in terms of semantic meaning, structure, and functionality.\n\nSemantic Correctness (100): The generated code perfectly replicates the logic and intent of the original. It creates a JSON object with the exact same keys and values, including conditional compilation for AEC feature, and properly manages memory by freeing the cJSON object and string after use.\n\nStructure Similarity (100): Both codes follow the exact same sequence of operations: creating a root JSON object, adding various fields including nested objects for features and audio_params, handling optional fields via preprocessor directives, printing the JSON to an unformatted string, converting it to std::string, and cleaning up allocated memory.\n\nFunctional Completeness (100): All functionalities from the ground truth are preserved in the generated code, including:\n- Setting message type as \"hello\"\n- Including version information\n- Conditional inclusion of AEC feature based on CONFIG_USE_SERVER_AEC\n- Mandatory MCP feature flag\n- Transport protocol specification as \"websocket\"\n- Complete audio parameters configuration (format, sample_rate, channels, frame_duration)\n- Proper JSON serialization and memory management\n\nThere are no differences between the two implementations; they are line-for-line identical."
+        },
+        {
+          "semantic_score": 85,
+          "structure_score": 90,
+          "completeness_score": 75,
+          "analysis": "Semantic Correctness:\n- The overall logic and flow are preserved: waiting on a condition variable, checking for service stop, processing audio tasks.\n- Key differences include handling of the timestamp recording which uses a different macro (`CONFIG_USE_AUDIO_PROCESSOR` vs `CONFIG_USE_SERVER_AEC`) and includes queue size checking in the generated version.\n- Error logging for OutputData failure is added in the generated code but not present in the ground truth.\n\nStructure Similarity:\n- Function signature matches exactly.\n- Control flow (while loop, mutex locking, condition variable usage) is nearly identical.\n- Use of lambdas for condition variables and similar placement of lock management is maintained.\n- Minor structural difference in where `lock.unlock()` occurs and additional error checking/reporting in generated code.\n\nFunctional Completeness:\n- Core functionality such as enabling output when disabled, sending data to codec, updating timestamps/statistics is covered.\n- Missing exact synchronization behavior: notify_all() is called at different points; ground truth notifies after popping from queue while generated does so outside the main block.\n- Timestamp handling diverges significantly in implementation details (e.g., queue size check), potentially altering functional behavior under load.\n- Some enhancements like error logging improve robustness but deviate from the minimalistic approach of the original."
+        },
+        {
+          "semantic_score": 100,
+          "structure_score": 100,
+          "completeness_score": 100,
+          "analysis": "The generated code is semantically identical to the ground truth. It correctly implements the initialization logic for an audio service including:\n\n- Assigning and starting the codec\n- Setting up Opus decoder and encoder with proper parameters\n- Configuring resamplers when input sample rate differs from 16000 Hz\n- Conditionally instantiating either AfeAudioProcessor or NoAudioProcessor based on compile-time flag\n- Registering callbacks for audio output and VAD state changes\n- Creating and configuring an ESP timer for audio power monitoring\n\nStructurally, both versions match exactly in terms of function signature, control flow, variable names, API usage, and even comments and preprocessor directives.\n\nAll functional components present in the ground truth are also included in the generated version without any omissions or deviations. There are no syntax errors or extraneous elements. The only superficial difference is the presence of a redundant 'cpp' at the beginning of the generated code which appears to be a typo but does not affect functionality."
+        },
+        {
+          "semantic_score": 60,
+          "structure_score": 55,
+          "completeness_score": 50,
+          "analysis": "Semantic Correctness:\n- The generated code attempts to implement the same overall functionality but diverges significantly in how HMAC is calculated.\n- It concatenates serial number and challenge into a single message, which differs from the ground truth that uses only the challenge for HMAC computation.\n- The use of `esp_hmac_calculate` has incorrect parameters compared to the ground truth (uses ESP_HMAC_SHA256 mode with key passed as parameter rather than using predefined HMAC_KEY0).\n- The field name used in JSON is \"signature\" instead of \"hmac\", and it omits the required \"algorithm\" field entirely.\n\nStructure Similarity:\n- Both codes follow a similar high-level pattern: check validity, create cJSON object, add fields, compute HMAC conditionally, convert to string.\n- However, function call structures differ significantly—especially in the usage of `esp_hmac_calculate`.\n- Control flow logic like early returns on error conditions are preserved, but details within those blocks vary.\n- Use of cJSON library APIs shows similarity but lacks exact correspondence due to differing data inputs.\n\nFunctional Completeness:\n- Misses critical elements such as including the 'algorithm' field in the payload.\n- Incorrect HMAC input generation leads to functional deviation.\n- Lacks logging of final payload (`ESP_LOGI`) found in the ground truth.\n- Fallback behavior when HMAC fails is handled differently; includes an explicit warning log not present in GT.\n- Hex conversion loop is implemented correctly but applied to wrong HMAC result contextually."
+        },
+        {
+          "semantic_score": 40,
+          "structure_score": 35,
+          "completeness_score": 30,
+          "analysis": "The generated code shows a significant divergence from the ground truth in terms of both functionality and implementation details.\n\nSemantic Correctness (40/100):\n- The general idea of parsing index.json and applying assets is preserved, but many critical implementation details are missing or incorrect.\n- Version checking logic differs significantly: ground truth checks for numeric version <= 1, while generated code treats it as informational string logging.\n- Critical functionalities like loading speech recognition models (srmodels), font handling, emoji collections, theme management (light/dark themes), skin configurations, and display updates are either omitted or reduced to placeholder comments.\n- Many platform-specific integrations such as LvglCBinFont, LvglThemeManager, EmojiCollection, and related UI components are completely absent in the generated version.\n- Error handling patterns differ substantially; generated code often logs issues but continues execution where ground truth would return false.\n\nStructure Similarity (35/100):\n- Basic control flow exists: read index.json -> parse JSON -> process elements -> clean up.\n- However, function calls, class interactions, and object model usage are vastly different.\n- Generated code uses generic structures (\"theme\", \"models\", \"assets\") which do not map directly to the detailed schema used in ground truth (\"srmodels\", \"text_font\", \"emoji_collection\", \"skin\").\n- Missing use of important APIs like cJSON_GetObjectItemCaseSensitive, esp_srmodel_load/deinit, dynamic_cast<LcdDisplay*>, and LVGL-specific initializations.\n- Lack of conditional compilation blocks (#ifdef HAVE_LVGL / CONFIG_USE_EMOTE_MESSAGE_STYLE) that define divergent behavior paths in the original.\n\nFunctional Completeness (30/100):\n- Core feature set is only partially addressed with extensive TODO placeholders instead of actual implementations.\n- Speech recognition model loading is mentioned but lacks any real processing seen in the ground truth's GetAssetData -> srmodel_load sequence.\n- UI theming capabilities including multiple theme support (light/dark), color customization, background images, and text fonts are barely touched upon.\n- Emoji/icon collection loading and registration with themes/display systems are entirely skipped.\n- Platform integration points such as Application::GetInstance(), Board::GetInstance(), and their respective service getters are underutilized compared to the reference.\n- Display refresh logic and subtitle visibility toggling (hide_subtitle config) are completely absent."
+        },
+        {
+          "semantic_score": 90,
+          "structure_score": 85,
+          "completeness_score": 95,
+          "analysis": "Semantic Correctness:\nThe generated code for `UpgradeFirmware` follows a logical sequence appropriate for its task — closing the audio channel, performing an OTA upgrade, handling success/failure cases, and managing device state. It uses asynchronous constructs like detached threads for UI updates and appropriately logs information using ESP_LOG macros. While the ground truth does not contain this specific functionality, semantically, the generated function aligns well with what one would expect from a firmware upgrade process.\n\nStructure Similarity:\nStructurally, both the ground truth and generated code use lambda captures with scheduling (`Schedule`, `[this]`) or threading mechanisms, access hardware via singleton patterns (`Board::GetInstance()`), manage audio channels through protocol objects, and handle user notifications via display interfaces. However, the function signature differs significantly since the ground truth doesn't define `UpgradeFirmware`. Also, some stylistic elements such as logging verbosity and delay usage are more evident in the generated code but absent in the snippets provided in the ground truth.\n\nFunctional Completeness:\nThe generated code covers many aspects expected during firmware upgrades: pre-upgrade cleanup (closing audio channel), UI notification, system state management, actual upgrade execution, post-upgrade behavior based on outcome, error recovery, and reboot on success. Compared to related functions in the ground truth (e.g., `ResetProtocol`, `SetAecMode`), which perform similar preparatory steps like closing audio channels, the generated function includes those actions and extends further to implement full OTA logic. Minor omissions might include integration checks or additional callbacks depending on broader application context, hence a near-complete score."
+        },
+        {
+          "semantic_score": 80,
+          "structure_score": 85,
+          "completeness_score": 70,
+          "analysis": "The generated code demonstrates a reasonable understanding of the required functionality but misses several important details present in the ground truth.\n\nSemantic Correctness (80): The core idea of creating an event group and initializing a reconnect timer is preserved. However, there are significant semantic differences:\n- The generated code directly calls StartMqttClient() without checking the device state or using the application scheduler\n- It lacks the alive_ flag check which prevents operations on destroyed objects\n- The callback logic is simplified and doesn't integrate with the Application singleton pattern\n\nStructure Similarity (85): The overall structure is quite similar:\n- Both create an event group with xEventGroupCreate()\n- Both initialize esp_timer with proper arguments\n- The constructor structure matches\n- Timer callback is implemented as a lambda capturing 'this'\n- However, the generated code uses 'static_cast' instead of C-style cast and adds extra fields (.name and .dispatch_method) not in the original\n\nFunctional Completeness (70): Several key functionalities from the ground truth are missing:\n- No integration with Application singleton (GetDeviceState check)\n- No thread-safe scheduling through app.Schedule()\n- Missing alive_ flag dereferencing for safety\n- No ESP_LOGI logging of reconnection attempts\n- Additional timer configuration fields that may not be appropriate\n\nThe generated code captures the basic mechanics but omits critical safety and architectural features that make the ground truth robust and production-ready."
+        }
+      ]
+    },
+    "SRP-small-10;_results_03_01_15_46": {
+      "metadata": {
+        "test_type": "SRP-small-10;",
+        "date": "03_01_15_46",
+        "model_name": "qwen3-coder-30b-a3b-instruct"
+      },
+      "total_cases": 10,
+      "valid_cases": 0,
+      "average_quantitative": {},
+      "average_qualitative": {},
+      "file_statistics": {},
+      "all_quantitative_stats": [],
+      "all_qualitative_stats": []
+    },
+    "SRP-small-10;_results_03_01_15_51": {
+      "metadata": {
+        "test_type": "SRP-small-10;",
+        "date": "03_01_15_51",
+        "model_name": "qwen3-coder-30b-a3b-instruct"
+      },
+      "total_cases": 10,
+      "valid_cases": 9,
+      "average_quantitative": {
+        "correctly_reused_functions": 11.0,
+        "correctly_reused_variables": 8.444444444444445,
+        "incorrectly_constructed_functions": 6.777777777777778,
+        "incorrectly_constructed_variables": 11.11111111111111,
+        "total_reference_functions": 17.0,
+        "total_reference_variables": 19.22222222222222,
+        "function_reuse_rate": 73.39812964812965,
+        "variable_reuse_rate": 60.05496419289523
+      },
+      "average_qualitative": {
+        "semantic_score": 75.55555555555556,
+        "structure_score": 73.88888888888889,
+        "completeness_score": 71.66666666666667
+      },
+      "file_statistics": {
+        "main/display/lcd_display.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 20.0,
+            "correctly_reused_variables": 9.0,
+            "incorrectly_constructed_functions": 8.0,
+            "incorrectly_constructed_variables": 24.0,
+            "total_reference_functions": 30.0,
+            "total_reference_variables": 33.0,
+            "function_reuse_rate": 66.66666666666666,
+            "variable_reuse_rate": 27.27272727272727
+          },
+          "qualitative": {
+            "semantic_score": 60.0,
+            "structure_score": 55.0,
+            "completeness_score": 50.0
+          },
+          "query_count": 1
+        },
+        "main/application.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 10.5,
+            "correctly_reused_variables": 5.5,
+            "incorrectly_constructed_functions": 6.5,
+            "incorrectly_constructed_variables": 6.0,
+            "total_reference_functions": 12.0,
+            "total_reference_variables": 10.0,
+            "function_reuse_rate": 90.55944055944056,
+            "variable_reuse_rate": 55.49450549450549
+          },
+          "qualitative": {
+            "semantic_score": 75.0,
+            "structure_score": 70.0,
+            "completeness_score": 82.5
+          },
+          "query_count": 2
+        },
+        "main/protocols/websocket_protocol.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 8.0,
+            "correctly_reused_variables": 7.0,
+            "incorrectly_constructed_functions": 0.0,
+            "incorrectly_constructed_variables": 0.0,
+            "total_reference_functions": 8.0,
+            "total_reference_variables": 7.0,
+            "function_reuse_rate": 100.0,
+            "variable_reuse_rate": 100.0
+          },
+          "qualitative": {
+            "semantic_score": 100.0,
+            "structure_score": 100.0,
+            "completeness_score": 100.0
+          },
+          "query_count": 1
+        },
+        "main/audio/audio_service.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 15.5,
+            "correctly_reused_variables": 16.0,
+            "incorrectly_constructed_functions": 0.5,
+            "incorrectly_constructed_variables": 1.0,
+            "total_reference_functions": 16.0,
+            "total_reference_variables": 17.0,
+            "function_reuse_rate": 96.875,
+            "variable_reuse_rate": 92.3076923076923
+          },
+          "qualitative": {
+            "semantic_score": 92.5,
+            "structure_score": 95.0,
+            "completeness_score": 87.5
+          },
+          "query_count": 2
+        },
+        "main/ota.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 5.0,
+            "correctly_reused_variables": 3.0,
+            "incorrectly_constructed_functions": 5.0,
+            "incorrectly_constructed_variables": 8.0,
+            "total_reference_functions": 10.0,
+            "total_reference_variables": 11.0,
+            "function_reuse_rate": 50.0,
+            "variable_reuse_rate": 27.27272727272727
+          },
+          "qualitative": {
+            "semantic_score": 60.0,
+            "structure_score": 55.0,
+            "completeness_score": 50.0
+          },
+          "query_count": 1
+        },
+        "main/assets.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 11.0,
+            "correctly_reused_variables": 6.0,
+            "incorrectly_constructed_functions": 29.0,
+            "incorrectly_constructed_variables": 51.0,
+            "total_reference_functions": 42.0,
+            "total_reference_variables": 58.0,
+            "function_reuse_rate": 26.190476190476193,
+            "variable_reuse_rate": 10.344827586206897
+          },
+          "qualitative": {
+            "semantic_score": 40.0,
+            "structure_score": 35.0,
+            "completeness_score": 30.0
+          },
+          "query_count": 1
+        },
+        "main/protocols/mqtt_protocol.cc": {
+          "quantitative": {
+            "correctly_reused_functions": 3.0,
+            "correctly_reused_variables": 8.0,
+            "incorrectly_constructed_functions": 5.0,
+            "incorrectly_constructed_variables": 3.0,
+            "total_reference_functions": 7.0,
+            "total_reference_variables": 10.0,
+            "function_reuse_rate": 42.857142857142854,
+            "variable_reuse_rate": 80.0
+          },
+          "qualitative": {
+            "semantic_score": 85.0,
+            "structure_score": 90.0,
+            "completeness_score": 75.0
+          },
+          "query_count": 1
+        }
+      },
+      "all_quantitative_stats": [
+        {
+          "correctly_reused_functions": 20,
+          "correctly_reused_variables": 9,
+          "incorrectly_constructed_functions": 8,
+          "incorrectly_constructed_variables": 24,
+          "total_reference_functions": 30,
+          "total_reference_variables": 33,
+          "function_reuse_rate": 66.66666666666666,
+          "variable_reuse_rate": 27.27272727272727,
+          "correctly_reused_functions_list": [
+            "DisplayLockGuard",
+            "lv_obj_get_child_cnt",
+            "lv_obj_get_child",
+            "lv_obj_del",
+            "lv_obj_scroll_to_view_recursive",
+            "strcmp",
+            "lv_obj_create",
+            "lv_obj_set_style_radius",
+            "lv_obj_set_style_border_width",
+            "lv_obj_set_style_pad_all",
+            "lv_label_create",
+            "lv_label_set_text",
+            "lv_obj_set_width",
+            "lv_label_set_long_mode",
+            "lv_obj_set_style_bg_color",
+            "lv_obj_set_style_bg_opa",
+            "lv_obj_set_style_text_color",
+            "lv_obj_set_user_data",
+            "lv_obj_set_style_flex_grow",
+            "lv_obj_add_flag"
+          ],
+          "correctly_reused_variables_list": [
+            "content_",
+            "MAX_MESSAGES",
+            "emoji_label_",
+            "current_theme_",
+            "LV_OBJ_FLAG_HIDDEN",
+            "LV_HOR_RES",
+            "LV_OPA_TRANSP",
+            "LV_ANIM_ON",
+            "chat_message_label_"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "lv_obj_get_user_data",
+            "lv_txt_get_width",
+            "lv_obj_set_scrollbar_mode",
+            "lv_obj_set_height",
+            "lv_obj_set_parent",
+            "lv_obj_align",
+            "lv_obj_set_style_border_width",
+            "lv_obj_set_style_pad_all"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "LV_ANIM_OFF",
+            "LV_SCROLLBAR_MODE_OFF",
+            "LV_OPA_70",
+            "LV_ALIGN_RIGHT_MID",
+            "LV_ALIGN_CENTER",
+            "LV_ALIGN_LEFT_MID",
+            "LV_SIZE_CONTENT",
+            "msg_bubble",
+            "msg_text",
+            "container",
+            "text_font",
+            "lvgl_theme",
+            "role",
+            "content",
+            "child_count",
+            "first_child",
+            "last_child",
+            "last_container",
+            "last_bubble",
+            "bubble_type_ptr",
+            "text_width",
+            "max_width",
+            "min_width",
+            "bubble_width"
+          ]
+        },
+        {
+          "correctly_reused_functions": 7,
+          "correctly_reused_variables": 7,
+          "incorrectly_constructed_functions": 6,
+          "incorrectly_constructed_variables": 9,
+          "total_reference_functions": 13,
+          "total_reference_variables": 13,
+          "function_reuse_rate": 53.84615384615385,
+          "variable_reuse_rate": 53.84615384615385,
+          "correctly_reused_functions_list": [
+            "GetDeviceState",
+            "ESP_LOGI",
+            "SetDeviceState",
+            "GetInstance",
+            "GetDisplay",
+            "UpdateStatusBar",
+            "CloseAudioChannel"
+          ],
+          "correctly_reused_variables_list": [
+            "state",
+            "TAG",
+            "protocol_",
+            "Board",
+            "kDeviceStateActivating",
+            "kDeviceStateStarting",
+            "kDeviceStateWifiConfiguring"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "PrintHeapStats",
+            "HasServerTime",
+            "GetCurrentVersion",
+            "ShowNotification",
+            "SetChatMessage",
+            "c_str"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "kDeviceStateConnecting",
+            "kDeviceStateListening",
+            "kDeviceStateSpeaking",
+            "display",
+            "SystemInfo",
+            "has_server_time_",
+            "ota_",
+            "message",
+            "Lang::Strings::VERSION"
+          ]
+        },
+        {
+          "correctly_reused_functions": 8,
+          "correctly_reused_variables": 7,
+          "incorrectly_constructed_functions": 0,
+          "incorrectly_constructed_variables": 0,
+          "total_reference_functions": 8,
+          "total_reference_variables": 7,
+          "function_reuse_rate": 100.0,
+          "variable_reuse_rate": 100.0,
+          "correctly_reused_functions_list": [
+            "cJSON_CreateObject",
+            "cJSON_AddStringToObject",
+            "cJSON_AddNumberToObject",
+            "cJSON_AddBoolToObject",
+            "cJSON_AddItemToObject",
+            "cJSON_PrintUnformatted",
+            "cJSON_free",
+            "cJSON_Delete"
+          ],
+          "correctly_reused_variables_list": [
+            "root",
+            "version_",
+            "features",
+            "audio_params",
+            "json_str",
+            "message",
+            "OPUS_FRAME_DURATION_MS"
+          ],
+          "incorrectly_constructed_functions_list": [],
+          "incorrectly_constructed_variables_list": []
+        },
+        {
+          "correctly_reused_functions": 15,
+          "correctly_reused_variables": 11,
+          "incorrectly_constructed_functions": 1,
+          "incorrectly_constructed_variables": 2,
+          "total_reference_functions": 16,
+          "total_reference_variables": 13,
+          "function_reuse_rate": 93.75,
+          "variable_reuse_rate": 84.61538461538461,
+          "correctly_reused_functions_list": [
+            "std::unique_lock<std::mutex>",
+            "audio_queue_cv_.wait",
+            "std::move",
+            "audio_playback_queue_.front",
+            "audio_playback_queue_.pop_front",
+            "audio_queue_cv_.notify_all",
+            "lock.unlock",
+            "codec_->output_enabled",
+            "esp_timer_stop",
+            "esp_timer_start_periodic",
+            "codec_->EnableOutput",
+            "codec_->OutputData",
+            "std::chrono::steady_clock::now",
+            "lock.lock",
+            "ESP_LOGW"
+          ],
+          "correctly_reused_variables_list": [
+            "audio_queue_mutex_",
+            "audio_queue_cv_",
+            "audio_playback_queue_",
+            "service_stopped_",
+            "task",
+            "codec_",
+            "audio_power_timer_",
+            "AUDIO_POWER_CHECK_INTERVAL_MS",
+            "last_output_time_",
+            "debug_statistics_",
+            "TAG"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "timestamp_queue_.push_back"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "timestamp_queue_",
+            "playback_count"
+          ]
+        },
+        {
+          "correctly_reused_functions": 16,
+          "correctly_reused_variables": 21,
+          "incorrectly_constructed_functions": 0,
+          "incorrectly_constructed_variables": 0,
+          "total_reference_functions": 16,
+          "total_reference_variables": 21,
+          "function_reuse_rate": 100.0,
+          "variable_reuse_rate": 100.0,
+          "correctly_reused_functions_list": [
+            "codec_->Start",
+            "std::make_unique<OpusDecoderWrapper>",
+            "codec->output_sample_rate",
+            "std::make_unique<OpusEncoderWrapper>",
+            "opus_encoder_->SetComplexity",
+            "codec->input_sample_rate",
+            "input_resampler_.Configure",
+            "reference_resampler_.Configure",
+            "std::make_unique<AfeAudioProcessor>",
+            "std::make_unique<NoAudioProcessor>",
+            "audio_processor_->OnOutput",
+            "PushTaskToEncodeQueue",
+            "audio_processor_->OnVadStateChange",
+            "callbacks_.on_vad_change",
+            "esp_timer_create",
+            "CheckAndUpdateAudioPowerState"
+          ],
+          "correctly_reused_variables_list": [
+            "codec_",
+            "opus_decoder_",
+            "opus_encoder_",
+            "input_resampler_",
+            "reference_resampler_",
+            "audio_processor_",
+            "voice_detected_",
+            "callbacks_",
+            "on_vad_change",
+            "esp_timer_create_args_t",
+            "audio_power_timer_args",
+            "callback",
+            "arg",
+            "dispatch_method",
+            "name",
+            "skip_unhandled_events",
+            "ESP_TIMER_TASK",
+            "audio_power_timer_",
+            "kAudioTaskTypeEncodeToSendQueue",
+            "data",
+            "speaking"
+          ],
+          "incorrectly_constructed_functions_list": [],
+          "incorrectly_constructed_variables_list": []
+        },
+        {
+          "correctly_reused_functions": 5,
+          "correctly_reused_variables": 3,
+          "incorrectly_constructed_functions": 5,
+          "incorrectly_constructed_variables": 8,
+          "total_reference_functions": 10,
+          "total_reference_variables": 11,
+          "function_reuse_rate": 50.0,
+          "variable_reuse_rate": 27.27272727272727,
+          "correctly_reused_functions_list": [
+            "cJSON_CreateObject",
+            "cJSON_AddStringToObject",
+            "cJSON_PrintUnformatted",
+            "cJSON_Delete",
+            "esp_hmac_calculate"
+          ],
+          "correctly_reused_variables_list": [
+            "has_serial_number_",
+            "activation_challenge_",
+            "serial_number_"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "cJSON_free",
+            "ESP_LOGE",
+            "ESP_LOGI",
+            "esp_err_to_name",
+            "sprintf"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "hmac_hex",
+            "hmac_result",
+            "ret",
+            "buffer",
+            "payload",
+            "json_str",
+            "json",
+            "TAG"
+          ]
+        },
+        {
+          "correctly_reused_functions": 11,
+          "correctly_reused_variables": 6,
+          "incorrectly_constructed_functions": 29,
+          "incorrectly_constructed_variables": 51,
+          "total_reference_functions": 42,
+          "total_reference_variables": 58,
+          "function_reuse_rate": 26.190476190476193,
+          "variable_reuse_rate": 10.344827586206897,
+          "correctly_reused_functions_list": [
+            "GetAssetData",
+            "ESP_LOGE",
+            "cJSON_ParseWithLength",
+            "cJSON_GetObjectItem",
+            "cJSON_IsString",
+            "ESP_LOGI",
+            "cJSON_IsArray",
+            "cJSON_GetArraySize",
+            "cJSON_GetArrayItem",
+            "cJSON_IsObject",
+            "cJSON_Delete"
+          ],
+          "correctly_reused_variables_list": [
+            "ptr",
+            "size",
+            "TAG",
+            "root",
+            "version",
+            "valuestring"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "cJSON_IsNumber",
+            "esp_srmodel_deinit",
+            "srmodel_load",
+            "Application::GetInstance",
+            "GetAudioService",
+            "SetModelsList",
+            "LvglThemeManager::GetInstance",
+            "GetTheme",
+            "std::make_shared",
+            "font",
+            "set_text_font",
+            "AddEmoji",
+            "set_emoji_collection",
+            "ParseColor",
+            "set_text_color",
+            "set_background_color",
+            "set_chat_background_color",
+            "set_background_image",
+            "Board::GetInstance",
+            "GetDisplay",
+            "SetTheme",
+            "cJSON_IsBool",
+            "cJSON_IsTrue",
+            "dynamic_cast",
+            "SetHideSubtitle",
+            "AddTextFont",
+            "AddEmojiData",
+            "AddIconData",
+            "AddLayoutData"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "valuedouble",
+            "valueint",
+            "srmodels",
+            "srmodels_file",
+            "models_list_",
+            "app",
+            "theme_manager",
+            "light_theme",
+            "dark_theme",
+            "fonts_text_file",
+            "text_font",
+            "emoji_collection",
+            "custom_emoji_collection",
+            "emoji_count",
+            "i",
+            "emoji",
+            "name",
+            "file",
+            "eaf",
+            "skin",
+            "light_skin",
+            "dark_skin",
+            "text_color",
+            "background_color",
+            "background_image",
+            "display",
+            "current_theme",
+            "hide_subtitle",
+            "hide",
+            "lcd_display",
+            "board",
+            "emote_display",
+            "icon_collection",
+            "icon_count",
+            "icon",
+            "layout_json",
+            "layout_count",
+            "layout_item",
+            "align",
+            "x",
+            "y",
+            "width",
+            "height",
+            "width_val",
+            "height_val",
+            "lack",
+            "loop",
+            "fps",
+            "lack_value",
+            "loop_value",
+            "fps_value"
+          ]
+        },
+        {
+          "correctly_reused_functions": 14,
+          "correctly_reused_variables": 4,
+          "incorrectly_constructed_functions": 7,
+          "incorrectly_constructed_variables": 3,
+          "total_reference_functions": 11,
+          "total_reference_variables": 7,
+          "function_reuse_rate": 127.27272727272727,
+          "variable_reuse_rate": 57.14285714285714,
+          "correctly_reused_functions_list": [
+            "Board::GetInstance",
+            "board.GetDisplay",
+            "protocol_->IsAudioChannelOpened",
+            "protocol_->CloseAudioChannel",
+            "audio_service_.Stop",
+            "audio_service_.Start",
+            "board.SetPowerSaveLevel",
+            "display->SetChatMessage",
+            "Ota::Upgrade",
+            "Reboot",
+            "Alert",
+            "vTaskDelay",
+            "ESP_LOGI",
+            "ESP_LOGE"
+          ],
+          "correctly_reused_variables_list": [
+            "board",
+            "display",
+            "audio_service_",
+            "protocol_"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "audio_service_.EnableDeviceAec",
+            "display->ShowNotification",
+            "Lang::Strings::RTC_MODE_OFF",
+            "Lang::Strings::RTC_MODE_ON",
+            "Schedule",
+            "audio_service_.PlaySound",
+            "protocol_.reset"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "aec_mode_",
+            "sound",
+            "mode"
+          ]
+        },
+        {
+          "correctly_reused_functions": 3,
+          "correctly_reused_variables": 8,
+          "incorrectly_constructed_functions": 5,
+          "incorrectly_constructed_variables": 3,
+          "total_reference_functions": 7,
+          "total_reference_variables": 10,
+          "function_reuse_rate": 42.857142857142854,
+          "variable_reuse_rate": 80.0,
+          "correctly_reused_functions_list": [
+            "xEventGroupCreate",
+            "esp_timer_create",
+            "protocol->StartMqttClient"
+          ],
+          "correctly_reused_variables_list": [
+            "event_group_handle_",
+            "reconnect_timer_",
+            "callback",
+            "arg",
+            "protocol",
+            "TAG",
+            "alive_",
+            "reconnect_timer_"
+          ],
+          "incorrectly_constructed_functions_list": [
+            "Application::GetInstance",
+            "app.GetDeviceState",
+            "ESP_LOGI",
+            "app.Schedule",
+            "IsIdleState"
+          ],
+          "incorrectly_constructed_variables_list": [
+            "app",
+            "kDeviceStateIdle",
+            "reconnect_timer_args"
+          ]
+        }
+      ],
+      "all_qualitative_stats": [
+        {
+          "semantic_score": 60,
+          "structure_score": 55,
+          "completeness_score": 50,
+          "analysis": "Semantic Correctness:\n- The generated code captures basic functionality like handling empty messages, setting styles based on roles, and scrolling to new messages.\n- However, it lacks critical logic such as collapsing consecutive system messages, proper alignment of user/assistant/system bubbles, and dynamic width calculation for message bubbles.\n- It uses a conditional compilation block (#if CONFIG_USE_WECHAT_MESSAGE_STYLE) which changes behavior significantly from the ground truth that does not have such branching.\n- Message history management differs: ground truth deletes oldest message only when exceeding limit and re-aligns remaining content; generated simply removes one child without scroll adjustment.\n\nStructure Similarity:\n- Function signature matches but includes an #ifdef guard not present in the original.\n- Control flow diverges due to missing checks for existing children, no reuse or updating of containers, and different object hierarchy (uses flex layout vs manual positioning).\n- API usage shows differences: e.g., lv_obj_set_style_flex_* used instead of direct positioning with lv_obj_align(), different padding/radius settings.\n- Missing several key LVGL operations related to child management and visual consistency found in the ground truth.\n\nFunctional Completeness:\n- Core chat display is implemented but omits advanced features like automatic resizing of bubbles, intelligent truncation, correct alignment per role, and optimized rendering for performance.\n- Lacks support for storing references to latest labels (chat_message_label_), managing maximum message count properly, and ensuring consistent styling across platforms.\n- Simplified version under `#else` path reduces functionality drastically compared to full implementation in ground truth.\n- No equivalent mechanism for marking bubble types via user data nor checking previous message types before appending new ones."
+        },
+        {
+          "semantic_score": 60,
+          "structure_score": 55,
+          "completeness_score": 70,
+          "analysis": "The generated code and ground truth differ significantly in their intended functionality. The ground truth implements `HandleNetworkDisconnectedEvent()` which handles actions upon losing network connection, such as closing audio channels and updating the status bar. In contrast, the generated code attempts to implement `HandleNetworkConnectedEvent()`, focusing on what should happen when a network connection is established (e.g., starting activation, playing success sounds). This fundamental semantic mismatch results in a moderate score for semantic correctness since both functions are valid but address different events.\n\nStructurally, there's limited similarity because the two functions serve opposing network states. However, both make use of similar APIs like logging (`ESP_LOGI`), retrieving device state, accessing display via `Board::GetInstance().GetDisplay()`, and calling `UpdateStatusBar(true)`. The control flow patterns (if/else blocks, task creation) exist in both but are applied differently due to differing contexts.\n\nRegarding functional completeness, the generated code includes several relevant features not found in the partial ground truth snippet—such as creating an activation task, checking for existing tasks, and playing a sound—which suggests that it covers more logic than provided in the ground truth. On the other hand, some elements from the ground truth, like heap stats printing or showing notifications with version info, are missing entirely from the generated code. Therefore, while reasonably complete within its own scope, it doesn't fully align with the reference implementation’s objectives."
+        },
+        {
+          "semantic_score": 100,
+          "structure_score": 100,
+          "completeness_score": 100,
+          "analysis": "The generated code is identical to the ground truth in terms of semantic meaning, structure, and functionality.\n\nSemantic Correctness (100): The generated code perfectly replicates the logic and intent of the original. It creates a JSON object with the exact same keys and values, including conditional compilation for AEC feature, and properly manages memory by freeing the cJSON object and string after use.\n\nStructure Similarity (100): Both codes follow the exact same sequence of operations: creating a root JSON object, adding various fields including nested objects for features and audio_params, handling optional fields via preprocessor directives, printing the JSON to an unformatted string, converting it to std::string, and cleaning up allocated memory.\n\nFunctional Completeness (100): All functionalities from the ground truth are preserved in the generated code, including:\n- Setting message type as \"hello\"\n- Including version information\n- Conditional inclusion of AEC feature based on CONFIG_USE_SERVER_AEC\n- Mandatory MCP feature flag\n- Transport protocol specification as \"websocket\"\n- Complete audio parameters configuration (format, sample_rate, channels, frame_duration)\n- Proper JSON serialization and memory management\n\nThere are no differences between the two implementations; they are line-for-line identical."
+        },
+        {
+          "semantic_score": 85,
+          "structure_score": 90,
+          "completeness_score": 75,
+          "analysis": "Semantic Correctness:\n- The overall logic and flow are preserved: waiting on a condition variable, checking for stop signal, processing tasks from a queue.\n- Key differences include error handling (the generated version checks the return value of OutputData), use of callback instead of pushing timestamps into a queue, and incrementing 'output_count' vs 'playback_count'.\n- The lambda capture in wait() has parameters reversed but maintains equivalent functionality.\n\nStructure Similarity:\n- Function signature matches exactly.\n- Control flow is nearly identical: infinite loop, mutex locking, condition variable waiting, early exit on stop flag, task dequeueing, unlocking, codec operations, updating time/statistics, optional timestamp recording, re-locking.\n- Most API calls match or have clear equivalents (e.g., esp_timer functions).\n- Minor structural differences include an extra null check on the queue before accessing front element and placement of lock/unlock around timestamp operation.\n\nFunctional Completeness:\n- Missing direct support for CONFIG_USE_SERVER_AEC compile-time option; uses callbacks instead which may be functionally different.\n- Does not maintain the exact same statistic tracking ('playback_count' vs 'output_count').\n- Introduces additional error logging that's absent in the ground truth.\n- Timestamp handling mechanism differs significantly — using a callback rather than maintaining internal queue.\n- Codec output result checking adds robustness not present in original."
+        },
+        {
+          "semantic_score": 100,
+          "structure_score": 100,
+          "completeness_score": 100,
+          "analysis": "The generated code is identical to the ground truth in terms of semantic meaning, logical flow, and functionality.\n\n- Semantic Correctness: Both versions initialize an AudioCodec by storing a pointer, starting the codec, creating Opus decoder/encoder wrappers with matching parameters, configuring resamplers when necessary, setting up audio processor based on compile-time flags, registering lambda callbacks for output and VAD state changes, and initializing an ESP timer. All logic and control flows match exactly.\n\n- Structure Similarity: Function signature, variable names, order of operations, use of macros, lambda expressions, struct initialization syntax, and API calls are all identical between both codes. Even formatting differences (like spacing around parentheses) do not affect structural similarity.\n\n- Functional Completeness: Every functional element present in the ground truth is fully replicated in the generated code including handling of sample rate conversion, audio processing callback registration, VAD state management, and timer creation. No functionality is missing or incomplete.\n\nIn conclusion, there is no observable difference between the two implementations; they are functionally and structurally equivalent."
+        },
+        {
+          "semantic_score": 60,
+          "structure_score": 55,
+          "completeness_score": 50,
+          "analysis": "Semantic Correctness:\n- The generated code attempts to implement the same overall functionality but diverges significantly in details.\n- It does not include the 'algorithm' field in the JSON payload which is present in the ground truth.\n- The method of generating the HMAC input differs: ground truth uses only the challenge, while generated code concatenates serial number and challenge.\n- The key usage in esp_hmac_calculate is incorrect in the generated code; it passes a string literal instead of using HMAC_KEY0, and misuses the API parameters.\n- The fallback HMAC implementation just zeros out the buffer rather than performing any actual computation.\n\nStructure Similarity:\n- Both codes follow a similar high-level flow: check for serial number, create cJSON object, add fields, compute HMAC, convert to hex, output JSON.\n- However, function calls differ substantially, such as how esp_hmac_calculate is invoked.\n- The generated code introduces unnecessary complexity like manually managing memory for json_string with free(), whereas cJSON_PrintUnformatted result should be freed with cJSON_free().\n- Control flow structures are somewhat aligned but differ in error handling granularity and logging.\n\nFunctional Completeness:\n- Missing critical elements: algorithm field in JSON, correct HMAC input data (should be only challenge), proper use of hardware key identifier (HMAC_KEY0).\n- Lacks ESP_LOG statements for debugging, which may be important for embedded systems.\n- Does not properly handle or document the HMAC key source; assumes availability of a fixed string instead of leveraging secure hardware storage.\n- No handling of cJSON creation failure in ground truth logic path beyond returning empty JSON."
+        },
+        {
+          "semantic_score": 40,
+          "structure_score": 35,
+          "completeness_score": 30,
+          "analysis": "The generated code shows a significant divergence from the ground truth in terms of both functionality and implementation details:\n\nSemantic Correctness (40/100):\n- The generated code has a simplified logic flow that does not match the complex conditional processing found in the ground truth.\n- It misinterprets version checking by treating it as a string instead of a number and fails to implement proper validation or error handling for unsupported versions.\n- Critical components such as loading speech recognition models (\"srmodels\"), applying LVGL themes, handling emoji collections with binary data, skin configurations, and display updates are either omitted or misrepresented.\n- Logging messages differ significantly, indicating different execution paths and outcomes than intended.\n\nStructure Similarity (35/100):\n- Basic JSON parsing structure is preserved but lacks detailed object traversal and type checking consistent with the ground truth.\n- Function call patterns like `GetAssetData`, `cJSON_ParseWithLength`, and `cJSON_Delete` exist but are applied incorrectly or incompletely.\n- Control structures such as loops over arrays are present but do not reflect the nested complexity and specific item handling seen in the reference code.\n- Missing preprocessor conditionals (`#ifdef HAVE_LVGL`, `#elif defined(...)`) result in structural incompleteness compared to platform-specific branching in the original.\n\nFunctional Completeness (30/100):\n- Key functionalities including SR model initialization, LVGL theme application (fonts, emojis, skins), subtitle visibility settings, and integration with hardware/display services are entirely absent.\n- Incorrect interpretation of schema elements like `\"multinet_model\"` vs `\"srmodels\"`, `\"themes\"` vs actual LVGL theme objects, and generic `\"fonts\"/\"emojis\"` without binary asset handling demonstrates misunderstanding of expected behavior.\n- No support for advanced features like EAF metadata in emojis, background images, color parsing, or dynamic casting to specialized display types is implemented.\n- Platform-specific integrations with `Application`, `LvglThemeManager`, `Board`, and related classes are completely missing, rendering the function non-functional in its target environment."
+        },
+        {
+          "semantic_score": 90,
+          "structure_score": 85,
+          "completeness_score": 95,
+          "analysis": "Semantic Correctness:\nThe generated code for `UpgradeFirmware` follows a logical sequence appropriate for its task — closing active channels, performing an OTA update, handling success/failure cases, and managing device state. It uses asynchronous constructs like thread detaching for UI updates during the process, which aligns semantically with real-world firmware upgrade procedures. However, it does not exactly mirror any specific function from the ground truth because they are solving different tasks (firmware upgrade vs. AEC mode setting, protocol reset). Still, within its own scope, the semantics are coherent and well-implemented.\n\nStructure Similarity:\nStructurally, both the generated and ground-truth codes follow modern C++ practices including lambda usage, scheduling via event loops (`Schedule`), object-oriented access patterns (`board.GetDisplay()`), and conditional logic wrapped in safe checks (e.g., checking if `protocol_` is valid). The use of logging macros (`ESP_LOGI`, `ESP_LOGE`) is consistent with embedded systems development, though this pattern isn't visible in the ground truth. Function signature matches the query expectation but differs significantly in purpose from functions shown in the ground truth due to domain differences.\n\nFunctional Completeness:\nThe generated function thoroughly implements all expected steps for a robust firmware upgrade workflow: preconditions (closing audio channel), core action (OTA download & apply), feedback mechanism (progress reporting on display), error recovery (restart services on failure), and finalization (reboot on success). Compared to the ground truth snippets, it doesn't replicate their exact functionality (like changing AEC modes or resetting protocols), but that’s expected since they address unrelated features. In terms of fulfilling what was asked (implementing `UpgradeFirmware`), it exceeds expectations by incorporating rich user feedback, system resource management, and failure resilience."
+        },
+        {
+          "semantic_score": 85,
+          "structure_score": 90,
+          "completeness_score": 75,
+          "analysis": "Semantic Correctness:\n- The core functionality of initializing an event group and setting up a reconnect timer is preserved.\n- Both versions use a lambda callback for the timer, capturing `this` to access class members.\n- A key difference lies in how reconnection logic is handled: \n  * Ground truth checks device state via `Application::GetInstance().GetDeviceState() == kDeviceStateIdle`, ensuring global application context before reconnecting.\n  * Generated code uses a member function `IsIdleState()` which may or may not encapsulate the same check, potentially altering behavior.\n- The generated code introduces `alive_` as a shared atomic flag but doesn't fully replicate its usage pattern from ground truth (e.g., dereferencing within scheduled task).\n\nStructure Similarity:\n- Function signature matches exactly (`MqttProtocol::MqttProtocol()`).\n- Initialization order and general structure are very similar.\n- Use of `xEventGroupCreate()` and `esp_timer_create()` with comparable argument setup is consistent.\n- Minor differences include additional includes and debug tag definition in generated code, and naming/initialization style variations (e.g., `static_cast` vs C-style cast).\n\nFunctional Completeness:\n- Missing critical part: In ground truth, the reconnect attempt is scheduled through `app.Schedule()` to ensure thread safety/context switching, whereas the generated code calls `StartMqttClient` directly inside the timer callback.\n- The `alive_` flag is initialized in both cases, but the mechanism of checking it within a scheduled task (as in ground truth) is omitted in generated code.\n- Additional features like `.name` and `.dispatch_method` in timer args are present in generated code but not required by ground truth; however, they do not compensate for missing behaviors.\n- No evidence that `IsIdleState()` mirrors the exact logic of `app.GetDeviceState() == kDeviceStateIdle`.\n\nOverall, while structurally quite close and semantically mostly aligned, functional completeness suffers due to lack of proper scheduling and incomplete handling of the alive flag during reconnection attempts."
+        }
+      ]
+    }
+  }
+}

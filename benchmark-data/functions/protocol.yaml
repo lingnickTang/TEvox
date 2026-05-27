@@ -1,0 +1,8 @@
+- query: complete the function SendStopListening()()
+  file_path: main/protocols/protocol.cc
+  ground_truth: "void Protocol::SendStopListening() {\n    std::string message = \"\
+    {\\\"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\"\
+    ,\\\"state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"
+  workflow: "void Protocol::SendStopListening()\n{\n    std::string message = \"{\\\
+    \"session_id\\\":\\\"\" + session_id_ + \"\\\",\\\"type\\\":\\\"listen\\\",\\\"\
+    state\\\":\\\"stop\\\"}\";\n    SendText(message);\n}"

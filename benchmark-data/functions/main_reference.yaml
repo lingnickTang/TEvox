@@ -1,0 +1,13 @@
+complete the function app_main(void)():
+  functions:
+  - nvs_flash_init()
+  - ESP_LOGW()
+  - nvs_flash_erase()
+  - ESP_ERROR_CHECK()
+  - Application::GetInstance()
+  - app.Initialize()
+  - app.Run()
+  variables:
+  - ret
+  - TAG
+  - app
