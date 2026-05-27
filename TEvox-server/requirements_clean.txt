@@ -1,0 +1,21 @@
+# browser-use==0.1.40
+fastapi==0.115.12
+lancedb==0.22.0
+langchain==0.3.25
+langchain_community==0.3.23
+langchain_core==0.3.59
+langchain_openai==0.3.16
+langchain_text_splitters==0.3.8
+matplotlib==3.10.3
+networkx==3.4.2
+numpy==2.2.5
+ordered_set==4.1.0
+pydantic==2.11.4
+PyYAML==6.0.2
+Requests==2.32.3
+rich==14.0.0
+tiktoken==0.8.0
+tqdm==4.67.1
+uvicorn==0.34.2
+Jinja2==3.1.6
+playwright==1.52.0

@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 accelerate launch --config_file recipes/accelerate_configs/zero3.yaml --num_processes=4 recipes/gsm8k_qwen1.5/main.py --config recipes/gsm8k_qwen1.5/config.yaml --wandb_entity hyln --wandb_project evox --run_name Qwen2.5-1.5B-GRPO

@@ -1,0 +1,1064 @@
+按照单一功能原则进行拆解：
+文件级别
+单个文件承担了太多的功能以及业务实现，复用时一小部分功能，却会提供了大量无关的内容，导致复用率低
+prompt
+"functionality_decompose": """As a professional software engineer, please:
+
+1. First judge: if the current file/module already constitutes a single, independent, well-defined functional unit (one clear responsibility, self-contained, no need to split), then output no nodes—use an empty list: nodes: [].
+2. Otherwise, according to the Single Responsibility Principle, classify and list the function APIs and variables implemented by the current module based on their functionality, forming decoupled functional submodules of the current module.
+3. For each functional submodule, construct it as a new node. The goal is to improve reusability by decomposing a single module into smaller, single-responsibility submodules that can stand alone.
+4. In the output, include the list of functions_label that are involved in (referenced by) the decomposed submodules—i.e. which of the given function labels belong to or are assigned to which submodule.
+
+functions_label: list of function names/symbols in this module (for reference when decomposing)
+{functions_label}
+
+file_content:
+{file_content}
+
+Please output your results in YAML format inside the ```yaml ``` mark.
+
+nodes: node information for all sub-modules(except the current module). Use nodes: [] when the current module is already independent and needs no decomposition.
+   - id: decomposed sub-node name
+   - code: "line1\\nline2\\n..."  (the detailed API/variables and comments for this sub-node)
+   - involved_functions: list of function labels from the input functions_label that are involved in the decomposition (only those actually referenced/assigned in the submodules)
+""",
+不需要拆解
+single, independent, well-defined
+#ifndef SETTINGS_H
+#define SETTINGS_H
+
+#include <string>
+#include <nvs_flash.h>
+
+class Settings {
+public:
+    Settings(const std::string& ns, bool read_write = false);
+    ~Settings();
+
+    std::string GetString(const std::string& key, const std::string& default_value = "");
+    void SetString(const std::string& key, const std::string& value);
+    int32_t GetInt(const std::string& key, int32_t default_value = 0);
+    void SetInt(const std::string& key, int32_t value);
+    bool GetBool(const std::string& key, bool default_value = false);
+    void SetBool(const std::string& key, bool value);
+    void EraseKey(const std::string& key);
+    void EraseAll();
+
+private:
+    std::string ns_;
+    nvs_handle_t nvs_handle_ = 0;
+    bool read_write_ = false;
+    bool dirty_ = false;
+};
+
+#endif
+需要拆解的
+功能耦合的模块，比如application
+#ifndef _APPLICATION_H_
+#define _APPLICATION_H_
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/event_groups.h>
+#include <freertos/task.h>
+#include <esp_timer.h>
+
+#include <string>
+#include <mutex>
+#include <deque>
+#include <memory>
+
+#include "protocol.h"
+#include "ota.h"
+#include "audio_service.h"
+#include "device_state.h"
+#include "device_state_machine.h"
+
+// Main event bits
+#define MAIN_EVENT_SCHEDULE             (1 << 0)
+#define MAIN_EVENT_SEND_AUDIO           (1 << 1)
+#define MAIN_EVENT_WAKE_WORD_DETECTED   (1 << 2)
+#define MAIN_EVENT_VAD_CHANGE           (1 << 3)
+#define MAIN_EVENT_ERROR                (1 << 4)
+#define MAIN_EVENT_ACTIVATION_DONE      (1 << 5)
+#define MAIN_EVENT_CLOCK_TICK           (1 << 6)
+#define MAIN_EVENT_NETWORK_CONNECTED    (1 << 7)
+#define MAIN_EVENT_NETWORK_DISCONNECTED (1 << 8)
+#define MAIN_EVENT_TOGGLE_CHAT          (1 << 9)
+#define MAIN_EVENT_START_LISTENING      (1 << 10)
+#define MAIN_EVENT_STOP_LISTENING       (1 << 11)
+#define MAIN_EVENT_STATE_CHANGED        (1 << 12)
+
+enum AecMode {
+    kAecOff,
+    kAecOnDeviceSide,
+    kAecOnServerSide,
+};
+
+class Application {
+public:
+    static Application& GetInstance() {
+        static Application instance;
+        return instance;
+    }
+    // Delete copy constructor and assignment operator
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+
+    /**
+     * Initialize the application
+     * This sets up display, audio, network callbacks, etc.
+     * Network connection starts asynchronously.
+     */
+    void Initialize();
+
+    /**
+     * Run the main event loop
+     * This function runs in the main task and never returns.
+     * It handles all events including network, state changes, and user interactions.
+     */
+    void Run();
+
+    DeviceState GetDeviceState() const { return state_machine_.GetState(); }
+    bool IsVoiceDetected() const { return audio_service_.IsVoiceDetected(); }
+    
+    /**
+     * Request state transition
+     * Returns true if transition was successful
+     */
+    bool SetDeviceState(DeviceState state);
+
+    /**
+     * Schedule a callback to be executed in the main task
+     */
+    void Schedule(std::function<void()>&& callback);
+
+    /**
+     * Alert with status, message, emotion and optional sound
+     */
+    void Alert(const char* status, const char* message, const char* emotion = "", const std::string_view& sound = "");
+    void DismissAlert();
+
+    void AbortSpeaking(AbortReason reason);
+
+    /**
+     * Toggle chat state (event-based, thread-safe)
+     * Sends MAIN_EVENT_TOGGLE_CHAT to be handled in Run()
+     */
+    void ToggleChatState();
+
+    /**
+     * Start listening (event-based, thread-safe)
+     * Sends MAIN_EVENT_START_LISTENING to be handled in Run()
+     */
+    void StartListening();
+
+    /**
+     * Stop listening (event-based, thread-safe)
+     * Sends MAIN_EVENT_STOP_LISTENING to be handled in Run()
+     */
+    void StopListening();
+
+    void Reboot();
+    void WakeWordInvoke(const std::string& wake_word);
+    bool UpgradeFirmware(const std::string& url, const std::string& version = "");
+    bool CanEnterSleepMode();
+    void SendMcpMessage(const std::string& payload);
+    void SetAecMode(AecMode mode);
+    AecMode GetAecMode() const { return aec_mode_; }
+    void PlaySound(const std::string_view& sound);
+    AudioService& GetAudioService() { return audio_service_; }
+    
+    /**
+     * Reset protocol resources (thread-safe)
+     * Can be called from any task to release resources allocated after network connected
+     * This includes closing audio channel, resetting protocol and ota objects
+     */
+    void ResetProtocol();
+
+private:
+    Application();
+    ~Application();
+
+    std::mutex mutex_;
+    std::deque<std::function<void()>> main_tasks_;
+    std::unique_ptr<Protocol> protocol_;
+    EventGroupHandle_t event_group_ = nullptr;
+    esp_timer_handle_t clock_timer_handle_ = nullptr;
+    DeviceStateMachine state_machine_;
+    ListeningMode listening_mode_ = kListeningModeAutoStop;
+    AecMode aec_mode_ = kAecOff;
+    std::string last_error_message_;
+    AudioService audio_service_;
+    std::unique_ptr<Ota> ota_;
+
+    bool has_server_time_ = false;
+    bool aborted_ = false;
+    bool assets_version_checked_ = false;
+    bool play_popup_on_listening_ = false;  // Flag to play popup sound after state changes to listening
+    int clock_ticks_ = 0;
+    TaskHandle_t activation_task_handle_ = nullptr;
+
+    // Event handlers
+    void HandleStateChangedEvent();
+    void HandleToggleChatEvent();
+    void HandleStartListeningEvent();
+    void HandleStopListeningEvent();
+    void HandleNetworkConnectedEvent();
+    void HandleNetworkDisconnectedEvent();
+    void HandleActivationDoneEvent();
+    void HandleWakeWordDetectedEvent();
+
+    // Activation task (runs in background)
+    void ActivationTask();
+
+    // Helper methods
+    void CheckAssetsVersion();
+    void CheckNewVersion();
+    void InitializeProtocol();
+    void ShowActivationCode(const std::string& code, const std::string& message);
+    void SetListeningMode(ListeningMode mode);
+    
+    // State change handler called by state machine
+    void OnStateChanged(DeviceState old_state, DeviceState new_state);
+};
+
+class TaskPriorityReset {
+public:
+    TaskPriorityReset(BaseType_t priority) {
+        original_priority_ = uxTaskPriorityGet(NULL);
+        vTaskPrioritySet(NULL, priority);
+    }
+    ~TaskPriorityReset() {
+        vTaskPrioritySet(NULL, original_priority_);
+    }
+
+private:
+    BaseType_t original_priority_;
+};
+
+#endif // _APPLICATION_H_
+
+拆解出的结果
+暂时无法在飞书文档外展示此内容
+flowchart TB
+    subgraph Application["Application 层"]
+        app["main/application.h"]
+    end
+
+    subgraph Submodules["Submodule 层"]
+        DeviceStateManager["DeviceStateManager"]
+        AudioManager["AudioManager"]
+        EventHandler["EventHandler"]
+        TaskScheduler["TaskScheduler"]
+        AlertManager["AlertManager"]
+        NetworkManager["NetworkManager"]
+        SystemController["SystemController"]
+        ListeningController["ListeningController"]
+    end
+
+    api_ds["GetDeviceState()<br/>SetDeviceState()<br/>OnStateChanged()"]
+    api_am["IsVoiceDetected()<br/>SetAecMode()<br/>GetAecMode()<br/>PlaySound()<br/>GetAudioService()"]
+    api_eh["HandleStateChangedEvent()<br/>HandleToggleChatEvent()<br/>HandleStartListeningEvent()<br/>HandleStopListeningEvent()<br/>HandleNetworkConnectedEvent()<br/>HandleNetworkDisconnectedEvent()<br/>HandleActivationDoneEvent()<br/>HandleWakeWordDetectedEvent()"]
+    api_ts["Schedule()"]
+    api_al["Alert()<br/>DismissAlert()"]
+    api_nm["InitializeProtocol()<br/>ResetProtocol()<br/>UpgradeFirmware()<br/>SendMcpMessage()<br/>CanEnterSleepMode()"]
+    api_sc["Reboot()<br/>ActivationTask()<br/>CheckAssetsVersion()<br/>CheckNewVersion()<br/>ShowActivationCode()"]
+    api_lc["ToggleChatState()<br/>StartListening()<br/>StopListening()<br/>WakeWordInvoke()<br/>SetListeningMode()"]
+
+    app --> DeviceStateManager
+    app --> AudioManager
+    app --> EventHandler
+    app --> TaskScheduler
+    app --> AlertManager
+    app --> NetworkManager
+    app --> SystemController
+    app --> ListeningController
+
+    DeviceStateManager --> api_ds
+    AudioManager --> api_am
+    EventHandler --> api_eh
+    TaskScheduler --> api_ts
+    AlertManager --> api_al
+    NetworkManager --> api_nm
+    SystemController --> api_sc
+    ListeningController --> api_lc
+再比如 audio_service 模块
+#ifndef AUDIO_SERVICE_H
+#define AUDIO_SERVICE_H
+
+#include <memory>
+#include <deque>
+#include <condition_variable>
+#include <chrono>
+#include <mutex>
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/event_groups.h>
+#include <esp_timer.h>
+#include <model_path.h>
+
+#include <opus_encoder.h>
+#include <opus_decoder.h>
+#include <opus_resampler.h>
+
+#include "audio_codec.h"
+#include "audio_processor.h"
+#include "processors/audio_debugger.h"
+#include "wake_word.h"
+#include "protocol.h"
+
+/*
+ * There are two types of audio data flow:
+ * 1. (MIC) -> [Processors] -> {Encode Queue} -> [Opus Encoder] -> {Send Queue} -> (Server)
+ * 2. (Server) -> {Decode Queue} -> [Opus Decoder] -> {Playback Queue} -> (Speaker)
+ *
+ * We use one task for MIC / Speaker / Processors, and one task for Opus Encoder / Opus Decoder.
+ * 
+ * Decode Queue and Send Queue are the main queues, because Opus packets are quite smaller than PCM packets.
+ * 
+ */
+
+#define OPUS_FRAME_DURATION_MS 60
+#define MAX_ENCODE_TASKS_IN_QUEUE 2
+#define MAX_PLAYBACK_TASKS_IN_QUEUE 2
+#define MAX_DECODE_PACKETS_IN_QUEUE (2400 / OPUS_FRAME_DURATION_MS)
+#define MAX_SEND_PACKETS_IN_QUEUE (2400 / OPUS_FRAME_DURATION_MS)
+#define AUDIO_TESTING_MAX_DURATION_MS 10000
+#define MAX_TIMESTAMPS_IN_QUEUE 3
+
+#define AUDIO_POWER_TIMEOUT_MS 15000
+#define AUDIO_POWER_CHECK_INTERVAL_MS 1000
+
+#define AS_EVENT_AUDIO_TESTING_RUNNING      (1 << 0)
+#define AS_EVENT_WAKE_WORD_RUNNING          (1 << 1)
+#define AS_EVENT_AUDIO_PROCESSOR_RUNNING    (1 << 2)
+#define AS_EVENT_PLAYBACK_NOT_EMPTY         (1 << 3)
+
+struct AudioServiceCallbacks {
+    std::function<void(void)> on_send_queue_available;
+    std::function<void(const std::string&)> on_wake_word_detected;
+    std::function<void(bool)> on_vad_change;
+    std::function<void(void)> on_audio_testing_queue_full;
+};
+
+enum AudioTaskType {
+    kAudioTaskTypeEncodeToSendQueue,
+    kAudioTaskTypeEncodeToTestingQueue,
+    kAudioTaskTypeDecodeToPlaybackQueue,
+};
+
+struct AudioTask {
+    AudioTaskType type;
+    std::vector<int16_t> pcm;
+    uint32_t timestamp;
+};
+
+struct DebugStatistics {
+    uint32_t input_count = 0;
+    uint32_t decode_count = 0;
+    uint32_t encode_count = 0;
+    uint32_t playback_count = 0;
+};
+
+class AudioService {
+public:
+    AudioService();
+    ~AudioService();
+
+    void Initialize(AudioCodec* codec);
+    void Start();
+    void Stop();
+    void EncodeWakeWord();
+    std::unique_ptr<AudioStreamPacket> PopWakeWordPacket();
+    const std::string& GetLastWakeWord() const;
+    bool IsVoiceDetected() const { return voice_detected_; }
+    bool IsIdle();
+    bool IsWakeWordRunning() const { return xEventGroupGetBits(event_group_) & AS_EVENT_WAKE_WORD_RUNNING; }
+    bool IsAudioProcessorRunning() const { return xEventGroupGetBits(event_group_) & AS_EVENT_AUDIO_PROCESSOR_RUNNING; }
+    bool IsAfeWakeWord();
+
+    void EnableWakeWordDetection(bool enable);
+    void EnableVoiceProcessing(bool enable);
+    void EnableAudioTesting(bool enable);
+    void EnableDeviceAec(bool enable);
+
+    void SetCallbacks(AudioServiceCallbacks& callbacks);
+
+    bool PushPacketToDecodeQueue(std::unique_ptr<AudioStreamPacket> packet, bool wait = false);
+    std::unique_ptr<AudioStreamPacket> PopPacketFromSendQueue();
+    void PlaySound(const std::string_view& sound);
+    bool ReadAudioData(std::vector<int16_t>& data, int sample_rate, int samples);
+    void ResetDecoder();
+    void SetModelsList(srmodel_list_t* models_list);
+
+private:
+    AudioCodec* codec_ = nullptr;
+    AudioServiceCallbacks callbacks_;
+    std::unique_ptr<AudioProcessor> audio_processor_;
+    std::unique_ptr<WakeWord> wake_word_;
+    std::unique_ptr<AudioDebugger> audio_debugger_;
+    std::unique_ptr<OpusEncoderWrapper> opus_encoder_;
+    std::unique_ptr<OpusDecoderWrapper> opus_decoder_;
+    OpusResampler input_resampler_;
+    OpusResampler reference_resampler_;
+    OpusResampler output_resampler_;
+    DebugStatistics debug_statistics_;
+    srmodel_list_t* models_list_ = nullptr;
+
+    EventGroupHandle_t event_group_;
+
+    // Audio encode / decode
+    TaskHandle_t audio_input_task_handle_ = nullptr;
+    TaskHandle_t audio_output_task_handle_ = nullptr;
+    TaskHandle_t opus_codec_task_handle_ = nullptr;
+    std::mutex audio_queue_mutex_;
+    std::condition_variable audio_queue_cv_;
+    std::deque<std::unique_ptr<AudioStreamPacket>> audio_decode_queue_;
+    std::deque<std::unique_ptr<AudioStreamPacket>> audio_send_queue_;
+    std::deque<std::unique_ptr<AudioStreamPacket>> audio_testing_queue_;
+    std::deque<std::unique_ptr<AudioTask>> audio_encode_queue_;
+    std::deque<std::unique_ptr<AudioTask>> audio_playback_queue_;
+    // For server AEC
+    std::deque<uint32_t> timestamp_queue_;
+
+    bool wake_word_initialized_ = false;
+    bool audio_processor_initialized_ = false;
+    bool voice_detected_ = false;
+    bool service_stopped_ = true;
+    bool audio_input_need_warmup_ = false;
+
+    esp_timer_handle_t audio_power_timer_ = nullptr;
+    std::chrono::steady_clock::time_point last_input_time_;
+    std::chrono::steady_clock::time_point last_output_time_;
+
+    void AudioInputTask();
+    void AudioOutputTask();
+    void OpusCodecTask();
+    void PushTaskToEncodeQueue(AudioTaskType type, std::vector<int16_t>&& pcm);
+    void SetDecodeSampleRate(int sample_rate, int frame_duration);
+    void CheckAndUpdateAudioPowerState();
+};
+
+#endif
+暂时无法在飞书文档外展示此内容
+flowchart TB
+    subgraph File["文件层"]
+        file["main/audio/audio_service.h"]
+    end
+
+    subgraph Submodules["Submodule 层"]
+        WakeWordManager["WakeWordManager"]
+        AudioManager["AudioManager"]
+        VoiceActivityDetector["VoiceActivityDetector"]
+        AudioTaskScheduler["AudioTaskScheduler"]
+        PacketQueueManager["PacketQueueManager"]
+        AudioResampler["AudioResampler"]
+        AudioPowerStateManager["AudioPowerStateManager"]
+        AudioTestingController["AudioTestingController"]
+        AudioProcessorHandler["AudioProcessorHandler"]
+        OpusCodecHandler["OpusCodecHandler"]
+    end
+
+    api_ww["EncodeWakeWord<br/>PopWakeWordPacket<br/>GetLastWakeWord<br/>IsWakeWordRunning<br/>IsAfeWakeWord<br/>EnableWakeWordDetection<br/>SetModelsList"]
+    api_am["AudioService<br/>~AudioService<br/>Initialize<br/>Start<br/>Stop<br/>IsIdle<br/>PlaySound<br/>ReadAudioData<br/>SetCallbacks<br/>EnableDeviceAec"]
+    api_vad["IsVoiceDetected<br/>EnableVoiceProcessing"]
+    api_ats["AudioInputTask<br/>AudioOutputTask<br/>OpusCodecTask<br/>PushTaskToEncodeQueue"]
+    api_pqm["PushPacketToDecodeQueue<br/>PopPacketFromSendQueue<br/>ResetDecoder"]
+    api_ar["SetDecodeSampleRate"]
+    api_aps["CheckAndUpdateAudioPowerState"]
+    api_atc["EnableAudioTesting"]
+    api_aph["IsAudioProcessorRunning"]
+    api_och["—"]
+
+    file --> WakeWordManager
+    file --> AudioManager
+    file --> VoiceActivityDetector
+    file --> AudioTaskScheduler
+    file --> PacketQueueManager
+    file --> AudioResampler
+    file --> AudioPowerStateManager
+    file --> AudioTestingController
+    file --> AudioProcessorHandler
+    file --> OpusCodecHandler
+
+    WakeWordManager --> api_ww
+    AudioManager --> api_am
+    VoiceActivityDetector --> api_vad
+    AudioTaskScheduler --> api_ats
+    PacketQueueManager --> api_pqm
+    AudioResampler --> api_ar
+    AudioPowerStateManager --> api_aps
+    AudioTestingController --> api_atc
+    AudioProcessorHandler --> api_aph
+    OpusCodecHandler --> api_och
+上述两个文件子模块间的关联
+
+作用示例
+拆解的目的在于使得原本的文件关联变得更加清晰解耦：比如原本可能的关联只是单纯的 mcp_server 和 application 互相依赖 ->两个功能耦合;
+result: ['main\\application.h:AudioManager -> main\\mcp_server.h:ToolRegistry', 'main\\application.h:EventHandler -> main\\mcp_server.h:ToolRegistry', 'main\\application.h:AlertManager -> main\\mcp_server.h:ToolRegistry', 'main\\application.h:NetworkManager -> main\\mcp_server.h:ToolRegistry', 'main\\application.h:SystemController -> main\\mcp_server.h:ToolRegistry', 'main\\mcp_server.h:ToolRegistry -> main\\application.h:SystemController']
+实际上只是 mcp_server 中的 ToolRegistry与application.h中的SystemController模块相耦合；
+暂时无法在飞书文档外展示此内容
+flowchart TB
+    subgraph application["main/application.h"]
+        AudioManager
+        EventHandler
+        AlertManager
+        NetworkManager
+        SystemController
+    end
+    
+    subgraph mcp_server["main/mcp_server.h"]
+        ToolRegistry
+    end
+    
+    AudioManager --> ToolRegistry
+    EventHandler --> ToolRegistry
+    AlertManager --> ToolRegistry
+    NetworkManager --> ToolRegistry
+    SystemController --> ToolRegistry
+    ToolRegistry --> SystemController
+函数级别
+单个函数承担了太多的功能以及作用，实际复用时仅需要其中的一小部分，然而却提供了整个函数，导致函数的复用率很差；
+prompt
+   "function_flow_decompose": """As a professional software engineer, please:
+
+1. First judge: if the given function itself already constitutes a single, independent, well-defined control flow or data flow (one clear responsibility, self-contained), then output no nodes—use an empty list: nodes: [].
+2. Otherwise, according to the Single Responsibility Principle, analyze the function and identify distinct execution/control-flow blocks that could be extracted as reusable sub-flows (e.g., validation, transformation, I/O, error handling). Focus on control flow and execution semantics, not API clustering.
+3. Each decomposed flow MUST be a complete control flow or data flow—self-contained and usable as an independent, well-defined functionality (with clear inputs, outputs, and behavior). Do not output partial or fragmentary flows that depend on inlined context from the original function.
+4. For each such flow, construct it as a new node. The goal is to improve reusability by decomposing a coupled function into smaller, single-responsibility flows that can stand alone.
+5. In the output, include the list of outgoing_functions_label that are involved in (called by) each decomposed sub-flow—i.e. which of the given function labels are referenced/called in which sub-flow.
+
+outgoing_functions_label: list of function names/symbols that may be called from this function (for reference when decomposing)
+{outgoing_functions_label}
+
+function_name: {function_name}
+function_body:
+{function_body}
+
+Please output your results in YAML format inside the ```yaml ``` mark.
+nodes: Use nodes: [] when the function is already independent and needs no decomposition.
+  - id: SubFlowName
+  - code: "// comment\\n#if CONFIG_FOO\\n  do_something();\\n#endif"
+  - involved_functions: list of function labels from the input outgoing_functions_label that are involved in this sub-flow (only those actually called/referenced in the sub-flow)
+""",
+不需要拆解
+ single, independent, well-defined control flow or data flow
+AfeWakeWord::AfeWakeWord()
+    : afe_data_(nullptr),
+      wake_word_pcm_(),
+      wake_word_opus_() {
+
+    event_group_ = xEventGroupCreate();
+}
+
+AfeWakeWord::~AfeWakeWord() {
+    if (afe_data_ != nullptr) {
+        afe_iface_->destroy(afe_data_);
+    }
+
+    if (wake_word_encode_task_stack_ != nullptr) {
+        heap_caps_free(wake_word_encode_task_stack_);
+    }
+
+    if (wake_word_encode_task_buffer_ != nullptr) {
+        heap_caps_free(wake_word_encode_task_buffer_);
+    }
+
+    if (models_ != nullptr) {
+        esp_srmodel_deinit(models_);
+    }
+
+    vEventGroupDelete(event_group_);
+}
+需要拆解
+包含很多相对独立的执行流/控制流
+bool AfeWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) {
+    codec_ = codec;
+    int ref_num = codec_->input_reference() ? 1 : 0;
+
+    if (models_list == nullptr) {
+        models_ = esp_srmodel_init("model");
+    } else {
+        models_ = models_list;
+    }
+
+    if (models_ == nullptr || models_->num == -1) {
+        ESP_LOGE(TAG, "Failed to initialize wakenet model");
+        return false;
+    }
+    for (int i = 0; i < models_->num; i++) {
+        ESP_LOGI(TAG, "Model %d: %s", i, models_->model_name[i]);
+        if (strstr(models_->model_name[i], ESP_WN_PREFIX) != NULL) {
+            wakenet_model_ = models_->model_name[i];
+            auto words = esp_srmodel_get_wake_words(models_, wakenet_model_);
+            // split by ";" to get all wake words
+            std::stringstream ss(words);
+            std::string word;
+            while (std::getline(ss, word, ';')) {
+                wake_words_.push_back(word);
+            }
+        }
+    }
+
+    std::string input_format;
+    for (int i = 0; i < codec_->input_channels() - ref_num; i++) {
+        input_format.push_back('M');
+    }
+    for (int i = 0; i < ref_num; i++) {
+        input_format.push_back('R');
+    }
+    afe_config_t* afe_config = afe_config_init(input_format.c_str(), models_, AFE_TYPE_SR, AFE_MODE_HIGH_PERF);
+    afe_config->aec_init = codec_->input_reference();
+    afe_config->aec_mode = AEC_MODE_SR_HIGH_PERF;
+    afe_config->afe_perferred_core = 1;
+    afe_config->afe_perferred_priority = 1;
+    afe_config->memory_alloc_mode = AFE_MEMORY_ALLOC_MORE_PSRAM;
+    
+    afe_iface_ = esp_afe_handle_from_config(afe_config);
+    afe_data_ = afe_iface_->create_from_config(afe_config);
+
+    xTaskCreate([](void* arg) {
+        auto this_ = (AfeWakeWord*)arg;
+        this_->AudioDetectionTask();
+        vTaskDelete(NULL);
+    }, "audio_detection", 4096, this, 3, nullptr);
+
+    return true;
+}
+afe_wake_word.cc:Initialize拆分成了对应的几个功能；
+暂时无法在飞书文档外展示此内容
+flowchart TB
+    subgraph afe_wake_word["afe_wake_word.cc"]
+        Init["Initialize(AudioCodec *, srmodel_list_t *)"]
+        Init --> InitWakenet["InitializeWakenetModel"]
+        Init --> ParseWW["ParseWakeWords"]
+        Init --> ConfigAF["ConfigureAudioFormat"]
+        Init --> SetupAFE["SetupAFEConfiguration"]
+        Init --> LaunchAD["LaunchAudioDetectionTask"]
+    end
+作用示例
+当提供的
+知识图谱
+代码仓库总览
+代码仓库下的atk-dnesp32s3相关代码（去除了audio中和board中和atk-dnesp32s3无关的代码部分）
+暂时无法在飞书文档外展示此内容
+
+graph TD
+    A[Application主应用层] --> B[事件组EventGroup]
+    A --> C[任务队列Schedule]
+    A --> D[DeviceStateMachine状态机]
+    A --> E[AudioService音频服务]
+    A --> F[Protocol网络协议]
+    
+    E --> |唤醒回调| B
+    E --> |VAD回调| B
+    E --> |发送队列可用| B
+    
+    F --> |JSON消息回调| A
+    F --> |音频数据回调| E
+    F --> |通道状态回调| A
+    
+    D --> |状态变化回调| B
+    
+    B --> |事件触发| A
+    A --> |状态更新| G[Display显示]
+    A --> |状态更新| H[LED指示灯]
+    A --> |MCP消息| I[McpServer]
+    
+    I --> |工具调用| J[Camera相机]
+    I --> |工具调用| K[Board硬件层]
+    
+    K --> |提供接口| G
+    K --> |提供接口| H
+    K --> |提供接口| J
+    K --> |提供接口| E
+    K --> |提供接口| F
+源数据统计
+583个函数; 65个头文件；
+拆解了多少文件：31 -> 129
+拆解了多少函数：70 -> 318
+文件信息
+main\audio\wake_words\afe_wake_word.h:60
+main\audio\wake_words\custom_wake_word.h:69
+main\audio\wake_words\esp_wake_word.h:42
+main\audio\wake_word.h:26
+main\audio\processors\afe_audio_processor.h:45
+main\audio\processors\audio_debugger.h:22
+main\audio\processors\no_audio_processor.h:33
+main\audio\audio_codec.h:61
+main\audio\audio_processor.h:26
+main\audio\audio_service.h:161
+main\audio\codecs\box_audio_codec.h:40
+main\audio\codecs\dummy_audio_codec.h:16
+main\audio\codecs\es8311_audio_codec.h:42
+main\audio\codecs\es8374_audio_codec.h:41
+main\audio\codecs\es8388_audio_codec.h:40
+main\audio\codecs\es8389_audio_codec.h:40
+main\audio\codecs\no_audio_codec.h:39
+main\assets.h:52
+main\application.h:186
+main\device_state.h:18
+main\device_state_machine.h:83
+main\led\circular_strip.h:51
+main\led\gpio_led.h:49
+main\led\led.h:17
+main\led\single_led.h:38
+main\mcp_server.h:344
+main\ota.h:58
+main\protocols\mqtt_protocol.h:65
+main\protocols\protocol.h:98
+main\protocols\websocket_protocol.h:34
+main\settings.h:28
+main\system_info.h:22
+main\display\display.h:81
+main\display\emote_display.h:102
+main\display\lcd_display.h:85
+main\display\lvgl_display\emoji_collection.h:34
+main\display\lvgl_display\gif\gifdec.h:68
+main\display\lvgl_display\gif\gifdec_mve.h:140
+main\display\lvgl_display\gif\lvgl_gif.h:101
+main\display\lvgl_display\jpg\image_to_jpeg.h:70
+main\display\lvgl_display\jpg\jpeg_to_image.h:62
+main\display\lvgl_display\lvgl_display.h:53
+main\display\lvgl_display\lvgl_font.h:31
+main\display\lvgl_display\lvgl_image.h:53
+main\display\lvgl_display\lvgl_theme.h:94
+main\display\oled_display.h:40
+main\boards\common\adc_battery_monitor.h:30
+main\boards\common\afsk_demod.h:177
+main\boards\common\axp2101.h:20
+main\boards\common\backlight.h:36
+main\boards\common\board.h:92
+main\boards\common\button.h:49
+main\boards\common\camera.h:15
+main\boards\common\dual_network_board.h:60
+main\boards\common\esp32_camera.h:56
+main\boards\common\i2c_device.h:18
+main\boards\common\knob.h:25
+main\boards\common\lamp_controller.h:44
+main\boards\common\ml307_board.h:38
+main\boards\common\power_save_timer.h:34
+main\boards\common\press_to_talk_mcp_tool.h:29
+main\boards\common\sleep_timer.h:32
+main\boards\common\sy6970.h:21
+main\boards\common\system_reset.h:21
+main\boards\common\wifi_board.h:69
+main\audio\wake_words\afe_wake_word.cc:208
+main\audio\wake_words\custom_wake_word.cc:254
+main\audio\wake_words\esp_wake_word.cc:87
+main\audio\processors\audio_debugger.cc:68
+main\audio\processors\no_audio_processor.cc:59
+main\audio\processors\afe_audio_processor.cc:187
+main\audio\codecs\es8388_audio_codec.cc:221
+main\audio\codecs\no_audio_codec.cc:359
+main\audio\codecs\es8389_audio_codec.cc:204
+main\audio\codecs\es8374_audio_codec.cc:198
+main\audio\codecs\es8311_audio_codec.cc:197
+main\audio\codecs\box_audio_codec.cc:245
+main\audio\codecs\dummy_audio_codec.cc:20
+main\audio\audio_codec.cc:77
+main\audio\audio_service.cc:686
+main\system_info.cc:151
+main\settings.cc:108
+main\ota.cc:473
+main\main.cc:30
+main\device_state_machine.cc:161
+main\assets.cc:532
+main\application.cc:1055
+main\mcp_server.cc:563
+main\display\display.cc:56
+main\display\lcd_display.cc:1196
+main\display\oled_display.cc:396
+main\display\lvgl_display\lvgl_theme.cc:30
+main\display\lvgl_display\lvgl_image.cc:64
+main\display\lvgl_display\lvgl_font.cc:13
+main\display\lvgl_display\lvgl_display.cc:258
+main\display\lvgl_display\gif\lvgl_gif.cc:208
+main\display\lvgl_display\emoji_collection.cc:123
+main\display\emote_display.cc:658
+main\led\single_led.cc:163
+main\led\gpio_led.cc:263
+main\led\circular_strip.cc:233
+main\boards\common\blufi.cpp:777
+main\boards\common\wifi_board.cc:359
+main\boards\common\i2c_device.cc:35
+main\boards\common\button.cc:125
+main\boards\common\board.cc:178
+main\boards\common\backlight.cc:121
+main\boards\common\afsk_demod.cc:375
+main\boards\common\esp32_camera.cc:1039
+main\boards\common\ml307_board.cc:274
+main\boards\common\dual_network_board.cc:98
+main\boards\common\adc_battery_monitor.cc:116
+main\boards\common\sy6970.cc:65
+main\boards\common\sleep_timer.cc:133
+main\boards\common\press_to_talk_mcp_tool.cc:57
+main\boards\common\power_save_timer.cc:132
+main\boards\common\system_reset.cc:72
+main\boards\common\axp2101.cc:41
+main\boards\common\knob.cc:52
+main\boards\atk-dnesp32s3\atk_dnesp32s3.cc:225
+main\protocols\mqtt_protocol.cc:382
+main\protocols\protocol.cc:90
+main\protocols\websocket_protocol.cc:348
+静态代码分析图谱：
+暂时无法在飞书文档外展示此内容
+flowchart TB
+  subgraph files["file"]
+    F1["afe_wake_word.h"]
+    F2["custom_wake_word.h"]
+  end
+
+  subgraph funcs["function"]
+    A["AfeWakeWord"]
+    A2["~AfeWakeWord"]
+    A3["Initialize"]
+    A4["AudioDetectionTask"]
+    A5["Feed"]
+    A6["OnWakeWordDetected"]
+    A7["Start"]
+    A8["Stop"]
+    A9["GetFeedSize"]
+    A10["GetLastDetectedWakeWord"]
+    E1["EncodeWakeWordData"]
+    E2["GetWakeWordOpus"]
+    E3["StoreWakeWordData"]
+  end
+
+  F1 -->|contains| A
+  F1 -->|contains| A2
+  F1 -->|contains| A3
+  F1 -->|contains| A4
+  F1 -->|contains| A5
+  F1 -->|contains| A6
+  F1 -->|contains| A7
+  F1 -->|contains| A8
+  F1 -->|contains| A9
+  F1 -->|contains| E1
+  F1 -->|contains| E2
+  F1 -->|contains| E3
+
+  A -->|depends_on| A2
+  A2 -->|depends_on| A3
+  A3 -->|depends_on| A4
+  A4 -->|depends_on| A8
+  A5 -->|depends_on| A6
+  A7 -->|depends_on| A9
+  E1 -->|depends_on| E2
+  E2 -->|depends_on| E3
+TEvox构建的知识图谱（精简版）：
+暂时无法在飞书文档外展示此内容
+TEvox提取出的知识图谱
+--- 从种子出发的树状视图 (depth=4) ---
+main\audio\wake_words\afe_wake_word.h  [file]
+    -> main\audio\wake_words\afe_wake_word.h:WakeWordDet...  [contains]
+  main\audio\wake_words\afe_wake_word.h:WakeWordDetector  [submodule]
+      -> afe_wake_word.h:AfeWakeWord()  [contains]
+    afe_wake_word.h:AfeWakeWord()  [function]
+      -> afe_wake_word.h:~AfeWakeWord()  [contains]
+    afe_wake_word.h:~AfeWakeWord()  [function]
+      -> afe_wake_word.h:Initialize(AudioCodec *, srmodel_...  [contains]
+    afe_wake_word.h:Initialize(AudioCodec *, srmodel_list_t *)  [function]
+        -> afe_wake_word.h:AudioDetectionTask()  [depends_on]
+      afe_wake_word.h:AudioDetectionTask()  [function]
+          -> afe_audio_processor.h:Stop()  [depends_on]
+        afe_audio_processor.h:Stop()  [function]
+          -> afe_wake_word.h:Stop()  [depends_on]
+        afe_wake_word.h:Stop()  [function]
+          -> audio_processor.h:Stop()  [depends_on]
+        audio_processor.h:Stop()  [function]
+          -> audio_service.h:Stop()  [depends_on]
+        audio_service.h:Stop()  [function]
+          -> custom_wake_word.h:Stop()  [depends_on]
+        custom_wake_word.h:Stop()  [function]
+          -> esp_wake_word.h:Stop()  [depends_on]
+        esp_wake_word.h:Stop()  [function]
+          -> lvgl_gif.h:Stop()  [depends_on]
+        lvgl_gif.h:Stop()  [function]
+          -> no_audio_processor.h:Stop()  [depends_on]
+        no_audio_processor.h:Stop()  [function]
+          -> wake_word.h:Stop()  [depends_on]
+        wake_word.h:Stop()  [function]
+        -> func:afe_wake_word.cc:Initialize(AudioCodec *, sr...  [contains]
+      func:afe_wake_word.cc:Initialize(AudioCodec *, srmodel_li...  [flow]
+        -> func:afe_wake_word.cc:Initialize(AudioCodec *, sr...  [contains]
+      func:afe_wake_word.cc:Initialize(AudioCodec *, srmodel_li...  [flow]
+        -> func:afe_wake_word.cc:Initialize(AudioCodec *, sr...  [contains]
+      func:afe_wake_word.cc:Initialize(AudioCodec *, srmodel_li...  [flow]
+        -> func:afe_wake_word.cc:Initialize(AudioCodec *, sr...  [contains]
+      func:afe_wake_word.cc:Initialize(AudioCodec *, srmodel_li...  [flow]
+        -> func:afe_wake_word.cc:Initialize(AudioCodec *, sr...  [contains]
+      func:afe_wake_word.cc:Initialize(AudioCodec *, srmodel_li...  [flow]
+      -> custom_wake_word.h:Initialize(AudioCodec *, srmod...  [contains]
+    custom_wake_word.h:Initialize(AudioCodec *, srmodel_list_...  [function]
+        -> func:custom_wake_word.cc:Initialize(AudioCodec *,...  [contains]
+      func:custom_wake_word.cc:Initialize(AudioCodec *, srmodel...  [flow]
+        -> func:custom_wake_word.cc:Initialize(AudioCodec *,...  [contains]
+      func:custom_wake_word.cc:Initialize(AudioCodec *, srmodel...  [flow]
+        -> func:custom_wake_word.cc:Initialize(AudioCodec *,...  [contains]
+      func:custom_wake_word.cc:Initialize(AudioCodec *, srmodel...  [flow]
+      -> esp_wake_word.h:Initialize(AudioCodec *, srmodel_...  [contains]
+    esp_wake_word.h:Initialize(AudioCodec *, srmodel_list_t *)  [function]
+      -> wake_word.h:Initialize(AudioCodec *, srmodel_list...  [contains]
+    wake_word.h:Initialize(AudioCodec *, srmodel_list_t *)  [function]
+      -> afe_wake_word.h:Feed(const std::vector<int16_t>&)  [contains]
+    afe_wake_word.h:Feed(const std::vector<int16_t>&)  [function]
+      -> audio_debugger.h:Feed(const std::vector<int16_t>&)  [contains]
+    audio_debugger.h:Feed(const std::vector<int16_t>&)  [function]
+      -> custom_wake_word.h:Feed(const std::vector<int16_t>&)  [contains]
+    custom_wake_word.h:Feed(const std::vector<int16_t>&)  [function]
+        -> func:custom_wake_word.cc:Feed(const std::vector<i...  [contains]
+      func:custom_wake_word.cc:Feed(const std::vector<int16_t>&...  [flow]
+        -> func:custom_wake_word.cc:Feed(const std::vector<i...  [contains]
+      func:custom_wake_word.cc:Feed(const std::vector<int16_t>&...  [flow]
+      -> esp_wake_word.h:Feed(const std::vector<int16_t>&)  [contains]
+    esp_wake_word.h:Feed(const std::vector<int16_t>&)  [function]
+      -> wake_word.h:Feed(const std::vector<int16_t>&)  [contains]
+    wake_word.h:Feed(const std::vector<int16_t>&)  [function]
+      -> afe_wake_word.h:OnWakeWordDetected(std::function<...  [contains]
+    afe_wake_word.h:OnWakeWordDetected(std::function<void(con...  [function]
+      -> custom_wake_word.h:OnWakeWordDetected(std::functi...  [contains]
+    custom_wake_word.h:OnWakeWordDetected(std::function<void(...  [function]
+      -> esp_wake_word.h:OnWakeWordDetected(std::function<...  [contains]
+    esp_wake_word.h:OnWakeWordDetected(std::function<void(con...  [function]
+      -> wake_word.h:OnWakeWordDetected(std::function<void...  [contains]
+    wake_word.h:OnWakeWordDetected(std::function<void(const s...  [function]
+      -> afe_audio_processor.h:Start()  [contains]
+    afe_audio_processor.h:Start()  [function]
+      -> afe_wake_word.h:Start()  [contains]
+    afe_wake_word.h:Start()  [function]
+      -> audio_codec.h:Start()  [contains]
+    audio_codec.h:Start()  [function]
+      -> audio_processor.h:Start()  [contains]
+    audio_processor.h:Start()  [function]
+      -> audio_service.h:Start()  [contains]
+    audio_service.h:Start()  [function]
+      -> custom_wake_word.h:Start()  [contains]
+    custom_wake_word.h:Start()  [function]
+      -> esp_wake_word.h:Start()  [contains]
+    esp_wake_word.h:Start()  [function]
+      -> lvgl_gif.h:Start()  [contains]
+    lvgl_gif.h:Start()  [function]
+      -> mqtt_protocol.h:Start()  [contains]
+    mqtt_protocol.h:Start()  [function]
+      -> no_audio_processor.h:Start()  [contains]
+    no_audio_processor.h:Start()  [function]
+      -> protocol.h:Start()  [contains]
+    protocol.h:Start()  [function]
+      -> wake_word.h:Start()  [contains]
+    wake_word.h:Start()  [function]
+      -> websocket_protocol.h:Start()  [contains]
+    websocket_protocol.h:Start()  [function]
+      -> afe_audio_processor.h:GetFeedSize()  [contains]
+    afe_audio_processor.h:GetFeedSize()  [function]
+      -> afe_wake_word.h:GetFeedSize()  [contains]
+    afe_wake_word.h:GetFeedSize()  [function]
+      -> audio_processor.h:GetFeedSize()  [contains]
+    audio_processor.h:GetFeedSize()  [function]
+      -> custom_wake_word.h:GetFeedSize()  [contains]
+    custom_wake_word.h:GetFeedSize()  [function]
+      -> esp_wake_word.h:GetFeedSize()  [contains]
+    esp_wake_word.h:GetFeedSize()  [function]
+      -> no_audio_processor.h:GetFeedSize()  [contains]
+    no_audio_processor.h:GetFeedSize()  [function]
+      -> wake_word.h:GetFeedSize()  [contains]
+    wake_word.h:GetFeedSize()  [function]
+      -> afe_wake_word.h:GetLastDetectedWakeWord() const  [contains]
+    afe_wake_word.h:GetLastDetectedWakeWord() const  [function]
+      -> custom_wake_word.h:GetLastDetectedWakeWord() const  [contains]
+    custom_wake_word.h:GetLastDetectedWakeWord() const  [function]
+      -> esp_wake_word.h:GetLastDetectedWakeWord() const  [contains]
+    esp_wake_word.h:GetLastDetectedWakeWord() const  [function]
+      -> wake_word.h:GetLastDetectedWakeWord() const  [contains]
+    wake_word.h:GetLastDetectedWakeWord() const  [function]
+    -> main\audio\wake_words\afe_wake_word.h:WakeWordEnc...  [contains]
+  main\audio\wake_words\afe_wake_word.h:WakeWordEncoder  [submodule]
+      -> afe_wake_word.h:EncodeWakeWordData()  [contains]
+    afe_wake_word.h:EncodeWakeWordData()  [function]
+        -> func:afe_wake_word.cc:EncodeWakeWordData()::Initi...  [contains]
+      func:afe_wake_word.cc:EncodeWakeWordData()::InitializeWak...  [flow]
+        -> func:afe_wake_word.cc:EncodeWakeWordData()::Creat...  [contains]
+      func:afe_wake_word.cc:EncodeWakeWordData()::CreateAndLaun...  [flow]
+      -> custom_wake_word.h:EncodeWakeWordData()  [contains]
+    custom_wake_word.h:EncodeWakeWordData()  [function]
+      -> esp_wake_word.h:EncodeWakeWordData()  [contains]
+    esp_wake_word.h:EncodeWakeWordData()  [function]
+      -> wake_word.h:EncodeWakeWordData()  [contains]
+    wake_word.h:EncodeWakeWordData()  [function]
+      -> afe_wake_word.h:GetWakeWordOpus(std::vector<uint8...  [contains]
+    afe_wake_word.h:GetWakeWordOpus(std::vector<uint8_t>&)  [function]
+      -> custom_wake_word.h:GetWakeWordOpus(std::vector<ui...  [contains]
+    custom_wake_word.h:GetWakeWordOpus(std::vector<uint8_t>&)  [function]
+      -> esp_wake_word.h:GetWakeWordOpus(std::vector<uint8...  [contains]
+    esp_wake_word.h:GetWakeWordOpus(std::vector<uint8_t>&)  [function]
+      -> wake_word.h:GetWakeWordOpus(std::vector<uint8_t>&)  [contains]
+    wake_word.h:GetWakeWordOpus(std::vector<uint8_t>&)  [function]
+      -> afe_wake_word.h:StoreWakeWordData(const int16_t *...  [contains]
+    afe_wake_word.h:StoreWakeWordData(const int16_t *, size_t)  [function]
+知识图谱的四层结构的说明
+# 代码知识图谱的四层架构：学术化说明与树状视图示例
+
+## 一、四层架构定义
+
+本图谱采用**分层抽象**的代码知识表示：从“文件–模块–函数–流程”四个粒度组织节点，并用 **contains**（包含）与 **depends_on**（依赖/调用）两类边刻画结构关系与调用关系。
+
+1. **文件层（File Layer）**  
+   节点对应源码文件（如头文件、源文件），是图谱的顶层组织单元，表示“物理边界”和“编译单元”。
+
+2. **子模块层（Submodule Layer）**  
+   节点对应文件内由功能分解得到的逻辑模块（如类、组件、职责块），表示“逻辑边界”和“功能内聚”。
+
+3. **函数层（Function Layer）**  
+   节点对应可调用实体（函数、方法），表示“调用边界”和静态分析中的调用关系。
+
+4. **流程层（Flow Layer）**  
+   节点对应函数内由控制流/数据流分解得到的逻辑步骤（代码块、段落），表示“执行顺序”和细粒度依赖。
+
+四层之间通过 **contains** 形成“文件 ⊃ 子模块 ⊃ 函数 ⊃ 流程”的层次包含；**depends_on** 则在函数层内部、以及流程对函数的依赖上表达调用与数据依赖，从而在统一图谱中同时表达**结构层次**与**依赖/调用关系**。
+
+---
+
+## 二、树状视图中的对应关系
+
+以下用您提供的树状视图（以 `main\audio\wake_words\afe_wake_word.h` 为根）说明四层及边在实例中的体现。
+
+### 2.1 文件层 → 子模块层（contains）
+
+- **文件层节点**：`main\audio\wake_words\afe_wake_word.h` [file]。  
+- **子模块层节点**：其两个后继 `WakeWordDetector`、`WakeWordEncoder` [submodule]，边类型均为 **contains**。  
+- **学术表述**：文件作为顶层单元，通过 contains 边将“声明的逻辑模块”归属到自身，形成“一文件多子模块”的 1∶N 包含关系；子模块层对文件层构成**结构分解**的第一级。
+
+### 2.2 子模块层 → 函数层（contains）
+
+- **WakeWordDetector** 的 contains 后继包括：`AfeWakeWord()`、`~AfeWakeWord()`、`Initialize(...)`、`AudioDetectionTask()`、`Feed(...)`、`OnWakeWordDetected(...)`、`Start()`、`GetFeedSize()`、`GetLastDetectedWakeWord()` 等 [function]。  
+- **WakeWordEncoder** 的 contains 后继包括：`EncodeWakeWordData()`、`GetWakeWordOpus(...)`、`StoreWakeWordData(...)` 等 [function]。  
+- **学术表述**：子模块通过 contains 边将“其职责范围内的函数/方法”归属到自身，形成“一子模块多函数”的 1∶N 包含关系；函数层对子模块层构成**功能实现**的显式绑定，便于做“模块–函数”级别的静态分析。
+
+### 2.3 函数层内部（depends_on）
+
+- 树中可见：`Initialize(...)` —depends_on→ `AudioDetectionTask()`，`AudioDetectionTask()` —depends_on→ `afe_audio_processor.h:Stop()`，再经多步 depends_on 到 `wake_word.h:Stop()` 等。  
+- **学术表述**：函数层内 **depends_on** 表示**跨文件的调用/依赖关系**（由静态分析得到），形成有向调用图；同一子模块下的多函数通过 depends_on 与其它文件的函数相连，体现“模块内入口函数 → 内部/外部被调用函数”的调用链，可用于影响分析、变更传播等。
+
+### 2.4 函数层 → 流程层（contains）
+
+- 树中可见：`Initialize(...)` —contains→ `func:afe_wake_word.cc:Initialize(...)` [flow]，该 flow 再 —contains→ 多个子 flow（如 InitializeWakenetModel、ParseWakeWords、ConfigureAudioFormat、SetupAFEConfiguration、LaunchAudioDetection）；`EncodeWakeWordData()` —contains→ `EncodeWakeWordData::Initialize...` —contains→ `EncodeWakeWordData::CreateAndLaunch...`。  
+- **学术表述**：函数通过 contains 边将“其体内的逻辑段落/步骤”归属为若干 flow 节点，形成“一函数多流程”的 1∶N 包含关系；流程层对函数层构成**控制流/数据流的分解**，便于做过程内分析（如切片、依赖链）。
+
+### 2.5 流程层对函数层的依赖（depends_on）
+
+- 流程节点的 **involved_functions** 会生成 flow —depends_on→ function 的边（树状视图中若展开会看到 flow 依赖具体函数）。  
+- **学术表述**：流程层通过 depends_on 指向函数层，表示**步骤对函数的调用/依赖**，从而在细粒度上把“执行步骤”与“可调用实体”联系起来，支持过程内依赖与跨函数影响分析。
+
+---
+
+## 三、小结：四层在树状视图中的角色
+
+| 层次     | 在树状视图中的实例                         | 与上下层的关系                         |
+|----------|--------------------------------------------|----------------------------------------|
+| 文件层   | `afe_wake_word.h`                          | 顶层；contains 子模块                  |
+| 子模块层 | WakeWordDetector, WakeWordEncoder          | 被文件 contains；contains 函数        |
+| 函数层   | AfeWakeWord, Initialize, Feed, Stop, …     | 被子模块 contains；contains 流程；depends_on 其他函数 |
+| 流程层   | Initialize::InitializeWakenetModel, …       | 被函数 contains；depends_on 函数      |
+
+因此，**四层架构**在您提供的树状视图中体现为：以**文件**为根的结构包含树（file → submodule → function → flow），叠加**函数间 depends_on** 与**流程对函数的 depends_on**，在单一图谱中同时表达“谁属于谁”的层次与“谁依赖谁”的静态分析关系，便于做多粒度的代码理解、检索与影响分析。

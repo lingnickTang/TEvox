@@ -1,0 +1,47 @@
+# ATK-DNESP32S3 板子一定使用的文件列表
+# 每行一个文件路径，相对路径从代码仓库根目录开始
+
+# 核心文件（全部使用）
+main/application.cc
+main/assets.cc
+main/device_state_machine.cc
+main/main.cc
+main/mcp_server.cc
+main/ota.cc
+main/settings.cc
+main/system_info.cc
+
+# 音频编解码器
+main/audio/audio_codec.cc
+main/audio/audio_service.cc
+main/audio/codecs/es8388_audio_codec.cc
+
+# 音频处理器
+main/audio/processors/audio_debugger.cc
+
+# 唤醒词
+main/audio/wake_words/afe_wake_word.cc
+main/audio/wake_words/custom_wake_word.cc
+
+# 板级文件
+main/boards/atk-dnesp32s3/atk_dnesp32s3.cc
+main/boards/common/afsk_demod.cc
+main/boards/common/backlight.cc
+main/boards/common/board.cc
+main/boards/common/button.cc
+main/boards/common/esp32_camera.cc
+main/boards/common/i2c_device.cc
+main/boards/common/wifi_board.cc
+
+# 显示相关
+main/display/display.cc
+main/display/lcd_display.cc
+
+# LED 相关
+main/led/single_led.cc
+
+# 协议（全部使用）
+main/protocols/mqtt_protocol.cc
+main/protocols/protocol.cc
+main/protocols/websocket_protocol.cc
+
